@@ -1,0 +1,193 @@
+ARVI — LLM CONTEXT FILE
+=======================
+Version: 5.0
+Updated: 2026-03-22
+Agent name: Pantera
+Builder: Valentín Martínez / Pantera Labs
+Hackathon: Synthesis Hackathon 2026
+
+---
+
+WHAT IS ARVI
+------------
+ARVI (Agentic Regeneration Via Intelligence) is an autonomous environmental
+intelligence system. It deploys IoT sensor nodes in forests, rivers, and soil.
+An AI agent reads every sensor reading, detects threats using LLM analysis,
+logs events onchain, and triggers automatic USDC payments to node operators.
+
+No human in the loop. The agent acts in under 2 seconds.
+
+ARVI is NOT:
+- A dashboard (dashboards don't act)
+- An environmental NGO platform (not grant-dependent)
+- A general monitoring tool (it executes, not just reports)
+
+ARVI IS:
+- An autonomous intelligence layer between environmental signals and action
+- The 4th step in a research trajectory: REMBU → SEN → AONA → ARVI
+- The first system that detects forest threats AND pays responders automatically
+
+---
+
+CORE LOOP (technical)
+---------------------
+1. Sensor node reads: temperature, humidity, CO2, soil moisture, AQI,
+   biodiversity score (audio), pathogen risk (AI model), canopy density
+2. POST /api/analyze { node_id }
+3. lib/bankr.ts → Bankr LLM Gateway (gemini-2.5-flash) analyzes all fields
+4. Returns: severity, alert_type, description, recommended_action, confidence
+5. lib/locus.ts → triggers USDC payment to operator wallet
+6. lib/agent-log.ts → appends to agent_log.json (onchain evidence)
+
+---
+
+SENSOR DATA SCHEMA (what makes nodes special vs free APIs)
+----------------------------------------------------------
+Field                 | Source              | vs Open-Meteo
+----------------------|---------------------|---------------
+temperature_c         | Canopy-level sensor | City avg only
+humidity_pct          | Root zone           | Ambient only
+co2_ppm               | Air column          | Not available
+soil_moisture_pct     | Underground 30-60cm | Not available
+air_quality_index     | Canopy PM2.5/PM10   | Station avg
+biodiversity_score    | Audio sensor        | Not available
+pathogen_risk         | AI multi-model      | Not available
+canopy_density_pct    | Visual sensor       | Not available
+uv_index              | Canopy base         | City avg
+operator_wallet       | Ethereum address    | N/A
+lat, lon              | GPS                 | City-level
+
+---
+
+ACTIVE NODES (CDMX)
+-------------------
+node-01: Bosque de Chapultepec [19.4133, -99.1905]
+  health: 0.34 | status: CRITICAL | alert: probable_plague
+  operator: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+  payment: 8.5 USDC
+
+node-02: Alameda Central [19.4360, -99.1508]
+  health: 0.71 | status: medium | alert: monitoring
+  operator: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+  payment: 3 USDC
+
+node-03: Tlatelolco [19.4528, -99.1388]
+  health: 0.52 | status: high | alert: drought_stress
+  operator: 0x90F79bf6EB2c4f870365E785982E1f101E93b906
+  payment: 5 USDC
+
+---
+
+ONCHAIN IDENTITY
+----------------
+ERC-8004 TX: 0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a
+Chain: Base Mainnet
+Agent name: Pantera
+agent.json: https://github.com/ValenteCreativo/ARVI/blob/main/agent.json
+agent_log.json: https://github.com/ValenteCreativo/ARVI/blob/main/agent_log.json
+
+---
+
+SMART CONTRACTS (EVVM — Anvil local, chain 31337)
+--------------------------------------------------
+Core:        0x8A791620dd6260079BF849Dc5567aDC3F2FdC318
+Staking:     0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6
+Estimator:   0x610178dA211FEF7D417bC0e6FeD39F05609AD788
+NameService: 0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e
+Treasury:    0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82
+P2PSwap:     0x0B306BF915C4d645ff596e518fAf3F9A5179B816
+Token:       ARVI Environmental Token (ARVI)
+
+---
+
+DEPLOYED URLS
+-------------
+Production:  https://arvi-eight.vercel.app
+Dashboard:   https://arvi-eight.vercel.app/dashboard
+Atlas:       https://arvi-eight.vercel.app/atlas
+Register:    https://arvi-eight.vercel.app/register
+API Analyze: https://arvi-eight.vercel.app/api/analyze (POST)
+API Weather: https://arvi-eight.vercel.app/api/weather (GET)
+GitHub:      https://github.com/ValenteCreativo/ARVI
+
+---
+
+EXTERNAL DATA SOURCES
+---------------------
+Open-Meteo:  Free, no key. Temperature/humidity/wind/UV at city level.
+             Endpoint: api.open-meteo.com/v1/forecast
+             Used as: contextual layer (not primary sensor)
+
+NASA FIRMS:  Fire hotspots for Mexico, 24h window.
+             Endpoint: firms.modaps.eosdis.nasa.gov/api/area/csv/
+             Used as: satellite cross-reference for threat validation
+
+---
+
+BUSINESS MODEL (self-sustaining)
+---------------------------------
+Node subscriptions: $1,200/node/yr (hardware + data access)
+Enterprise Data API: $500/mo (municipalities, NGOs)
+Alert Intelligence: $2,000/mo (classified alerts + recommendations)
+Carbon Oracle: $0.80/tonne (onchain carbon absorption proof)
+
+Year 1: 50 nodes → $42K ARR
+Year 2: 250 nodes → $280K ARR
+Year 3: 1,000 nodes → $1.4M ARR
+
+---
+
+PRIOR WORK (thesis continuity)
+-------------------------------
+REMBU (2024): Urban forest sensor network. Presented to Gobierno de San Pedro.
+  https://rembu-app.vercel.app | https://github.com/ValenteCreativo/REMBU-APP
+
+SEN (2025): Sensor Economy Network. Data monetization layer.
+  https://sen-network1.vercel.app | https://github.com/ValenteCreativo/SEN-Network
+
+AONA (2025): AI analysis of aquatic sensor data.
+  https://aona.vercel.app | https://github.com/ValenteCreativo/AONA
+
+ARVI (2026): Full autonomous loop. Sense → Analyze → Act → Pay.
+
+---
+
+HACKATHON SPONSOR TRACKS
+-------------------------
+Protocol Labs ($16K):  AI Agents on IPFS/Filecoin | agent.json live
+Bankr ($5K):           AI Agent + onchain payments | loop functional
+Octant ($3K):          Public Goods — 3 tracks (data/analysis/mechanism)
+Locus ($3K):           USDC payment automation | loop functional
+ENS ($1.5K):           ENS node names (n1/n2/n3.arvi.eth)
+Venice AI ($11.5K):    Privacy AI integration (optional)
+Open Track ($14.5K):   General — full system demo
+
+---
+
+DESIGN PHILOSOPHY
+-----------------
+"The color does not lead. The interaction does."
+Background: #F7F7F7 (canvas/whiteboard)
+Text: #111111
+Accent: #2E7D6B jade — used at most 10% of visual space
+No neons. No heavy gradients. No generic SaaS UI.
+Fonts: DM Serif Display (headlines), DM Mono (technical), Inter (body)
+
+---
+
+COPY PRINCIPLES
+---------------
+- Short. Precise. Slightly poetic.
+- No corporate tone. No buzzwords.
+- Examples:
+  "Signals become decisions."
+  "We listen to the planet."
+  "ARVI is not a dashboard. It's an intelligence system."
+  "Data is everywhere. Intelligence is not."
+
+---
+
+PARTICIPANT INFO
+----------------
+Synthesis Participant ID: d88080a57309466c96340338faed7862
+Team ID: b7db970ceb9f4c1c8db673c13d64531c
