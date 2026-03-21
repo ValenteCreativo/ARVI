@@ -1,553 +1,582 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 
-// ─── Floating intelligence cards (draggable) ───────────────────────────────
-const INTEL_CARDS = [
-  {
-    id: 'alert-01',
-    icon: '🔴',
-    label: 'CRITICAL ALERT',
-    value: 'Probable plague',
-    sub: 'Chapultepec · node-01',
-    color: '#ef4444',
-    x: -340, y: -80,
-  },
-  {
-    id: 'payment-01',
-    icon: '💸',
-    label: 'PAYMENT SENT',
-    value: '9 USDC',
-    sub: '→ 0x7099...79C8 via Locus',
-    color: '#01f094',
-    x: 320, y: -100,
-  },
-  {
-    id: 'node-health',
-    icon: '📡',
-    label: 'NETWORK HEALTH',
-    value: '52%',
-    sub: '3 nodes · CDMX',
-    color: '#eab308',
-    x: -300, y: 140,
-  },
-  {
-    id: 'agent-active',
-    icon: '🧠',
-    label: 'AGENT ACTIVE',
-    value: 'Gemini 2.5',
-    sub: 'via Bankr Gateway',
-    color: '#a78bfa',
-    x: 290, y: 120,
-  },
-  {
-    id: 'erc8004',
-    icon: '🔗',
-    label: 'ERC-8004 IDENTITY',
-    value: 'Base Mainnet',
-    sub: '0xb8623d...cf43a',
-    color: '#60a5fa',
-    x: 0, y: 190,
-  },
+// ─── Ecosystem chips ────────────────────────────────────────────────────────
+const ECOSYSTEMS = [
+  { id: 'forests',    label: 'urban forests',     accent: '#5CFFD0' },
+  { id: 'aquatic',    label: 'aquatic systems',    accent: '#60C8FF' },
+  { id: 'coral',      label: 'coral reefs',        accent: '#FF9F5C' },
+  { id: 'soil',       label: 'soil microbiomes',   accent: '#FFC64D' },
+  { id: 'fauna',      label: 'fauna corridors',    accent: '#C084FC' },
+  { id: 'wetlands',   label: 'wetlands',           accent: '#5CFFD0' },
+  { id: 'atmosphere', label: 'the atmosphere',     accent: '#94A3B8' },
 ]
 
-function DraggableCard({ card }: { card: typeof INTEL_CARDS[0] }) {
+// ─── Agent data cards per section ────────────────────────────────────────────
+const SECTION_DATA = [
+  null, // void — no data card
+  {
+    node: 'n1.arvi.eth', location: 'Bosque de Chapultepec, CDMX',
+    metric: 'Health Score', value: '34%', status: 'CRITICAL',
+    alert: 'Probable plague — Ahuehuete sp.',
+    action: '▸ Agent deployed in 1.8s',
+    color: '#FF5C3A',
+  },
+  {
+    node: 'node-aqua-07', location: 'Lago de Chapultepec, CDMX',
+    metric: 'pH Level', value: '6.1', status: 'CRITICAL',
+    alert: 'Below EPA threshold — aquatic life at risk',
+    action: '▸ Alert issued · 12 USDC → operator',
+    color: '#60C8FF',
+  },
+  {
+    node: 'soil-mx-003', location: 'Milpa Alta Volcanic Soil, CDMX',
+    metric: 'Carbon Seq.', value: '−18%', status: 'WARNING',
+    alert: 'Sequestration anomaly — erosion pattern',
+    action: '▸ Pattern logged · Intervention queued',
+    color: '#FFC64D',
+  },
+  {
+    node: 'fauna-mx-12', location: 'Corredor Biológico Central MX',
+    metric: 'Species Active', value: '61 / 97', status: 'WARNING',
+    alert: 'Migration disruption — thermal anomaly',
+    action: '▸ Alert sent to conservation authority',
+    color: '#C084FC',
+  },
+  null, // atmosphere — global stats
+]
+
+const SECTION_COUNT = 6
+
+// ─── Nav ─────────────────────────────────────────────────────────────────────
+function Nav({ scrollProgress }: { scrollProgress: number }) {
+  const section = Math.round(scrollProgress * (SECTION_COUNT - 1))
+  const labels = ['Awakening', 'Urban Forests', 'Aquatic', 'Soil', 'Fauna', 'Network']
+
   return (
-    <motion.div
-      drag
-      dragMomentum={false}
-      initial={{ x: card.x, y: card.y, opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: Math.random() * 0.4 }}
-      whileDrag={{ scale: 1.05, zIndex: 50, cursor: 'grabbing' }}
-      style={{ position: 'absolute', cursor: 'grab', zIndex: 10 }}
-      className="select-none"
-    >
-      <div
-        className="rounded-xl border backdrop-blur-sm px-4 py-3 min-w-[160px]"
-        style={{
-          background: `${card.color}08`,
-          borderColor: `${card.color}30`,
-          boxShadow: `0 4px 24px ${card.color}15`,
-        }}
-      >
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-base">{card.icon}</span>
-          <span className="text-[9px] font-mono tracking-widest uppercase" style={{ color: `${card.color}80` }}>
-            {card.label}
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-void/90 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 rounded border border-aqua/30 bg-aqua/10 flex items-center justify-center">
+            <span className="text-aqua text-xs font-mono">◈</span>
+          </div>
+          <span className="font-mono text-sm text-parchment tracking-wide">ARVI</span>
+          <span className="hidden sm:block text-[10px] font-mono border border-white/10 px-2 py-0.5 rounded text-white/30">
+            v3.0 · Base Mainnet
           </span>
         </div>
-        <div className="text-sm font-bold text-white">{card.value}</div>
-        <div className="text-[10px] text-white/30 mt-0.5">{card.sub}</div>
+
+        {/* Section indicator */}
+        <div className="hidden md:flex items-center gap-1">
+          {labels.map((l, i) => (
+            <button
+              key={l}
+              onClick={() => {
+                const el = document.getElementById('horizontal-world')
+                if (!el) return
+                const scrollTarget = (i / (SECTION_COUNT - 1)) * (el.scrollHeight - window.innerHeight)
+                window.scrollTo({ top: el.offsetTop + scrollTarget, behavior: 'smooth' })
+              }}
+              className={`text-[10px] font-mono px-2 py-1 rounded transition-all ${
+                i === section
+                  ? 'text-aqua border border-aqua/30 bg-aqua/5'
+                  : 'text-white/25 hover:text-white/50'
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Link href="/atlas" className="text-[11px] font-mono text-white/35 hover:text-white/60 transition-colors hidden sm:block">
+            Atlas
+          </Link>
+          <Link href="/dashboard" className="text-[11px] font-mono px-4 py-2 rounded border border-aqua/30 bg-aqua/5 text-aqua hover:bg-aqua/10 transition-all">
+            Launch App ▸
+          </Link>
+        </div>
       </div>
-    </motion.div>
+    </nav>
   )
 }
 
-// ─── Autonomous agent cursor ────────────────────────────────────────────────
-const AGENT_PATH = [
-  { x: -340, y: -80 },   // alert card
-  { x: 320, y: -100 },   // payment card
-  { x: -300, y: 140 },   // network card
-  { x: 290, y: 120 },    // agent card
-  { x: 0, y: 190 },      // identity card
-  { x: 0, y: 0 },        // center
-]
-
-function AgentCursor({ centerRef }: { centerRef: React.RefObject<HTMLDivElement | null> }) {
-  const [step, setStep] = useState(0)
-  const [reading, setReading] = useState(false)
-
-  useEffect(() => {
-    const tick = () => {
-      setReading(true)
-      setTimeout(() => {
-        setReading(false)
-        setStep(s => (s + 1) % AGENT_PATH.length)
-      }, 900)
-    }
-    const interval = setInterval(tick, 2200)
-    return () => clearInterval(interval)
-  }, [])
-
-  const target = AGENT_PATH[step]
-
+// ─── Fill-in-blank hero (Section 0) ──────────────────────────────────────────
+function Section0({ activeEco, setActiveEco }: {
+  activeEco: typeof ECOSYSTEMS[0]
+  setActiveEco: (e: typeof ECOSYSTEMS[0]) => void
+}) {
   return (
-    <motion.div
-      animate={{ x: target.x, y: target.y }}
-      transition={{ duration: 1.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-      style={{ position: 'absolute', pointerEvents: 'none', zIndex: 20 }}
-    >
-      {/* Agent cursor body */}
-      <motion.div
-        animate={{ scale: reading ? 1.6 : 1, opacity: reading ? 1 : 0.6 }}
-        transition={{ duration: 0.3 }}
-        className="relative flex items-center justify-center"
-      >
+    <section className="relative w-screen h-screen flex flex-col items-center justify-center px-8 overflow-hidden">
+      {/* Star field */}
+      {[...Array(40)].map((_, i) => (
         <div
-          className="w-5 h-5 rounded-full border-2 border-[#01f094] bg-[#01f094]/20"
-          style={{ boxShadow: reading ? '0 0 20px #01f094, 0 0 40px #01f09440' : '0 0 8px #01f09440' }}
+          key={i}
+          className="absolute rounded-full bg-white/20"
+          style={{
+            width: Math.random() * 2 + 1 + 'px',
+            height: Math.random() * 2 + 1 + 'px',
+            left: Math.random() * 100 + '%',
+            top: Math.random() * 100 + '%',
+            opacity: Math.random() * 0.5 + 0.1,
+          }}
         />
-        {/* Reading pulse rings */}
-        <AnimatePresence>
-          {reading && (
-            <motion.div
-              initial={{ scale: 1, opacity: 0.6 }}
-              animate={{ scale: 2.5, opacity: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-              className="absolute w-5 h-5 rounded-full border border-[#01f094]"
-            />
-          )}
-        </AnimatePresence>
-      </motion.div>
-      {/* Agent label */}
-      <motion.div
-        animate={{ opacity: reading ? 1 : 0 }}
-        className="absolute top-6 left-6 text-[9px] font-mono text-[#01f094] whitespace-nowrap"
-        style={{ textShadow: '0 0 8px #01f094' }}
-      >
-        ARVI.analyze()
-      </motion.div>
-    </motion.div>
+      ))}
+
+      {/* Grid lines */}
+      <div className="absolute inset-0 opacity-[0.04]"
+        style={{ backgroundImage: 'linear-gradient(rgba(92,255,208,1) 1px, transparent 1px), linear-gradient(90deg, rgba(92,255,208,1) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+
+      <div className="relative text-center max-w-5xl mx-auto">
+        <p className="section-label mb-8 tracking-[0.4em]">
+          ◎ ARVI — Agentic Regeneration Via Intelligence
+        </p>
+
+        {/* The headline */}
+        <h1 className="font-serif leading-none mb-4">
+          <span className="block text-5xl sm:text-7xl lg:text-8xl text-parchment mb-3">
+            Agentic intelligence
+          </span>
+          <span className="block text-4xl sm:text-6xl lg:text-7xl text-parchment/60 mb-3">
+            for the
+          </span>
+          {/* The fill-in slot */}
+          <span className="block">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={activeEco.id}
+                initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -20, filter: 'blur(8px)' }}
+                transition={{ duration: 0.4 }}
+                className="inline-block text-4xl sm:text-6xl lg:text-7xl font-serif italic border-b-2 pb-1 cursor-pointer"
+                style={{ color: activeEco.accent, borderColor: activeEco.accent + '60' }}
+              >
+                {activeEco.label}
+              </motion.span>
+            </AnimatePresence>
+          </span>
+          <span className="block text-3xl sm:text-5xl lg:text-6xl text-parchment/60 mt-3">
+            that makes our planet livable.
+          </span>
+        </h1>
+
+        {/* Ecosystem chips */}
+        <div className="flex flex-wrap justify-center gap-2 mt-10 mb-8">
+          {ECOSYSTEMS.map(eco => (
+            <motion.button
+              key={eco.id}
+              onClick={() => setActiveEco(eco)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`text-xs font-mono px-3 py-1.5 rounded-full border transition-all ${
+                activeEco.id === eco.id
+                  ? 'text-void font-bold'
+                  : 'text-white/40 border-white/10 hover:text-white/70 hover:border-white/20'
+              }`}
+              style={activeEco.id === eco.id ? {
+                background: eco.accent,
+                borderColor: eco.accent,
+                color: '#0A0B14',
+              } : {}}
+            >
+              {eco.label}
+            </motion.button>
+          ))}
+        </div>
+
+        <p className="text-sm text-white/25 font-mono max-w-lg mx-auto">
+          — select an ecosystem above, or watch the agent choose —
+        </p>
+
+        {/* Scroll indicator */}
+        <motion.div
+          animate={{ x: [0, 20, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute right-8 bottom-8 text-white/20 font-mono text-xs flex items-center gap-2"
+        >
+          scroll to traverse ——▸
+        </motion.div>
+      </div>
+    </section>
   )
 }
 
-// ─── Stats ──────────────────────────────────────────────────────────────────
-const STATS = [
-  { value: '3', label: 'Active Nodes', sub: 'CDMX Urban Forest' },
-  { value: '847', label: 'Trees Monitored', sub: 'Real-time telemetry' },
-  { value: '< 2s', label: 'Detection Latency', sub: 'Anomaly to alert' },
-  { value: '9 USDC', label: 'Per Alert Reward', sub: 'Auto via Locus' },
-]
+// ─── Data section (sections 1–4) ─────────────────────────────────────────────
+function DataSection({ idx, bgColor, title, subtitle, quote, data }: {
+  idx: number
+  bgColor: string
+  title: string
+  subtitle: string
+  quote: string
+  data: typeof SECTION_DATA[1]
+}) {
+  return (
+    <section
+      className="relative w-screen h-screen flex items-center justify-center px-12 overflow-hidden"
+      style={{ background: bgColor }}
+    >
+      {/* Decorative vertical lines (trees / reeds / roots / paths) */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute top-0 bottom-0"
+            style={{
+              left: `${8 + i * 12}%`,
+              width: '1px',
+              background: `linear-gradient(to bottom, transparent, ${data?.color || '#5CFFD0'}08, transparent)`,
+            }}
+          />
+        ))}
+      </div>
 
-const STEPS = [
-  { num: '01', title: 'Sense', desc: 'Node operators deploy sensors in urban forests — temperature, humidity, soil, and visual data transmitted to the network continuously.', icon: '📡' },
-  { num: '02', title: 'Analyze', desc: "ARVI's onchain AI agent — powered by Bankr's LLM Gateway — detects plagues, dehydration, heat stress, and deforestation signals with 90%+ confidence.", icon: '🧠' },
-  { num: '03', title: 'Act', desc: 'Verified threats trigger alerts, immutable logs, and automatic USDC payments to node operators via Locus. Zero human intervention.', icon: '⚡' },
-]
+      <div className="relative max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+        {/* Left — text */}
+        <div>
+          <p className="section-label mb-6 tracking-[0.3em]">◈ ECOSYSTEM {String(idx).padStart(2, '0')}</p>
+          <h2 className="font-serif text-5xl lg:text-6xl text-parchment leading-tight mb-4">
+            {title}
+          </h2>
+          <p className="text-parchment/40 text-lg leading-relaxed mb-8 font-sans">{subtitle}</p>
+          <blockquote className="border-l-2 pl-5 text-sm font-mono italic text-white/30" style={{ borderColor: data?.color || '#5CFFD0' }}>
+            &ldquo;{quote}&rdquo;
+          </blockquote>
+        </div>
 
-// ─── Business model data ─────────────────────────────────────────────────────
-const REVENUE_STREAMS = [
-  { label: 'Node Operator Fees', desc: 'Annual hardware + data subscription per deployed node', value: '$1,200/node/yr', icon: '📡' },
-  { label: 'Enterprise Data API', desc: 'Municipalities, researchers, and NGOs subscribe to verified forest health feeds', value: '$500/mo', icon: '🏛️' },
-  { label: 'Alert Intelligence', desc: 'Premium real-time alerts with recommended interventions for city governments', value: '$2,000/mo', icon: '⚡' },
-  { label: 'Carbon Credit Verification', desc: 'Immutable onchain proof of carbon absorption for verified forest preservation', value: '$0.80/tonne', icon: '🌿' },
-]
+        {/* Right — telemetry card */}
+        {data && (
+          <div
+            className="rounded-2xl p-6"
+            style={{
+              background: `${data.color}06`,
+              border: `1px solid ${data.color}25`,
+            }}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-1">Node</p>
+                <p className="font-mono text-sm" style={{ color: data.color }}>{data.node}</p>
+              </div>
+              <span
+                className="text-[10px] font-mono font-bold px-3 py-1 rounded-full"
+                style={{
+                  background: `${data.color}15`,
+                  border: `1px solid ${data.color}30`,
+                  color: data.color,
+                }}
+              >
+                {data.status}
+              </span>
+            </div>
 
-const KPI_PROJECTIONS = [
-  { period: 'Year 1', nodes: '50', trees: '14K', revenue: '$42K', operators: '50', alert_revenue: '$24K' },
-  { period: 'Year 2', nodes: '250', trees: '70K', revenue: '$280K', operators: '250', alert_revenue: '$144K' },
-  { period: 'Year 3', nodes: '1,000', trees: '280K', revenue: '$1.4M', operators: '1,000', alert_revenue: '$720K' },
-]
+            <div className="grid grid-cols-2 gap-3 mb-5">
+              <div className="bg-black/20 rounded-xl p-4">
+                <p className="text-[10px] font-mono text-white/25 mb-1">{data.metric}</p>
+                <p className="text-3xl font-mono font-bold" style={{ color: data.color }}>{data.value}</p>
+              </div>
+              <div className="bg-black/20 rounded-xl p-4">
+                <p className="text-[10px] font-mono text-white/25 mb-1">Location</p>
+                <p className="text-xs font-mono text-white/50 leading-snug">{data.location}</p>
+              </div>
+            </div>
 
-const OCTANT_METRICS = [
-  { label: 'Data Collection Events', value: '432K', sub: 'Readings/year at scale (1K nodes)' },
-  { label: 'AI Analysis Runs', value: '17K', sub: 'Anomaly detection cycles/year' },
-  { label: 'Payments to Operators', value: '$720K', sub: 'Direct economic value to communities' },
-  { label: 'Trees Protected', value: '280K', sub: 'Urban carbon infrastructure secured' },
-]
+            <div className="bg-black/20 rounded-xl p-4 mb-3">
+              <p className="text-[10px] font-mono text-white/25 mb-2 uppercase tracking-wider">Agent Detection</p>
+              <p className="text-sm text-white/60 font-mono">{data.alert}</p>
+            </div>
 
-const SPONSORS = [
-  { name: 'Protocol Labs', role: 'Agent Identity (ERC-8004)', color: '#0090FF' },
-  { name: 'Bankr', role: 'LLM Intelligence Gateway', color: '#FF6B35' },
-  { name: 'Locus', role: 'Autonomous USDC Payments', color: '#7C3AED' },
-  { name: 'ENS', role: 'Node Naming Layer', color: '#5AC8FA' },
-  { name: 'Octant', role: 'Public Goods Funding', color: '#F59E0B' },
-  { name: 'EVVM', role: 'Micropayment Infrastructure', color: '#34D399' },
-]
+            <div
+              className="rounded-xl p-3 text-sm font-mono"
+              style={{ background: `${data.color}10`, color: data.color }}
+            >
+              {data.action}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
 
-// ─── Main ────────────────────────────────────────────────────────────────────
-export default function Landing() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const centerRef = useRef<HTMLDivElement>(null)
+// ─── Final section — Network overview ────────────────────────────────────────
+function Section5() {
+  const stats = [
+    { value: '5', label: 'ecosystem types', sub: 'currently monitored' },
+    { value: '< 2s', label: 'detection latency', sub: 'anomaly to action' },
+    { value: '0', label: 'human approvals', sub: 'required to act' },
+    { value: '∞', label: 'scalability', sub: 'any node, any biome' },
+  ]
 
   return (
-    <div className="min-h-screen bg-[#060a07] text-white overflow-x-hidden">
+    <section className="relative w-screen h-screen flex flex-col items-center justify-center px-12 overflow-hidden" style={{ background: '#070810' }}>
+      {/* Star field fades back in */}
+      {[...Array(30)].map((_, i) => (
+        <div key={i} className="absolute rounded-full bg-white/15"
+          style={{ width: 2, height: 2, left: Math.random() * 100 + '%', top: Math.random() * 100 + '%', opacity: Math.random() * 0.4 + 0.1 }} />
+      ))}
 
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#060a07]/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-md bg-[#01f094]/10 border border-[#01f094]/30 flex items-center justify-center">
-              <span className="text-xs">🌿</span>
-            </div>
-            <span className="font-bold tracking-tight">ARVI</span>
-            <span className="hidden sm:block text-xs text-white/20 font-mono border border-white/10 px-2 py-0.5 rounded">
-              v1.0 · Base Mainnet
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/atlas" className="text-xs px-3 py-2 rounded-lg text-white/40 hover:text-white/70 transition-colors hidden sm:block">
-              🗺️ Atlas
-            </Link>
-            <Link href="/register" className="text-xs px-3 py-2 rounded-lg border border-white/10 text-white/50 hover:border-white/20 transition-all hidden sm:block">
-              Register Node
-            </Link>
-            <Link href="/dashboard" className="text-xs px-4 py-2 rounded-lg bg-[#01f094] text-black font-bold hover:bg-[#01f094]/90 transition-all">
-              Launch App →
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <div className="relative text-center max-w-4xl">
+        <p className="section-label mb-8 tracking-[0.4em]">⬡ THE NETWORK</p>
 
-      {/* ═══ HERO — Interactive Intelligence Space ═══ */}
-      <section ref={heroRef} className="relative pt-36 pb-24 px-6 overflow-hidden" style={{ minHeight: '92vh' }}>
-        {/* Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(1,240,148,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(1,240,148,0.025)_1px,transparent_1px)] bg-[size:72px_72px]" />
-        {/* Radial glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#01f094]/4 rounded-full blur-[140px] pointer-events-none" />
+        <h2 className="font-serif text-5xl lg:text-7xl text-parchment mb-6 leading-tight">
+          The planet grows.
+          <br />
+          <span className="text-aqua">The network responds.</span>
+        </h2>
 
-        <div className="relative max-w-5xl mx-auto text-center">
+        <p className="text-parchment/40 text-lg max-w-xl mx-auto mb-12 font-sans leading-relaxed">
+          One agent architecture. Every ecosystem. Autonomous execution. Verifiable onchain proof of every action.
+        </p>
 
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#01f094]/20 bg-[#01f094]/5 text-[#01f094] text-xs font-mono mb-8"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#01f094] animate-pulse" />
-            Autonomous · Onchain · Real-time · Climate Intelligence
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-5xl sm:text-7xl font-black tracking-tight leading-none mb-6"
-          >
-            The intelligence layer
-            <br />
-            <span className="text-[#01f094]">urban forests</span>
-            <br />
-            have been waiting for.
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-lg text-white/35 max-w-xl mx-auto mb-10 leading-relaxed"
-          >
-            An autonomous AI agent that monitors, detects, and acts — paying operators automatically through verified onchain intelligence.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4"
-          >
-            <Link href="/dashboard" className="px-8 py-4 rounded-xl bg-[#01f094] text-black font-bold text-sm hover:bg-[#01f094]/90 transition-all hover:scale-[1.02] shadow-[0_0_40px_rgba(1,240,148,0.2)]">
-              Launch App →
-            </Link>
-            <Link href="/atlas" className="px-8 py-4 rounded-xl border border-white/10 text-white/60 text-sm hover:border-[#01f094]/30 hover:text-white/80 transition-all">
-              🗺️ View Atlas
-            </Link>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="text-xs text-white/15 font-mono"
-          >
-            ERC-8004 Identity ·{' '}
-            <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a" target="_blank" rel="noopener" className="underline hover:text-[#01f094]/40">
-              0xb8623d...cf43a
-            </a>
-            {' '}· Base Mainnet
-          </motion.div>
-
-          {/* ── Draggable intelligence space ── */}
-          <div
-            ref={centerRef}
-            className="relative mx-auto mt-8"
-            style={{ height: '380px', width: '100%', maxWidth: '700px' }}
-          >
-            {/* Center agent node */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
-              <div className="w-16 h-16 rounded-full border border-[#01f094]/20 bg-[#01f094]/5 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full border border-[#01f094]/40 bg-[#01f094]/10 flex items-center justify-center text-lg">🌿</div>
-              </div>
-              {/* Orbit rings */}
-              <div className="absolute inset-0 -m-8 rounded-full border border-white/5 animate-spin" style={{ animationDuration: '20s' }} />
-              <div className="absolute inset-0 -m-16 rounded-full border border-white/[0.03]" />
-            </div>
-
-            {/* Autonomous agent cursor */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <AgentCursor centerRef={centerRef} />
-            </div>
-
-            {/* Draggable intel cards */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              {INTEL_CARDS.map(card => (
-                <DraggableCard key={card.id} card={card} />
-              ))}
-            </div>
-
-            {/* Helper label */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-mono text-white/15 whitespace-nowrap">
-              ↔ drag any card · watch the agent analyze
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="px-6 pb-20 border-t border-white/5">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 pt-16">
-          {STATS.map(s => (
-            <div key={s.label} className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center hover:border-[#01f094]/20 transition-all">
-              <div className="text-3xl font-black text-[#01f094] mb-1">{s.value}</div>
-              <div className="text-sm font-semibold text-white/70">{s.label}</div>
-              <div className="text-xs text-white/25 mt-1">{s.sub}</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          {stats.map(s => (
+            <div key={s.label} className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-center hover:border-aqua/20 transition-all">
+              <div className="font-serif text-4xl text-aqua mb-1">{s.value}</div>
+              <div className="text-xs font-mono text-parchment/60">{s.label}</div>
+              <div className="text-[10px] font-mono text-white/20 mt-1">{s.sub}</div>
             </div>
           ))}
         </div>
-      </section>
 
-      {/* HOW IT WORKS */}
-      <section className="px-6 py-24 border-t border-white/5">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="text-xs font-mono text-[#01f094]/60 mb-3 tracking-widest uppercase">How it works</div>
-            <h2 className="text-3xl sm:text-4xl font-black">From sensor to action, <span className="text-[#01f094]">fully autonomous.</span></h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STEPS.map((step, i) => (
-              <motion.div
-                key={step.num}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="rounded-2xl border border-white/5 bg-white/[0.02] p-7 hover:border-[#01f094]/20 hover:bg-[#01f094]/[0.02] transition-all"
-              >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="text-2xl">{step.icon}</div>
-                  <div>
-                    <div className="text-xs font-mono text-[#01f094]/40 mb-0.5">{step.num}</div>
-                    <div className="font-bold text-lg">{step.title}</div>
-                  </div>
-                </div>
-                <p className="text-sm text-white/40 leading-relaxed">{step.desc}</p>
-              </motion.div>
-            ))}
-          </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link href="/dashboard"
+            className="px-8 py-4 rounded-xl font-mono text-sm font-bold text-void bg-aqua hover:bg-aqua/90 transition-all"
+            style={{ boxShadow: '0 0 40px rgba(92,255,208,0.2)' }}>
+            Launch App ▸
+          </Link>
+          <Link href="/atlas"
+            className="px-8 py-4 rounded-xl border border-white/10 text-parchment/60 font-mono text-sm hover:border-white/20 hover:text-parchment/80 transition-all">
+            ◎ View Atlas
+          </Link>
+          <Link href="/register"
+            className="px-8 py-4 rounded-xl border border-white/10 text-parchment/60 font-mono text-sm hover:border-white/20 hover:text-parchment/80 transition-all">
+            Register a Node
+          </Link>
         </div>
-      </section>
 
-      {/* WHY SENSORS ARE SPECIAL */}
-      <section className="px-6 py-24 border-t border-white/5">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="text-xs font-mono text-yellow-400/60 mb-3 tracking-widest uppercase">Why not just use APIs?</div>
-            <h2 className="text-3xl font-black mb-4 leading-snug">Open-Meteo gives cities. <span className="text-[#01f094]">ARVI gives trees.</span></h2>
-            <p className="text-white/40 leading-relaxed mb-6">Weather APIs give you the temperature of a district. ARVI gives you the health status of the Ahuehuete in Section 7 of Chapultepec with cryptographic proof of who reported it and automatic payment for that proof.</p>
-            <ul className="space-y-3">
-              {[
-                ['Hyperlocal precision', 'Tree-level readings — not city-level averages'],
-                ['Cryptographic provenance', 'Every reading signed onchain — not just scraped from an API'],
-                ['Economic incentives', 'Operators get paid for quality data — satellite APIs don\'t pay communities'],
-                ['Agent intelligence', 'Not raw data — AI-analyzed threat classification with confidence scores'],
-                ['Composable oracle', 'Any smart contract can consume ARVI alerts — it\'s programmable environmental truth'],
-              ].map(([title, desc]) => (
-                <li key={title} className="flex items-start gap-3 text-sm">
-                  <span className="text-[#01f094] shrink-0 mt-0.5">✓</span>
-                  <span><span className="text-white/70 font-medium">{title}</span><span className="text-white/35"> — {desc}</span></span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
-            <div className="text-xs font-mono text-white/25 mb-4 uppercase tracking-widest">Comparison</div>
-            <div className="space-y-3 text-xs">
-              {[
-                { label: 'OpenWeatherMap', coverage: 'City-level', proof: 'None', payment: 'None', intelligence: 'None', color: '#ffffff20' },
-                { label: 'NASA FIRMS', coverage: 'Fire hotspots', proof: 'None', payment: 'None', intelligence: 'None', color: '#ffffff20' },
-                { label: 'ARVI', coverage: 'Tree-level', proof: 'Onchain', payment: 'USDC auto', intelligence: 'LLM agent', color: '#01f094' },
-              ].map(row => (
-                <div key={row.label} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: `${row.color}08`, border: `1px solid ${row.color}20` }}>
-                  <span className="font-bold w-28 shrink-0" style={{ color: row.color }}>{row.label}</span>
-                  <span className="text-white/40 flex-1">{row.coverage}</span>
-                  <span className="text-white/40 flex-1">{row.proof}</span>
-                  <span className="text-white/40 flex-1">{row.intelligence}</span>
+        <p className="mt-8 text-[10px] font-mono text-white/15">
+          ERC-8004 Identity ·{' '}
+          <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a" target="_blank" rel="noopener" className="underline hover:text-aqua/30">
+            0xb8623d...cf43a
+          </a>
+          {' '}· Base Mainnet · Pantera Labs 2026
+        </p>
+      </div>
+    </section>
+  )
+}
+
+// ─── Business Model (vertical, after scroll) ─────────────────────────────────
+function BusinessModel() {
+  const streams = [
+    { sym: '◎', label: 'Node Operator Subscriptions', desc: 'Annual hardware + data access per deployed sensor node', val: '$1,200/node/yr' },
+    { sym: '◈', label: 'Enterprise Intelligence API', desc: 'Municipalities, researchers, NGOs subscribe to verified ecosystem feeds', val: '$500/mo' },
+    { sym: '▸', label: 'Alert Intelligence', desc: 'Real-time AI-classified alerts with intervention recommendations', val: '$2,000/mo' },
+    { sym: '⬡', label: 'Carbon Verification Oracle', desc: 'Onchain proof of carbon absorption for verified ecosystem preservation', val: '$0.80/tonne' },
+  ]
+
+  const projections = [
+    { period: 'Year 1', nodes: '50',  trees: '14K', revenue: '$42K' },
+    { period: 'Year 2', nodes: '250', trees: '70K', revenue: '$280K' },
+    { period: 'Year 3', nodes: '1K',  trees: '280K', revenue: '$1.4M' },
+  ]
+
+  return (
+    <section className="px-6 py-32 border-t border-white/5 bg-void">
+      <div className="max-w-5xl mx-auto">
+        <p className="section-label mb-6 tracking-[0.3em]">— BUSINESS MODEL</p>
+        <h2 className="font-serif text-4xl lg:text-5xl text-parchment mb-4">
+          Sustainable infrastructure,
+          <br /><span className="text-aqua">not charity.</span>
+        </h2>
+        <p className="text-parchment/35 mb-16 max-w-xl font-sans leading-relaxed">
+          Every participant is economically incentivized. No grants required. The agent pays for itself.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+          {streams.map(s => (
+            <div key={s.label} className="rounded-2xl border border-white/5 bg-surface p-6 hover:border-aqua/15 transition-all">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-aqua font-mono text-lg">{s.sym}</span>
+                  <span className="font-mono text-sm text-parchment/80 font-medium">{s.label}</span>
                 </div>
-              ))}
+                <span className="font-mono text-sm text-aqua">{s.val}</span>
+              </div>
+              <p className="text-xs text-parchment/35 font-sans leading-relaxed">{s.desc}</p>
             </div>
-          </div>
+          ))}
         </div>
-      </section>
 
-      {/* ═══ BUSINESS MODEL ═══ */}
-      <section className="px-6 py-24 border-t border-white/5">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="text-xs font-mono text-[#01f094]/60 mb-3 tracking-widest uppercase">Business Model</div>
-            <h2 className="text-3xl sm:text-4xl font-black">Sustainable infrastructure, <span className="text-[#01f094]">not charity.</span></h2>
-            <p className="text-white/30 mt-3 max-w-xl mx-auto">ARVI is a self-sustaining network. Every participant is economically incentivized. No grants required to operate.</p>
+        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden mb-12">
+          <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+            <span className="font-mono text-sm text-parchment/70">Growth Projections</span>
+            <span className="text-[10px] font-mono text-white/20">Conservative · 3yr horizon</span>
           </div>
-
-          {/* Revenue streams */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-            {REVENUE_STREAMS.map(stream => (
-              <motion.div
-                key={stream.label}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 hover:border-[#01f094]/15 transition-all"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{stream.icon}</span>
-                    <span className="font-bold text-sm text-white/80">{stream.label}</span>
-                  </div>
-                  <span className="text-[#01f094] font-mono text-sm font-bold">{stream.value}</span>
-                </div>
-                <p className="text-xs text-white/35 leading-relaxed">{stream.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Projections table */}
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden mb-12">
-            <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-              <h3 className="font-bold text-sm">Growth Projections</h3>
-              <span className="text-xs text-white/25 font-mono">Conservative estimate · 3-year horizon</span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-white/5">
-                    {['Period', 'Nodes', 'Trees', 'Total Revenue', 'Operators Paid', 'Alert Revenue'].map(h => (
-                      <th key={h} className="px-6 py-3 text-left text-white/25 font-mono uppercase tracking-wide text-[10px]">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {KPI_PROJECTIONS.map((row, i) => (
-                    <tr key={row.period} className={`border-b border-white/5 ${i === KPI_PROJECTIONS.length - 1 ? 'bg-[#01f094]/5' : ''}`}>
-                      <td className="px-6 py-4 font-bold text-white/70">{row.period}</td>
-                      <td className="px-6 py-4 text-[#01f094] font-mono font-bold">{row.nodes}</td>
-                      <td className="px-6 py-4 text-white/50 font-mono">{row.trees}</td>
-                      <td className="px-6 py-4 text-[#01f094] font-bold">{row.revenue}</td>
-                      <td className="px-6 py-4 text-white/50 font-mono">{row.operators}</td>
-                      <td className="px-6 py-4 text-white/50 font-mono">{row.alert_revenue}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Octant public goods KPIs */}
-          <div className="rounded-2xl border border-[#F59E0B]/15 bg-[#F59E0B]/5 p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-lg">🏛️</span>
-              <h3 className="font-bold text-sm text-[#F59E0B]">Public Goods Metrics (Octant Track)</h3>
-              <span className="text-xs text-white/20 font-mono ml-auto">Year 3 at scale</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {OCTANT_METRICS.map(m => (
-                <div key={m.label} className="text-center">
-                  <div className="text-2xl font-black text-[#F59E0B] mb-1">{m.value}</div>
-                  <div className="text-xs font-medium text-white/50">{m.label}</div>
-                  <div className="text-[10px] text-white/25 mt-1">{m.sub}</div>
-                </div>
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-white/5">
+                {['Period','Nodes','Trees Monitored','Total Revenue'].map(h => (
+                  <th key={h} className="px-6 py-3 text-left font-mono text-[10px] text-white/25 uppercase tracking-widest">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {projections.map((r, i) => (
+                <tr key={r.period} className={`border-b border-white/5 ${i === 2 ? 'bg-aqua/5' : ''}`}>
+                  <td className="px-6 py-4 font-mono text-parchment/60">{r.period}</td>
+                  <td className="px-6 py-4 font-mono text-aqua font-bold">{r.nodes}</td>
+                  <td className="px-6 py-4 font-mono text-parchment/40">{r.trees}</td>
+                  <td className="px-6 py-4 font-mono text-aqua font-bold">{r.revenue}</td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
-      </section>
 
-      {/* TECH STACK */}
-      <section className="px-6 py-16 border-t border-white/5">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="text-xs font-mono text-white/20 mb-8 tracking-widest uppercase">Built with</div>
-          <div className="flex flex-wrap justify-center gap-3">
-            {SPONSORS.map(s => (
-              <div key={s.name} className="px-4 py-2.5 rounded-xl border border-white/5 bg-white/[0.02] hover:border-white/10 transition-all">
-                <div className="text-xs font-bold text-white/70">{s.name}</div>
-                <div className="text-xs text-white/25 mt-0.5">{s.role}</div>
+        {/* Octant KPIs */}
+        <div className="rounded-2xl border border-solar/20 bg-solar/5 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="font-mono text-solar text-sm">⬡ Public Goods Metrics</span>
+            <span className="font-mono text-[10px] text-white/20 ml-auto">Octant track · Year 3 at scale</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { v: '432K', l: 'Data readings/yr' },
+              { v: '$720K', l: 'Paid to operators' },
+              { v: '280K', l: 'Trees protected' },
+              { v: '1K', l: 'Community nodes' },
+            ].map(m => (
+              <div key={m.l}>
+                <div className="font-serif text-3xl text-solar mb-1">{m.v}</div>
+                <div className="text-[10px] font-mono text-parchment/40">{m.l}</div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* CTA */}
-      <section className="px-6 py-24 border-t border-white/5">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-black mb-4">
-            Ready to protect your <span className="text-[#01f094]">urban canopy?</span>
-          </h2>
-          <p className="text-white/35 mb-10 text-lg">Deploy a sensor node and become part of the first autonomous urban forest intelligence network.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/dashboard" className="px-8 py-4 rounded-xl bg-[#01f094] text-black font-bold text-sm hover:bg-[#01f094]/90 transition-all shadow-[0_0_40px_rgba(1,240,148,0.15)]">Launch App →</Link>
-            <Link href="/atlas" className="px-8 py-4 rounded-xl border border-white/10 text-white/60 text-sm hover:border-white/20 transition-all">🗺️ View Atlas</Link>
-            <Link href="/register" className="px-8 py-4 rounded-xl border border-white/10 text-white/60 text-sm hover:border-white/20 transition-all">Register a Node</Link>
-          </div>
+// ─── Footer ───────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer className="border-t border-white/5 px-6 py-8 bg-void">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono text-white/20">
+        <span>ARVI — Agentic Regeneration Via Intelligence</span>
+        <div className="flex items-center gap-6">
+          <a href="https://github.com/ValenteCreativo/ARVI" target="_blank" rel="noopener" className="hover:text-white/40 transition-colors">GitHub</a>
+          <Link href="/atlas" className="hover:text-white/40 transition-colors">Atlas</Link>
+          <Link href="/dashboard" className="hover:text-white/40 transition-colors">App</Link>
+          <Link href="/register" className="hover:text-white/40 transition-colors">Register</Link>
         </div>
-      </section>
+        <span>Pantera Labs · 2026</span>
+      </div>
+    </footer>
+  )
+}
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/5 px-6 py-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/20">
-          <div className="font-mono">ARVI — Agentic Regeneration Via Intelligence</div>
-          <div className="flex items-center gap-6">
-            <a href="https://github.com/ValenteCreativo/ARVI" target="_blank" rel="noopener" className="hover:text-white/40 transition-colors">GitHub</a>
-            <Link href="/atlas" className="hover:text-white/40 transition-colors">Atlas</Link>
-            <Link href="/dashboard" className="hover:text-white/40 transition-colors">App</Link>
-          </div>
-          <div className="font-mono">Pantera Labs · 2026</div>
+// ─── Main ─────────────────────────────────────────────────────────────────────
+const SECTION_CONFIGS = [
+  null, // section 0 handled by Section0
+  {
+    bgColor: '#060D0A',
+    title: 'Urban Forests.',
+    subtitle: 'Millions of trees absorbing carbon, cooling streets, filtering air — dying without a single alert sent in time.',
+    quote: '47 Ahuehuete trees in Chapultepec. Plague detected. Agent deployed. 1.8 seconds.',
+  },
+  {
+    bgColor: '#060810',
+    title: 'Aquatic Systems.',
+    subtitle: 'Water quality changes in hours. Human monitoring cycles in weeks. The gap is where ecosystems collapse.',
+    quote: 'pH 6.2. Below EPA threshold. No human was called. The agent already acted.',
+  },
+  {
+    bgColor: '#0F0A06',
+    title: 'Soil Microbiomes.',
+    subtitle: 'Below our feet: the carbon engine of the planet. Invisible, unmeasured, unprotected.',
+    quote: 'Carbon sequestration down 18%. Pattern flagged. Intervention queued. Zero meetings held.',
+  },
+  {
+    bgColor: '#070810',
+    title: 'Fauna Corridors.',
+    subtitle: 'Migration routes disrupted by heat anomalies. Wildlife data exists. No one is connecting the dots.',
+    quote: '36 species off-route. Thermal anomaly confirmed. Conservation authority alerted automatically.',
+  },
+]
+
+export default function Landing() {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: scrollRef,
+    offset: ['start start', 'end end'],
+  })
+  const x = useTransform(scrollYProgress, [0, 1], ['0vw', `-${(SECTION_COUNT - 1) * 100}vw`])
+
+  const [scrollProg, setScrollProg] = useState(0)
+  const [activeEco, setActiveEco] = useState(ECOSYSTEMS[0])
+
+  // Track scroll for nav
+  useEffect(() => {
+    return scrollYProgress.on('change', v => setScrollProg(v))
+  }, [scrollYProgress])
+
+  // Auto-cycle ecosystems (the agent choosing autonomously)
+  useEffect(() => {
+    let i = 0
+    const timer = setInterval(() => {
+      i = (i + 1) % ECOSYSTEMS.length
+      setActiveEco(ECOSYSTEMS[i])
+    }, 2800)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="bg-void min-h-screen">
+      <Nav scrollProgress={scrollProg} />
+
+      {/* ─── Horizontal Panorama ─── */}
+      <div
+        id="horizontal-world"
+        ref={scrollRef}
+        style={{ height: `${SECTION_COUNT * 100}vh` }}
+      >
+        <div className="sticky top-0 h-screen overflow-hidden">
+          <motion.div
+            style={{ x, display: 'flex', width: `${SECTION_COUNT * 100}vw`, height: '100vh' }}
+          >
+            {/* S0: Awakening */}
+            <Section0 activeEco={activeEco} setActiveEco={setActiveEco} />
+
+            {/* S1–S4: Ecosystems */}
+            {SECTION_CONFIGS.slice(1).map((cfg, i) =>
+              cfg ? (
+                <DataSection
+                  key={i}
+                  idx={i + 1}
+                  bgColor={cfg.bgColor}
+                  title={cfg.title}
+                  subtitle={cfg.subtitle}
+                  quote={cfg.quote}
+                  data={SECTION_DATA[i + 1]}
+                />
+              ) : null
+            )}
+
+            {/* S5: Network */}
+            <Section5 />
+          </motion.div>
         </div>
-      </footer>
+      </div>
+
+      {/* ─── After scroll: Business model + footer (vertical) ─── */}
+      <BusinessModel />
+      <Footer />
     </div>
   )
 }

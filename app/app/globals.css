@@ -2,52 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── ARVI V3 Design System ────────────────────────────── */
 :root {
-  --color-brand: #01f094;
-  --color-bg: #060a07;
-  --color-surface: #0a110c;
-  --font-inter: 'Inter', sans-serif;
+  /* Palette */
+  --void:     #0A0B14;    /* Background — deep indigo-black, space */
+  --surface:  #0D0F1C;    /* Elevated surface */
+  --aqua:     #5CFFD0;    /* Bioluminescent aquamarine — life, data */
+  --terra:    #FF5C3A;    /* Volcanic terracotta — urgency, heat */
+  --solar:    #FFC64D;    /* Amber solar — earth, energy, warmth */
+  --violet:   #A78BFA;    /* Intelligence violet — AI, analysis */
+  --parchment:#F0EDE8;    /* Warm off-white — human, not CSS white */
+  --dim:      rgba(240,237,232,0.35);
+  --dimmer:   rgba(240,237,232,0.15);
+
+  /* Typography */
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-mono:  'DM Mono', 'Courier New', monospace;
+  --font-sans:  'Inter', system-ui, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+/* Base */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--color-bg);
-  color: white;
-  font-family: var(--font-inter);
+  background: var(--void);
+  color: var(--parchment);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(1, 240, 148, 0.15);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(1, 240, 148, 0.3);
-}
+/* Typography utilities */
+.font-serif  { font-family: var(--font-serif); }
+.font-mono   { font-family: var(--font-mono); }
+
+/* Color utilities */
+.text-aqua   { color: var(--aqua); }
+.text-terra  { color: var(--terra); }
+.text-solar  { color: var(--solar); }
+.text-violet { color: var(--violet); }
+.text-dim    { color: var(--dim); }
+.text-parchment { color: var(--parchment); }
+
+.bg-void    { background: var(--void); }
+.bg-surface { background: var(--surface); }
+.border-aqua  { border-color: var(--aqua); }
+.border-terra { border-color: var(--terra); }
+
+/* Glow effects */
+.glow-aqua  { box-shadow: 0 0 24px rgba(92,255,208,0.3); }
+.glow-terra { box-shadow: 0 0 24px rgba(255,92,58,0.3); }
+
+/* Scrollbar */
+::-webkit-scrollbar        { width: 3px; height: 3px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(92,255,208,0.2); border-radius: 2px; }
 
 /* Selection */
-::selection {
-  background: rgba(1, 240, 148, 0.2);
-  color: white;
-}
+::selection { background: rgba(92,255,208,0.15); color: var(--parchment); }
 
 /* Focus */
-:focus-visible {
-  outline: 1px solid rgba(1, 240, 148, 0.4);
-  outline-offset: 2px;
+:focus-visible { outline: 1px solid rgba(92,255,208,0.4); outline-offset: 2px; }
+
+/* Section label style */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
 }
