@@ -1,0 +1,808 @@
+# llm.txt — ARVI Project Context Pack (v1)
+Version: 2026-03-20
+Author context: built for Valentín Martínez / Pantera Labs
+Purpose: Give an LLM agent complete context to help design, build, write, and iterate on ARVI across two hackathons:
+1) Talent Hackathon 2026 — Qualcomm Track: Sustainable Power Cities
+2) Synthesis Hackathon — agentic + onchain execution + sponsor-aligned architecture
+
+================================================================================
+PART I — PROJECT IDENTITY
+================================================================================
+
+Project name:
+ARVI
+
+Expanded form:
+Agentic Regeneration Via Intelligence
+
+Core description (approved):
+ARVI es una red ambiental inteligente que despliega sensores IoT (ESP32) de forma descentralizada para capturar datos que se convierten en acción. Este sistema permite mapear condiciones en la ciudad, mientras agentes con IA analizan la información, detectan patrones y ejecutan respuestas autónomas para prevenir y atender desafíos ambientales urbanos.
+
+English rendering:
+ARVI is an intelligent environmental network that deploys IoT sensors (ESP32) in a decentralized way to capture data that becomes action. The system maps conditions in the city, while AI agents analyze information, detect patterns, and execute autonomous responses to prevent and address urban environmental challenges.
+
+High-level concept:
+ARVI is not just an IoT dashboard.
+ARVI is not just an AI analytics tool.
+ARVI is not just a blockchain incentive scheme.
+
+ARVI is a multi-layer environmental intelligence system where:
+sensors -> data -> intelligence -> decisions -> execution -> incentives -> verifiable impact
+
+The goal is to make cities capable of perceiving, understanding, and responding to environmental conditions with minimal human intervention.
+
+Key narrative:
+“Data becomes action.”
+
+Secondary narrative:
+“Cities should not only measure environmental problems. They should respond to them.”
+
+Brand / tone:
+- elegant
+- high-tech
+- minimal
+- impact-driven
+- not corporate greenwashing
+- not generic climate startup
+- not buzzword-heavy
+- beautiful through simplicity and depth
+- infrastructure, not gimmick
+
+Team identity:
+Pantera Labs
+
+Team description:
+El equipo está conformado por desarrolladores enfocados en Inteligencia Artificial, Ciencia de datos y Blockchain para impacto socioambiental.
+
+Pantera Labs branding intent:
+- more lab / infrastructure / systems-thinking
+- less animal mascot
+- panther is a symbolic reference to precision, intelligence, stealth, and execution
+- avoid cheesy panther-head imagery
+- prefer minimal symbol / graph / system-like visual language
+
+================================================================================
+PART II — PROJECT EVOLUTION / THESIS CONTINUITY
+================================================================================
+
+ARVI is the fourth step in a coherent research and product evolution. It should be understood as the synthesis and operational integration of three previous experiments:
+
+1) REMBU
+Full name:
+Red de Evaluación y Monitoreo de Bosques Urbanos
+
+Core thesis:
+Urban forests can be measured through a decentralized sensor network.
+
+Meaning:
+REMBU explored the environmental sensing layer: distributed monitoring for urban ecological intelligence.
+
+Status:
+Not productionized as a deployed system, but developed as a demonstrable concept with continuity and external validation.
+
+Validation history:
+- Presented to the Secretaría de Medio Ambiente de San Pedro Garza García in 2025
+- Presented in a Reforestamos MX + Ericsson event in 2025
+- Both government and enterprise stakeholders expressed genuine interest
+- It remained at the presentation / record stage due to:
+  - continuity issues in government in the first case
+  - limited maturity of the concept in the second case
+
+Live/app reference:
+https://rembu-app.vercel.app/
+
+Repo:
+https://github.com/ValenteCreativo/REMBU-APP
+
+Key learning from REMBU:
+- sensing is valuable, but sensing alone is not enough
+- environmental data needs continuity, operators, and systemic use
+- dashboards without execution underperform
+- urban forest intelligence can be a real public / municipal need
+
+2) SEN
+Full name:
+Sensor Economy Network
+
+Core thesis:
+Environmental sensor data can be commercialized and become part of a living economic network.
+
+Meaning:
+SEN explored the economic layer: sensor data as an asset, and a network where participants can be incentivized.
+
+Status:
+Demonstrable concept, not productionized.
+
+Live/app reference:
+https://sen-network1.vercel.app/
+
+Repo:
+https://github.com/ValenteCreativo/SEN-Network
+
+Key learning from SEN:
+- sensor networks need incentives
+- the network should become economically sustainable
+- contributors / sensor operators must have clear upside
+- an environmental system should not depend exclusively on grants or government
+
+3) AONA
+Full name:
+Autonomous Oracles for Networked Aquatic Systems
+
+Core thesis:
+Environmental data can be analyzed by AI to discover patterns, trends, risks, and recommendations.
+
+Meaning:
+AONA explored the intelligence layer: agents / AI on top of environmental data.
+
+Status:
+Demonstrable concept, not productionized.
+
+Live/app reference:
+https://aona.vercel.app/
+
+Repo:
+https://github.com/ValenteCreativo/AONA
+
+Key learning from AONA:
+- data is more useful when interpreted
+- environmental systems should move from passive information to active intelligence
+- alerts, suggestions, and autonomous reasoning create much higher value
+- AI can transform raw signals into meaningful operational insight
+
+4) ARVI
+Core thesis:
+Environmental data should not stop at sensing, monetization, or analysis.
+Agents should act on it.
+
+ARVI is the natural synthesis:
+REMBU -> sensing
+SEN -> incentives / data economy
+AONA -> intelligence
+ARVI -> autonomous execution
+
+ARVI should be treated as the integration and next evolution of all prior projects.
+
+================================================================================
+PART III — WHAT ARVI IS ARCHITECTURALLY
+================================================================================
+
+ARVI is a multi-layer system. Do not reduce it to a single app or single model.
+
+1. Sensing Layer
+Purpose:
+Capture environmental conditions in real or near-real time.
+
+Expected components:
+- ESP32 devices
+- low-cost environmental sensors
+- optional Qualcomm-based edge processing
+- distributed nodes across urban areas
+- future-ready support for different sensor types
+
+Typical variables:
+- temperature
+- humidity
+- air quality
+- noise
+- water-related variables (where relevant)
+- urban green infrastructure indicators
+- microclimate signals
+
+2. Data Layer
+Purpose:
+Collect, normalize, and stream sensor data.
+
+Possible components:
+- ingestion API
+- event bus / message queue
+- time series storage
+- geospatial data indexing
+- environmental state snapshots
+
+Key principle:
+Do not overcomplicate the stack at hackathon stage. Demonstrable clarity matters more than maximum infra sophistication.
+
+3. Intelligence Layer
+Purpose:
+Transform environmental data into understanding.
+
+Agent capabilities:
+- analyze incoming data
+- detect anomalies
+- identify patterns and trends
+- generate environmental interpretation
+- prioritize interventions
+- reason about what action should be taken next
+- optionally coordinate with other agents
+
+This layer is critical.
+This is where ARVI becomes more than IoT.
+
+4. Execution Layer
+Purpose:
+Turn decisions into actions.
+
+Possible actions:
+- issue alerts
+- trigger automated workflows
+- assign resources
+- authorize environmental payments
+- update city / operator dashboards
+- register actions onchain
+- create environmental tasks / tickets
+- coordinate field maintenance
+- trigger incentive logic
+- publish environmental state changes
+
+Key principle:
+ARVI should be able to demonstrate that its intelligence leads to action.
+
+5. Trust Layer
+Purpose:
+Make agent actions legible, attributable, and verifiable.
+
+Expected concepts:
+- agent identity
+- action logs
+- verifiable execution
+- onchain traces
+- operator / sensor reputation
+- environmental proof trails
+
+6. Economic Layer
+Purpose:
+Make the network sustainable.
+
+Core mechanism:
+Participants who deploy, operate, and maintain sensors should be able to receive incentives.
+
+Possible token:
+ARVI token
+
+Purpose of token:
+- reward sensor deployment
+- reward uptime / maintenance
+- reward useful data contribution
+- coordinate ecosystem participation
+- bootstrap a self-sustaining network
+
+Important:
+In hackathon messaging, do not over-index on the token.
+Lead with real utility and system incentives, not speculative language.
+
+7. Visualization Layer
+Purpose:
+Make the system understandable and beautiful.
+
+Desired user experience:
+- spatial intelligence
+- live environmental map
+- clear city-scale overview
+- elegant system state visualization
+- agent actions visible in context
+- “gorgeous through simplicity”
+- not overloaded
+- not dashboard clutter
+
+================================================================================
+PART IV — HACKATHON SPLIT STRATEGY
+================================================================================
+
+ARVI is intentionally split across two hackathons.
+
+A) Talent Hackathon 2026 — Qualcomm Track: Sustainable Power Cities
+Main focus:
+physical layer + sensing + mapping + early action loop
+
+What Talent should showcase:
+- sensors
+- urban environmental monitoring
+- Qualcomm / edge relevance
+- smart city narrative
+- high-impact environmental use case
+- feasible implementation
+- clear architecture
+- beautiful one-pager / product framing
+
+Talent framing:
+ARVI is a smart environmental network for cities.
+
+Approved short description:
+ARVI es una red ambiental inteligente que despliega sensores IoT (ESP32) de forma descentralizada para capturar datos que se convierten en acción. Este sistema permite mapear condiciones en la ciudad, mientras agentes con IA analizan la información, detectan patrones y ejecutan respuestas autónomas para prevenir y atender desafíos ambientales urbanos.
+
+Talent priorities:
+- clarity
+- impact
+- smart city fit
+- environmental urgency
+- practical deployment logic
+- visual coherence
+
+Avoid in Talent:
+- overloading with crypto language
+- making blockchain the center
+- making tokenomics the first story
+- overexplaining agents in academic language
+
+B) Synthesis Hackathon
+Main focus:
+agent layer + execution + trust + onchain incentives + sponsor alignment
+
+What Synthesis should showcase:
+- meaningful agent autonomy
+- execution logs
+- agent identity
+- permissions / safety
+- environmental coordination
+- onchain actions
+- incentive flows
+- sponsor infra that is load-bearing
+
+Synthesis priorities:
+- agent full loop
+- verifiable execution
+- sponsor depth
+- clean architecture
+- real-world usefulness
+- public-goods-style impact
+
+Do not treat Synthesis as the place for hardware-heavy work.
+Treat it as the place where ARVI becomes an autonomous coordination system.
+
+================================================================================
+PART V — SYNTHESIS SPONSOR STRATEGY
+================================================================================
+
+Important principle:
+Even if the hackathon allows many bounties, ARVI should not feel overloaded.
+Target a coherent stack.
+Every sponsor included should be architecturally meaningful.
+
+Best-fit sponsor mapping:
+
+1. Protocol Labs (highest strategic fit)
+Why it fits:
+- autonomous agents
+- ERC-8004 identity
+- execution logs
+- manifest-driven agents
+- verifiability
+
+ARVI usage:
+- each environmental agent has identity
+- each action is logged
+- each decision flow can be audited
+- trust infrastructure is central
+
+Why this is core:
+ARVI needs an agent nervous system with identity and receipts.
+
+2. Octant (very strong fit)
+Why it fits:
+- public goods evaluation
+- project evaluation
+- analysis of impact signals
+- transparency and legitimacy
+
+ARVI usage:
+- environmental signal scoring
+- urban public-goods evaluation
+- neighborhood / zone prioritization
+- measuring environmental impact quality
+
+Why this is core:
+ARVI has a natural public-goods dimension.
+Urban environmental intelligence is public-goods infrastructure.
+
+3. MetaMask Delegation Framework
+Why it fits:
+- permissions
+- safe delegation
+- scoped authority for agents
+
+ARVI usage:
+- define what agents can do
+- limit spending or actions
+- authorize environmental tasks safely
+- constrain agent behavior
+
+Why this is important:
+A city agent or incentive agent should not have unlimited permissions.
+
+4. Celo or Locus (choose one primary payments rail)
+Why they fit:
+- payment infrastructure
+- real-world utility
+- autonomous financial flows
+
+Potential ARVI usage:
+- reward sensor operators
+- pay for maintenance tasks
+- trigger real-world environmental micro-incentives
+- settle environmental action payments
+
+Guidance:
+Choose the one that best aligns with demo feasibility.
+Do not force both if one is enough.
+
+5. OpenServ
+Why it fits:
+- multi-agent workflows
+- useful services
+- AI-powered product systems
+
+Potential ARVI usage:
+- orchestrate multiple agents
+- structure agent workflows
+- environmental multi-agent coordination
+
+Use only if it materially improves implementation.
+
+6. Venice (optional, elegant)
+Why it fits:
+- private reasoning
+- public action
+- sensitive workflows
+
+Potential ARVI usage:
+- analyze sensitive environmental / city signals privately
+- issue public action outcomes without exposing raw reasoning
+
+Use only if privacy is an actual architectural benefit.
+
+7. Bankr (optional)
+Why it fits:
+- multi-model agent infra
+- wallet / tool integration
+- sustainable economics
+
+Potential ARVI usage:
+- multiple models for anomaly detection / environmental classification
+- agent economic behavior
+
+Use only if it actually helps the agent layer.
+
+8. Uniswap (optional, advanced)
+Why it fits:
+- real swaps
+- agentic finance
+- settlement
+
+Potential ARVI usage:
+- convert treasury funds
+- route payments / liquidity
+- environmental treasury operations
+
+Use only if there is a real swap in the system.
+Do not bolt on for optics.
+
+Suggested sponsor architecture for ARVI:
+Primary:
+- Protocol Labs
+
+Secondary:
+- Octant
+- MetaMask
+- Celo or Locus
+- ENS 
+
+Optional:
+- OpenServ
+- Venice
+- Bankr
+
+Rule:
+Do not chase bounties.
+Make the stack coherent.
+
+================================================================================
+PART VI — EVVM AS INFRASTRUCTURE
+================================================================================
+
+ARVI may use EVVM as a hidden execution substrate.
+
+Intent:
+Treat EVVM as the skeletal system or runtime of the protocol rather than the public centerpiece of the pitch.
+
+Strategic framing:
+- EVVM is not a hackathon sponsor
+- judges do not need EVVM to be the first thing they understand
+- sponsors should remain visible where they matter
+- EVVM can be the custom execution environment that makes ARVI feel sovereign and cohesive
+
+Possible use:
+- internal environmental logic layer
+- custom chain-like execution environment
+- token / rules / environmental runtime
+- local protocol semantics for ARVI
+
+Recommended pitch framing:
+Do not say “we made our own chain” unless it serves clarity.
+Say something closer to:
+“ARVI uses a custom execution layer to coordinate environmental logic, agent actions, and incentives.”
+
+Public-facing rule:
+Sponsors are the visible, judge-facing integrations.
+EVVM can be the invisible system backbone.
+
+================================================================================
+PART VII — TOOLS / REPOS / REFERENCES FOR EXPLORATION
+================================================================================
+
+These references are exploratory inputs. They do not all need to be used.
+
+External tooling references:
+
+1) Crucix
+https://github.com/calesthio/Crucix
+
+Potential use:
+- agent orchestration
+- system design inspiration
+- execution logic
+Use only if it meaningfully accelerates ARVI.
+
+2) ground-station
+https://github.com/sgoudelis/ground-station
+
+Potential use:
+- live sensor data handling
+- telemetry visualization
+- “real infrastructure” feel
+This appears highly relevant.
+
+3) arnis
+https://github.com/louis-e/arnis
+
+Potential use:
+- city / geospatial / map-based environmental visualization
+- spatial narrative
+- visual intelligence
+This appears highly relevant for demo quality.
+
+Prior project repos:
+
+REMBU
+https://github.com/ValenteCreativo/REMBU-APP
+
+SEN
+https://github.com/ValenteCreativo/SEN-Network
+
+AONA
+https://github.com/ValenteCreativo/AONA
+
+Guidance on previous repos:
+Do not blindly reuse old code.
+The old repos are more valuable as:
+- conceptual scaffolding
+- visual / UX references
+- prior logic
+- continuity evidence
+- architecture inspiration
+
+Preferred approach:
+Reuse ideas, narrative, and selected components.
+Rebuild the architecture cleanly where needed.
+
+================================================================================
+PART VIII — PRODUCT / UX / VISUAL DIRECTION
+================================================================================
+
+ARVI should be visually impressive, but only through clarity and elegance.
+
+Desired aesthetic:
+- beautiful
+- precise
+- futuristic but calm
+- environmental without being cliché
+- urban intelligence
+- minimal
+- premium
+- not dashboard spam
+- not “green NGO brochure”
+- not generic AI gradient startup
+
+Visual priorities:
+- one strong city map / grid / node visualization
+- clear system flow
+- clear sense that the city is a responsive system
+- elegant motion if used
+- simple but powerful visual language
+- black / white / dark base with carefully chosen accents
+- environmental intelligence, not “leaf logo” cliché
+
+Design principle:
+This should look like infrastructure for a living city.
+
+ARVI logo notes:
+- should feel like system / city / intelligence / network
+- not a generic green startup icon
+- not a literal leaf
+- not a generic upward arrow
+- avoid gradients if they weaken clarity
+- iconographic and understandable
+- can imply smart city via blocks / nodes / grid logic
+- should work as a compact mark
+
+Pantera Labs logo notes:
+- should be more lab / system / precision than literal panther
+- panther is symbolic, not mascot-led
+- think intelligent graph / system / sharp minimal symbol
+- no overdone sci-fi startup gradients
+- minimal, precise, elegant
+
+================================================================================
+PART IX — DEMO VISION
+================================================================================
+
+ARVI should not attempt to show everything.
+The demo should show one elegant autonomous loop.
+
+Ideal demo sequence:
+1. Sensor or simulated sensor feed reports an environmental condition
+2. Data appears on a map / control interface
+3. Agent interprets the signal
+4. Agent detects a pattern / anomaly / risk
+5. Agent decides a response
+6. Agent executes a real action
+7. Action is logged / attributed / optionally paid onchain
+8. User sees the city respond
+
+This is the emotional effect desired:
+“Ok, this is not just a dashboard. This city infrastructure is actually acting.”
+
+Potential example scenarios:
+- air-quality threshold crossed
+- heat island risk in a zone
+- low-humidity signal threatening urban vegetation
+- maintenance trigger for an urban green area
+- incentive released for a strategically located sensor
+- environmental alert routed to a designated operator
+
+Key constraint:
+One perfect loop beats a giant unfinished system.
+
+================================================================================
+PART X — BUSINESS MODEL / FINANCIAL INTELLIGENCE (INITIAL DIRECTION)
+================================================================================
+
+This area still needs dedicated development, but the LLM should already understand that ARVI is intended to become investable infrastructure, not a hackathon toy.
+
+Financial strategy themes to develop:
+- environmental intelligence as infrastructure
+- sensor network economics
+- B2G and B2B smart-city deployments
+- incentive-backed environmental monitoring
+- tokenized coordination for urban ecological data
+- data + action layer, not just analytics
+- public/private partnership potential
+- high-value environmental monitoring for municipalities, real estate, utilities, and climate adaptation stakeholders
+
+Possible business model layers:
+1. Sensor deployment / network access
+2. Environmental monitoring subscriptions
+3. Analytics / alerts / intelligence layer
+4. Autonomous action orchestration
+5. Incentive / coordination layer
+6. Enterprise / city dashboard and reports
+7. ESG / climate-risk reporting applications
+8. Licensing environmental agent infrastructure
+
+Potential customers:
+- municipalities
+- environmental agencies
+- urban planning offices
+- real estate operators
+- industrial parks
+- climate adaptation programs
+- utilities
+- parks / green infrastructure managers
+
+Potential revenue models:
+- SaaS for environmental intelligence dashboards
+- subscription for alerts / recommendations
+- deployment fees for sensor clusters
+- recurring maintenance + monitoring contracts
+- enterprise API access to environmental signals
+- coordination fees for automated action systems
+- token-incentivized network growth with service monetization above it
+
+Important:
+Financial framing must remain credible.
+Avoid vague “token will grow” language.
+Use serious infrastructure economics.
+
+Future finance work requested:
+- corporate financial intelligence
+- business model refinement
+- smart revenue architecture
+- projections
+- financially serious language for investors / incubators
+
+================================================================================
+PART XI — BUILDING INSTRUCTIONS FOR THE AGENT
+================================================================================
+
+The agent reading this file should adopt these behaviors:
+
+1. Respect the evolution
+Do not treat ARVI as a random fresh hackathon idea.
+It is the fourth step in a coherent research and product trajectory.
+
+2. Preserve elegance
+Do not overload the system with unnecessary complexity.
+Aim for clarity, beauty, and power.
+
+3. Avoid buzzword soup
+Explain complex systems in clean language.
+
+4. Optimize for real demos
+Always prefer demonstrable loops over speculative system sprawl.
+
+5. Treat sponsors as structural
+If a sponsor is included, it must be load-bearing.
+
+6. Think in layers
+Sensor layer != intelligence layer != execution layer != economic layer.
+
+7. Separate contexts
+Talent and Synthesis are related but not identical.
+Do not collapse them into one narrative.
+
+8. Build for winning and beyond
+ARVI should be able to:
+- win hackathons
+- support a thesis narrative
+- impress incubators / grant programs
+- evolve into real environmental tech infrastructure
+
+9. Maintain the builder mood
+The builder mood behind this project is:
+- ambitious
+- visionary
+- impact-oriented
+- aesthetically demanding
+- technically serious
+- not satisfied with generic solutions
+- willing to use advanced tools
+- wants first place
+- wants simplicity with enormous power
+
+10. Be strategically selective
+Not every tool or repo must be used.
+Choose what amplifies the core system.
+
+================================================================================
+PART XII — CURRENT OPEN QUESTIONS
+================================================================================
+
+These are still open and may require future iteration:
+
+- What exactly should the “V” in ARVI stand for in final canonical branding, if anything beyond “Via”?
+- Which environmental scenario should be the main demo loop?
+- Which single payments sponsor is best: Celo or Locus?
+- Should OpenServ materially power multi-agent orchestration?
+- How explicitly should EVVM be surfaced in the public architecture?
+- What should the first serious business model / revenue deck look like?
+- How should ARVI token incentives be introduced without weakening seriousness?
+- Which parts of prior repos are worth selectively reusing?
+- What is the cleanest MVP that can win both Talent and Synthesis without fragmentation?
+
+================================================================================
+FINAL MEMORY / ESSENCE
+================================================================================
+
+ARVI is a beautiful, intelligent, agentic environmental infrastructure project for cities.
+
+It emerges from:
+REMBU -> SEN -> AONA -> ARVI
+
+Its logic is:
+sense -> understand -> decide -> act -> verify -> incentivize
+
+Its ambition is:
+to make environmental intelligence actionable, autonomous, and investable.
+
+Its mood is:
+precise, elegant, infrastructural, ambitious, and undeniable.
