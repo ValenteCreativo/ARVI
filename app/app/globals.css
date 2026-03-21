@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --arvi-green: #01f094;
+  --arvi-dark: #0a0f0d;
+}
+
+body {
+  background: var(--arvi-dark);
+  color: #e0ffe8;
+  font-family: 'Inter', monospace;
+}
