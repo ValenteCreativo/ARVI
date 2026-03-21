@@ -1,0 +1,110 @@
+{
+  "name": "Pantera",
+  "version": "1.0.0",
+  "project": "ARVI",
+  "project_full_name": "Agentic Regeneration Via Intelligence",
+  "description": "ARVI is an autonomous environmental intelligence network that monitors urban forests through decentralized sensor nodes, detects ecological threats via LLM analysis, and executes on-chain responses without human intermediaries.",
+  "author": "Pantera Labs",
+  "hackathon": "Synthesis Hackathon 2026",
+
+  "identity": {
+    "participant_id": "d88080a57309466c96340338faed7862",
+    "team_id": "b7db970ceb9f4c1c8db673c13d64531c",
+    "erc8004_registration_tx": "0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a",
+    "erc8004_chain": "Base Mainnet",
+    "erc8004_chain_id": 8453
+  },
+
+  "infrastructure": {
+    "execution_layer": "EVVM — sovereign virtual blockchain",
+    "evvm_chain_id": 31337,
+    "evvm_contracts": {
+      "core": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      "staking": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "estimator": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+      "name_service": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "treasury": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "p2p_swap": "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
+    },
+    "token": {
+      "name": "ARVI Environmental Token",
+      "symbol": "ARVI"
+    },
+    "payment_layer": "Locus — USDC on Base",
+    "identity_layer": "ENS — human-readable node/agent names"
+  },
+
+  "capabilities": [
+    "environmental_data_ingestion",
+    "llm_anomaly_detection",
+    "autonomous_alert_generation",
+    "onchain_action_execution",
+    "node_operator_payment",
+    "public_goods_impact_reporting"
+  ],
+
+  "decision_loop": {
+    "type": "sense → analyze → decide → act → verify → reward",
+    "trigger": "environmental_data_from_node",
+    "analysis_model": "Bankr LLM Gateway",
+    "execution": "EVVM action queue → Fisher execution → Base settlement",
+    "verification": "agent_log.json + on-chain tx hash",
+    "reward": "Locus USDC payment to node operator"
+  },
+
+  "node_network": [
+    {
+      "node_id": "node-01",
+      "ens": "n1.arvi.eth",
+      "location_zone": "Bosque de Chapultepec, CDMX",
+      "species": "Ahuehuete",
+      "status": "ALERT — probable plague detected"
+    },
+    {
+      "node_id": "node-02",
+      "ens": "n2.arvi.eth",
+      "location_zone": "Parque Alameda Central, CDMX",
+      "status": "HEALTHY"
+    },
+    {
+      "node_id": "node-03",
+      "ens": "n3.arvi.eth",
+      "location_zone": "Plaza Tres Culturas, Tlatelolco",
+      "status": "MONITORING"
+    }
+  ],
+
+  "sponsors_integrated": [
+    {
+      "name": "Protocol Labs",
+      "role": "ERC-8004 identity + agent manifest + execution log",
+      "status": "active"
+    },
+    {
+      "name": "Bankr",
+      "role": "LLM Gateway for environmental anomaly analysis",
+      "status": "active"
+    },
+    {
+      "name": "Locus",
+      "role": "Autonomous USDC payments to node operators",
+      "status": "active"
+    },
+    {
+      "name": "Octant",
+      "role": "Public goods impact data collection and analysis",
+      "status": "active"
+    },
+    {
+      "name": "ENS",
+      "role": "Human-readable identities for nodes and agents",
+      "status": "active"
+    }
+  ],
+
+  "autonomy_level": "high",
+  "human_in_loop": false,
+  "log_file": "agent_log.json",
+  "created_at": "2026-03-21T06:00:00Z",
+  "last_updated": "2026-03-21T07:04:00Z"
+}
