@@ -1,74 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── ARVI V3 Design System ────────────────────────────── */
+/* ─── V4 Base ─────────────────────────────────────────────────────────────── */
 :root {
-  /* Palette */
-  --void:     #0A0B14;    /* Background — deep indigo-black, space */
-  --surface:  #0D0F1C;    /* Elevated surface */
-  --aqua:     #5CFFD0;    /* Bioluminescent aquamarine — life, data */
-  --terra:    #FF5C3A;    /* Volcanic terracotta — urgency, heat */
-  --solar:    #FFC64D;    /* Amber solar — earth, energy, warmth */
-  --violet:   #A78BFA;    /* Intelligence violet — AI, analysis */
-  --parchment:#F0EDE8;    /* Warm off-white — human, not CSS white */
-  --dim:      rgba(240,237,232,0.35);
-  --dimmer:   rgba(240,237,232,0.15);
-
-  /* Typography */
-  --font-serif: 'DM Serif Display', Georgia, serif;
-  --font-mono:  'DM Mono', 'Courier New', monospace;
-  --font-sans:  'Inter', system-ui, sans-serif;
+  --canvas:     #F7F7F7;
+  --ink:        #111111;
+  --line:       #E5E5E5;
+  --border:     #DADADA;
+  --muted:      #888888;
+  --jade:       #2E7D6B;
+  --jade-dim:   rgba(46, 125, 107, 0.12);
 }
 
-/* Base */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--void);
-  color: var(--parchment);
-  font-family: var(--font-sans);
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  cursor: default;
 }
 
-/* Typography utilities */
-.font-serif  { font-family: var(--font-serif); }
-.font-mono   { font-family: var(--font-mono); }
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* Color utilities */
-.text-aqua   { color: var(--aqua); }
-.text-terra  { color: var(--terra); }
-.text-solar  { color: var(--solar); }
-.text-violet { color: var(--violet); }
-.text-dim    { color: var(--dim); }
-.text-parchment { color: var(--parchment); }
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+.font-serif { font-family: 'DM Serif Display', Georgia, serif; }
+.font-mono  { font-family: 'DM Mono', 'Fira Code', monospace; }
 
-.bg-void    { background: var(--void); }
-.bg-surface { background: var(--surface); }
-.border-aqua  { border-color: var(--aqua); }
-.border-terra { border-color: var(--terra); }
+/* ─── Grid overlay (whiteboard feel) ─────────────────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.grid-bg-sm {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
 
-/* Glow effects */
-.glow-aqua  { box-shadow: 0 0 24px rgba(92,255,208,0.3); }
-.glow-terra { box-shadow: 0 0 24px rgba(255,92,58,0.3); }
+/* ─── Node aesthetics ─────────────────────────────────────────────────────── */
+.node-ring {
+  border: 1.5px solid var(--border);
+  background: var(--canvas);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+.node-ring:hover, .node-ring.active {
+  border-color: var(--jade);
+  background: var(--jade-dim);
+  box-shadow: 0 0 0 4px var(--jade-dim);
+}
 
-/* Scrollbar */
-::-webkit-scrollbar        { width: 3px; height: 3px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: rgba(92,255,208,0.2); border-radius: 2px; }
+/* ─── Signal line ─────────────────────────────────────────────────────────── */
+.signal-path {
+  stroke: var(--jade);
+  stroke-width: 1;
+  fill: none;
+  stroke-dasharray: 4 8;
+  animation: signal-flow 3s linear infinite;
+}
+@keyframes signal-flow {
+  to { stroke-dashoffset: -36; }
+}
 
-/* Selection */
-::selection { background: rgba(92,255,208,0.15); color: var(--parchment); }
+/* ─── Text utilities ──────────────────────────────────────────────────────── */
+.text-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.text-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-/* Focus */
-:focus-visible { outline: 1px solid rgba(92,255,208,0.4); outline-offset: 2px; }
+/* ─── Jade button ─────────────────────────────────────────────────────────── */
+.btn-jade {
+  background: var(--jade);
+  color: white;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 10px 24px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-jade:hover { background: #24665a; transform: translateY(-1px); }
 
-/* Section label style */
-.section-label {
-  font-family: var(--font-mono);
+.btn-outline {
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 10px 24px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-outline:hover { border-color: var(--jade); color: var(--jade); }
+
+/* ─── Leaflet overrides (atlas stays dark) ────────────────────────────────── */
+.leaflet-container { background: #0A0B14 !important; }
+
+/* ─── Dashboard (command center mode on light bg) ────────────────────────── */
+.panel {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+}
+.panel-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font-family: 'DM Mono', monospace;
   font-size: 10px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--dim);
+  color: var(--muted);
 }
+
+/* ─── Cursor glow (interactive areas) ────────────────────────────────────── */
+.cursor-zone { cursor: crosshair; }

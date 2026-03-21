@@ -1,324 +1,491 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
 
-const MiniWorldMap = dynamic(() => import('./components/MiniWorldMap'), { ssr: false, loading: () => (
-  <div className="w-full h-full rounded-2xl border border-white/10 bg-surface flex items-center justify-center">
-    <span className="font-mono text-[10px] text-white/20 animate-pulse">loading map...</span>
-  </div>
-)})
+// ─── Cursor tracker ────────────────────────────────────────────────────────────
+function useCursor() {
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const sx = useSpring(x, { stiffness: 80, damping: 20 })
+  const sy = useSpring(y, { stiffness: 80, damping: 20 })
+  useEffect(() => {
+    const move = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY) }
+    window.addEventListener('mousemove', move)
+    return () => window.removeEventListener('mousemove', move)
+  }, [x, y])
+  return { x: sx, y: sy, rawX: x, rawY: y }
+}
 
-// ─── Ecosystems ───────────────────────────────────────────────────────────────
-const ECOSYSTEMS = [
-  { id: 'forests',    label: 'urban forests',     accent: '#5CFFD0', sym: '◎' },
-  { id: 'aquatic',    label: 'aquatic systems',    accent: '#60C8FF', sym: '◈' },
-  { id: 'coral',      label: 'coral reefs',        accent: '#FF9F5C', sym: '⬡' },
-  { id: 'soil',       label: 'soil microbiomes',   accent: '#FFC64D', sym: '▸' },
-  { id: 'fauna',      label: 'fauna corridors',    accent: '#C084FC', sym: '○' },
-  { id: 'wetlands',   label: 'wetlands',           accent: '#5CFFD0', sym: '◎' },
-  { id: 'atmosphere', label: 'the atmosphere',     accent: '#94A3B8', sym: '◈' },
-]
-
-// Cards for the world canvas
-const CANVAS_CARDS = [
-  { id: 'c1', eco: 'Urban Forests',    metric: 'Health Score', val: '34%',  status: 'CRITICAL',    color: '#FF5C3A', x: -280, y: -90 },
-  { id: 'c2', eco: 'Aquatic Systems',  metric: 'pH Level',     val: '6.1',  status: 'CRITICAL',    color: '#60C8FF', x: 220,  y: -100 },
-  { id: 'c3', eco: 'Soil Microbiomes', metric: 'Carbon Seq.',  val: '−18%', status: 'WARNING',     color: '#FFC64D', x: -260, y: 100 },
-  { id: 'c4', eco: 'Fauna Corridors',  metric: 'Species',      val: '61/97',status: 'WARNING',     color: '#C084FC', x: 200,  y: 90 },
-  { id: 'c5', eco: 'Atmosphere',       metric: 'CO₂ Anomaly',  val: '+4.2%',status: 'MONITORING',  color: '#94A3B8', x: 0,    y: -160 },
-  { id: 'c6', eco: 'Coral Reefs',      metric: 'Bleaching',    val: '31%',  status: 'CRITICAL',    color: '#FF9F5C', x: 0,    y: 150 },
-]
-
-function CanvasCard({ card }: { card: typeof CANVAS_CARDS[0] }) {
+// ─── Animated network background ──────────────────────────────────────────────
+function NetworkBg() {
+  const DOTS = [
+    [12,8],[28,15],[45,9],[62,18],[80,12],[92,20],
+    [8,35],[22,42],[38,30],[55,38],[72,25],[88,35],
+    [15,55],[32,62],[50,52],[68,60],[85,50],[95,65],
+    [5,75],[20,82],[42,72],[60,78],[78,70],[90,80],
+    [18,92],[35,88],[55,95],[75,85],[88,92],
+  ]
+  const LINES = [[0,3],[1,4],[2,5],[3,7],[4,8],[5,9],[6,10],[7,11],[8,12],[9,13],[10,14],[11,15],[12,16],[13,17],[14,18],[15,19],[16,20],[17,21],[18,22],[19,23],[20,24],[21,25],[22,26],[23,27],[1,8],[4,9],[7,12],[10,15],[13,18],[16,21]]
   return (
-    <motion.div
-      drag dragMomentum={false}
-      initial={{ x: card.x, y: card.y, opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: Math.random() * 0.5 }}
-      whileDrag={{ scale: 1.05, zIndex: 50 }}
-      style={{ position: 'absolute', cursor: 'grab', zIndex: 10 }}
-    >
-      <div className="rounded-xl border px-3 py-2.5 min-w-[130px] backdrop-blur-sm select-none"
-        style={{ background: `${card.color}08`, borderColor: `${card.color}25`, boxShadow: `0 4px 20px ${card.color}10` }}>
-        <div className="flex items-center justify-between mb-1">
-          <span className="font-mono text-[9px] tracking-widest uppercase" style={{ color: `${card.color}70` }}>{card.eco}</span>
-          <span className="font-mono text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-            style={{ color: card.color, background: `${card.color}15`, border: `1px solid ${card.color}25` }}>
-            {card.status}
-          </span>
-        </div>
-        <div className="font-mono text-[10px] text-white/40 mb-0.5">{card.metric}</div>
-        <div className="font-serif text-lg font-bold" style={{ color: card.color }}>{card.val}</div>
-      </div>
-    </motion.div>
+    <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+      {LINES.map(([a, b], i) => {
+        if (!DOTS[a] || !DOTS[b]) return null
+        return (
+          <motion.line key={i}
+            x1={`${DOTS[a][0]}%`} y1={`${DOTS[a][1]}%`}
+            x2={`${DOTS[b][0]}%`} y2={`${DOTS[b][1]}%`}
+            stroke="#DADADA" strokeWidth="0.8"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: [0, 0.5, 0.3] }}
+            transition={{ duration: 2, delay: i * 0.06, ease: 'easeOut' }}
+          />
+        )
+      })}
+      {DOTS.map(([cx, cy], i) => (
+        <motion.circle key={i} cx={`${cx}%`} cy={`${cy}%`} r="2.5"
+          fill="none" stroke="#DADADA" strokeWidth="1"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.6 }}
+          transition={{ delay: i * 0.04 + 0.5, duration: 0.4 }}
+        />
+      ))}
+      {/* Animated signal lines */}
+      {[[0,4],[3,8],[9,13],[14,18],[19,23]].map(([a, b], i) => {
+        if (!DOTS[a] || !DOTS[b]) return null
+        return (
+          <motion.line key={`s${i}`}
+            x1={`${DOTS[a][0]}%`} y1={`${DOTS[a][1]}%`}
+            x2={`${DOTS[b][0]}%`} y2={`${DOTS[b][1]}%`}
+            stroke="#2E7D6B" strokeWidth="1" strokeDasharray="4 8"
+            animate={{ strokeDashoffset: [0, -36] }}
+            transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: 'linear', delay: i * 1.2 }}
+          />
+        )
+      })}
+    </svg>
   )
 }
 
-// ─── Section 0 — Hero fill-in-blank ───────────────────────────────────────────
-function HeroSection({ activeEco, setActiveEco }: {
-  activeEco: typeof ECOSYSTEMS[0]; setActiveEco: (e: typeof ECOSYSTEMS[0]) => void
-}) {
+// ─── Section 1: Opening ────────────────────────────────────────────────────────
+function Opening() {
+  const [ready, setReady] = useState(false)
+  useEffect(() => { setTimeout(() => setReady(true), 200) }, [])
   return (
-    <section className="relative w-screen h-screen flex flex-col items-center justify-center px-8 overflow-hidden">
-      {/* Star field */}
-      {[...Array(50)].map((_, i) => (
-        <div key={i} className="absolute rounded-full bg-white/20"
-          style={{ width: Math.random() * 2 + 0.5 + 'px', height: Math.random() * 2 + 0.5 + 'px',
-            left: Math.random() * 100 + '%', top: Math.random() * 100 + '%', opacity: Math.random() * 0.4 + 0.05 }} />
-      ))}
-      <div className="absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: 'linear-gradient(rgba(92,255,208,1) 1px,transparent 1px),linear-gradient(90deg,rgba(92,255,208,1) 1px,transparent 1px)', backgroundSize: '80px 80px' }} />
-
-      <div className="relative text-center max-w-5xl mx-auto">
-        <p className="font-mono text-[10px] text-white/25 tracking-[0.4em] uppercase mb-10">
-          ◈ ARVI — Agentic Regeneration Via Intelligence
-        </p>
-        <h1 className="font-serif leading-none mb-6">
-          <span className="block text-5xl sm:text-7xl lg:text-[88px] text-parchment mb-2">Agentic intelligence</span>
-          <span className="block text-3xl sm:text-5xl lg:text-6xl text-parchment/50 mb-2">for the</span>
-          <AnimatePresence mode="wait">
-            <motion.span key={activeEco.id}
-              initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -20, filter: 'blur(8px)' }}
-              transition={{ duration: 0.35 }}
-              className="block text-4xl sm:text-6xl lg:text-7xl font-serif italic border-b-2 pb-1"
-              style={{ color: activeEco.accent, borderColor: `${activeEco.accent}50` }}>
-              {activeEco.label}
-            </motion.span>
-          </AnimatePresence>
-          <span className="block text-3xl sm:text-5xl lg:text-6xl text-parchment/50 mt-2">that makes our planet livable.</span>
-        </h1>
-
-        <div className="flex flex-wrap justify-center gap-2 mt-8 mb-6">
-          {ECOSYSTEMS.map(eco => (
-            <motion.button key={eco.id} onClick={() => setActiveEco(eco)}
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-              className="text-[11px] font-mono px-3 py-1.5 rounded-full border transition-all"
-              style={activeEco.id === eco.id
-                ? { background: eco.accent, borderColor: eco.accent, color: '#0A0B14', fontWeight: 700 }
-                : { borderColor: 'rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.35)' }}>
-              {eco.sym} {eco.label}
-            </motion.button>
-          ))}
-        </div>
-        <p className="font-mono text-[10px] text-white/20">— the agent cycles autonomously · click to override —</p>
-        <motion.div animate={{ x: [0, 18, 0] }} transition={{ duration: 2, repeat: Infinity }}
-          className="absolute right-10 bottom-10 font-mono text-[10px] text-white/15 flex items-center gap-2">
-          scroll to explore ——▸
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-canvas">
+      <NetworkBg />
+      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={{ duration: 0.8 }}>
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-12">
+            Environmental Intelligence
+          </p>
+        </motion.div>
+        <motion.h1 className="font-serif text-[80px] sm:text-[120px] lg:text-[160px] leading-none text-ink mb-8 tracking-tight"
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+          ARVI
+        </motion.h1>
+        <motion.p className="font-mono text-sm text-muted mb-2 tracking-wide"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 0.8 }}>
+          in motion.
+        </motion.p>
+        <motion.p className="font-mono text-[11px] text-muted/60 tracking-widest"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.8 }}>
+          A system that listens, learns, and responds.
+        </motion.p>
+        <motion.div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }}>
+          <motion.div className="w-px h-12 bg-border"
+            animate={{ scaleY: [0.3, 1, 0.3] }} transition={{ duration: 2, repeat: Infinity }} />
+          <span className="font-mono text-[9px] text-muted/40 tracking-widest">scroll</span>
         </motion.div>
       </div>
     </section>
   )
 }
 
-// ─── Section 1 — Interactive World Canvas ─────────────────────────────────────
-function WorldCanvasSection() {
+// ─── Section 2: First Signal (cursor-reactive) ────────────────────────────────
+function FirstSignal() {
+  const { rawX, rawY } = useCursor()
+  const ref = useRef<HTMLDivElement>(null)
+  const [nodes, setNodes] = useState<Array<{ x: number; y: number; active: boolean }>>([])
+  const [revealed, setRevealed] = useState(false)
+
+  useEffect(() => {
+    setNodes(Array.from({ length: 12 }, (_, i) => ({
+      x: 8 + (i % 4) * 28 + (Math.floor(i / 4) % 2) * 14,
+      y: 20 + Math.floor(i / 4) * 30,
+      active: false,
+    })))
+  }, [])
+
+  useEffect(() => {
+    const unsub = rawX.on('change', () => {
+      if (!ref.current) return
+      const rect = ref.current.getBoundingClientRect()
+      const lx = (rawX.get() - rect.left) / rect.width * 100
+      const ly = (rawY.get() - rect.top) / rect.height * 100
+      setNodes(prev => prev.map(n => ({
+        ...n,
+        active: Math.hypot(n.x - lx, n.y - ly) < 15,
+      })))
+      const anyActive = nodes.some(n => Math.hypot(n.x - lx, n.y - ly) < 15)
+      if (anyActive) setRevealed(true)
+    })
+    return () => unsub()
+  }, [rawX, rawY, nodes])
+
   return (
-    <section className="relative w-screen h-screen flex flex-col items-center justify-center px-8 overflow-hidden"
-      style={{ background: '#080910' }}>
-      <p className="font-mono text-[10px] text-white/20 tracking-[0.3em] uppercase absolute top-20">
-        ◎ Live intelligence network
-      </p>
-      <div className="relative" style={{ width: '560px', height: '400px' }}>
-        {/* Mini world map in center */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
-          style={{ width: '260px', height: '160px' }}>
-          <MiniWorldMap className="w-full h-full" />
-        </div>
-        {/* Connection lines (decorative) */}
-        <svg className="absolute inset-0 pointer-events-none" width="560" height="400"
-          style={{ overflow: 'visible' }}>
-          {CANVAS_CARDS.map(c => (
-            <line key={c.id}
-              x1="280" y1="200"
-              x2={280 + c.x + 65} y2={200 + c.y + 20}
-              stroke={c.color} strokeOpacity="0.1" strokeWidth="1"
-              strokeDasharray="4 4" />
-          ))}
-        </svg>
-        {/* Draggable cards */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          {CANVAS_CARDS.map(card => <CanvasCard key={card.id} card={card} />)}
-        </div>
+    <section ref={ref} className="relative min-h-screen flex flex-col items-center justify-center bg-canvas cursor-zone overflow-hidden">
+      <div className="grid-bg absolute inset-0 opacity-60" />
+
+      {/* Reactive nodes */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+        {nodes.map((n, i) => (
+          <g key={i}>
+            <motion.circle cx={`${n.x}%`} cy={`${n.y}%`} r="4"
+              fill={n.active ? '#EAF4F1' : 'white'}
+              stroke={n.active ? '#2E7D6B' : '#DADADA'}
+              strokeWidth={n.active ? '1.5' : '1'}
+              animate={{ r: n.active ? 7 : 4, opacity: n.active ? 1 : 0.7 }}
+              transition={{ duration: 0.2 }}
+            />
+            {n.active && (
+              <motion.circle cx={`${n.x}%`} cy={`${n.y}%`} r="12"
+                fill="none" stroke="#2E7D6B" strokeWidth="0.5"
+                initial={{ r: 7, opacity: 0.8 }} animate={{ r: 22, opacity: 0 }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+            )}
+          </g>
+        ))}
+      </svg>
+
+      <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
+        <motion.p className="font-mono text-[10px] text-muted/40 tracking-widest uppercase mb-16"
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+          move your cursor
+        </motion.p>
+        <AnimatePresence>
+          {revealed ? (
+            <motion.div key="revealed"
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}>
+              <h2 className="font-serif text-5xl lg:text-6xl text-ink mb-6">
+                Intelligence is not.
+              </h2>
+              <p className="font-mono text-sm text-muted">Data is everywhere.</p>
+            </motion.div>
+          ) : (
+            <motion.div key="waiting" initial={{ opacity: 0.6 }} exit={{ opacity: 0 }}>
+              <h2 className="font-serif text-5xl lg:text-6xl text-border">
+                Data is everywhere.
+              </h2>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      <p className="font-mono text-[10px] text-white/15 mt-8 absolute bottom-16">
-        ↔ drag any card · hover map to zoom · live data from ARVI agent network
-      </p>
     </section>
   )
 }
 
-// ─── What is ARVI (no buzzwords) ──────────────────────────────────────────────
-function WhatIsARVI() {
-  const points = [
-    {
-      sym: '◎',
-      color: '#5CFFD0',
-      title: 'Sensors in the field',
-      body: 'Small nodes deployed in forests, rivers, and soil. They measure things satellites can\'t: canopy-level temperature, root zone moisture, pathogen risk, and the presence of bird species by sound. Tree-level precision, not city-level averages.',
-    },
-    {
-      sym: '◈',
-      color: '#A78BFA',
-      title: 'An AI agent that never sleeps',
-      body: 'ARVI\'s agent reads every sensor reading the moment it arrives. It doesn\'t alert on every spike — it identifies patterns, cross-references historical data, and only acts when it has high confidence something is wrong. No false alarms.',
-    },
-    {
-      sym: '▸',
-      color: '#FFC64D',
-      title: 'Automatic action',
-      body: 'When the agent confirms a threat, it doesn\'t send an email. It logs the event onchain, issues a structured alert, and triggers a USDC payment to the operator who reported the data. The response starts in under 2 seconds.',
-    },
-    {
-      sym: '⬡',
-      color: '#FF5C3A',
-      title: 'Why this matters',
-      body: 'Urban forests absorb carbon, cool cities, and filter air. Aquifers feed millions. Coral reefs protect coastlines. These systems are already under stress. Right now, detecting a plague requires a field visit. ARVI makes that automatic, verifiable, and self-sustaining.',
-    },
-  ]
+// ─── Section 3: Core Reveal ────────────────────────────────────────────────────
+function CoreReveal() {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center bg-canvas px-6">
+      <div className="max-w-3xl mx-auto text-center">
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+          <div className="w-px h-20 bg-border mx-auto mb-16" />
+        </motion.div>
+        <motion.h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-ink leading-tight mb-10"
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
+          ARVI is an autonomous intelligence layer
+          <br /><span className="text-jade">that transforms environmental signals</span>
+          <br />into actionable systems.
+        </motion.h2>
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.4, duration: 0.6 }}>
+          <p className="font-mono text-[11px] text-muted tracking-[0.2em] uppercase">
+            sensing &nbsp;—&nbsp; understanding &nbsp;—&nbsp; action
+          </p>
+        </motion.div>
+        <div className="w-px h-20 bg-border mx-auto mt-16" />
+      </div>
+    </section>
+  )
+}
+
+// ─── Section 4: System View (Interactive Node Graph) ─────────────────────────
+const SYSTEM_NODES = [
+  { id: 'sensor',  x: 12,  y: 50, label: 'Sensor Node',      micro: 'Collects real-world signals.\nTree-level. Not city averages.',     sym: '○' },
+  { id: 'data',    x: 32,  y: 28, label: 'Data Layer',        micro: 'Hyperlocal streams.\nSoil, air, biodiversity, pathogen risk.', sym: '—' },
+  { id: 'agent',   x: 52,  y: 50, label: 'Intelligence Agent',micro: 'Interprets and reacts\nin real-time. No human in the loop.',    sym: '◈' },
+  { id: 'network', x: 72,  y: 28, label: 'Network',           micro: 'Coordinates intelligence\nacross ecosystems and regions.',        sym: '⬡' },
+  { id: 'action',  x: 88,  y: 50, label: 'Action Layer',      micro: 'Alerts logged onchain.\nOperators paid automatically.',           sym: '▸' },
+]
+
+const SYSTEM_EDGES = [
+  ['sensor', 'data'], ['sensor', 'agent'],
+  ['data', 'agent'],  ['agent', 'network'],
+  ['agent', 'action'],['network', 'action'],
+]
+
+function SystemView() {
+  const [active, setActive] = useState<string | null>(null)
+  const nodeMap = Object.fromEntries(SYSTEM_NODES.map(n => [n.id, n]))
 
   return (
-    <section className="px-6 py-28 border-t border-white/5 bg-void">
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-16">
-          <p className="font-mono text-[10px] text-white/25 tracking-[0.3em] uppercase mb-4">— What ARVI is</p>
-          <h2 className="font-serif text-4xl lg:text-5xl text-parchment leading-tight mb-4">
-            No jargon. Here is exactly
-            <br /><span className="text-aqua">what this does.</span>
-          </h2>
-          <p className="font-mono text-sm text-white/30 max-w-xl">
-            If you can explain something simply, you understand it. Here is ARVI in plain language.
-          </p>
+    <section className="relative min-h-screen bg-canvas flex flex-col items-center justify-center px-6 py-24 overflow-hidden">
+      <div className="grid-bg-sm absolute inset-0 opacity-30" />
+      <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="relative z-10 w-full max-w-5xl">
+        <div className="text-center mb-16">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">The System</p>
+          <h2 className="font-serif text-3xl lg:text-4xl text-ink">Click any node.</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {points.map(p => (
-            <motion.div key={p.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
-              className="rounded-2xl border border-white/5 bg-surface p-7 hover:border-white/10 transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="font-mono text-xl" style={{ color: p.color }}>{p.sym}</span>
-                <span className="font-mono text-sm font-medium text-parchment/80">{p.title}</span>
+
+        {/* SVG Graph */}
+        <div className="relative w-full" style={{ paddingBottom: '38%' }}>
+          <svg className="absolute inset-0 w-full h-full overflow-visible">
+            {/* Edges */}
+            {SYSTEM_EDGES.map(([a, b]) => {
+              const na = nodeMap[a]; const nb = nodeMap[b]
+              const isActive = active === a || active === b
+              return (
+                <motion.line key={`${a}-${b}`}
+                  x1={`${na.x}%`} y1={`${na.y}%`}
+                  x2={`${nb.x}%`} y2={`${nb.y}%`}
+                  stroke={isActive ? '#2E7D6B' : '#DADADA'}
+                  strokeWidth={isActive ? '1.5' : '1'}
+                  strokeDasharray={isActive ? '4 6' : 'none'}
+                  animate={isActive ? { strokeDashoffset: [0, -20] } : {}}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                />
+              )
+            })}
+            {/* Nodes */}
+            {SYSTEM_NODES.map(node => {
+              const isActive = active === node.id
+              return (
+                <g key={node.id} style={{ cursor: 'pointer' }} onClick={() => setActive(isActive ? null : node.id)}>
+                  <motion.circle
+                    cx={`${node.x}%`} cy={`${node.y}%`}
+                    r={isActive ? '20' : '14'}
+                    fill={isActive ? '#EAF4F1' : 'white'}
+                    stroke={isActive ? '#2E7D6B' : '#DADADA'}
+                    strokeWidth={isActive ? '1.5' : '1'}
+                    animate={{ r: isActive ? 20 : 14 }}
+                    transition={{ duration: 0.25 }}
+                  />
+                  {isActive && (
+                    <motion.circle cx={`${node.x}%`} cy={`${node.y}%`} r="28"
+                      fill="none" stroke="#2E7D6B" strokeWidth="0.5"
+                      initial={{ opacity: 0.5, r: 20 }} animate={{ opacity: 0, r: 38 }}
+                      transition={{ duration: 1.2, repeat: Infinity }}
+                    />
+                  )}
+                  <text
+                    x={`${node.x}%`} y={`${node.y}%`}
+                    textAnchor="middle" dominantBaseline="middle"
+                    fill={isActive ? '#2E7D6B' : '#888888'}
+                    style={{ fontSize: '12px', fontFamily: 'DM Mono, monospace', pointerEvents: 'none', userSelect: 'none' }}>
+                    {node.sym}
+                  </text>
+                  <text
+                    x={`${node.x}%`} y={`${node.y + 9}%`}
+                    textAnchor="middle"
+                    fill={isActive ? '#111111' : '#888888'}
+                    style={{ fontSize: '9px', fontFamily: 'DM Mono, monospace', pointerEvents: 'none', userSelect: 'none', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {node.label.split(' ')[0]}
+                  </text>
+                </g>
+              )
+            })}
+          </svg>
+        </div>
+
+        {/* Micro-copy reveal */}
+        <div className="mt-8 h-20 flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            {active && (
+              <motion.div key={active}
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3 }}
+                className="text-center">
+                <p className="font-mono text-[11px] text-muted tracking-[0.3em] uppercase mb-1">{nodeMap[active]?.label}</p>
+                <p className="font-serif text-xl text-ink whitespace-pre-line">{nodeMap[active]?.micro.replace(/\n/g, ' ')}</p>
+              </motion.div>
+            )}
+            {!active && (
+              <motion.p key="idle" className="font-mono text-[10px] text-muted/40 tracking-widest"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                — select a node to reveal its role —
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </section>
+  )
+}
+
+// ─── Section 5: Use Case as Experience ─────────────────────────────────────────
+const USE_CASES = [
+  {
+    id: 'water',
+    label: 'Water',
+    sym: '○',
+    signal: 'pH anomaly detected.',
+    action: 'A river changes. ARVI detects. Agents respond.',
+    micro: 'Sensor reads pH 5.8 — below safe threshold. Agent confirms industrial runoff pattern. Action triggered: water authority alerted + operator paid.',
+  },
+  {
+    id: 'forest',
+    label: 'Forest',
+    sym: '◎',
+    signal: 'Pathogen risk: 89%.',
+    action: 'A canopy shows stress. ARVI classifies. Response deploys.',
+    micro: '47 Ahuehuete trees under plague threat. Biodiversity score collapsed to 31%. Phytosanitary team dispatched — 8.5 USDC paid to node operator.',
+  },
+  {
+    id: 'soil',
+    label: 'Soil',
+    sym: '▸',
+    signal: 'Carbon sequestration falling.',
+    action: 'The soil speaks. ARVI listens. The record is permanent.',
+    micro: 'Root zone moisture at 18% — drought stress confirmed. CO₂ absorption model shows −22% vs baseline. Alert logged onchain.',
+  },
+  {
+    id: 'air',
+    label: 'Air',
+    sym: '◈',
+    signal: 'AQI 112 — unhealthy zone.',
+    action: 'Invisible signals become visible decisions.',
+    micro: 'PM2.5 spike at canopy level — not visible in city averages. Cross-reference with wind data confirms industrial source. Municipality notified.',
+  },
+]
+
+function UseCaseSection() {
+  const [active, setActive] = useState<typeof USE_CASES[0]>(USE_CASES[1])
+
+  return (
+    <section className="relative min-h-screen bg-canvas flex flex-col items-center justify-center px-6 py-24">
+      <div className="max-w-5xl mx-auto w-full">
+        <div className="text-center mb-16">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">Use cases</p>
+          <h2 className="font-serif text-4xl text-ink">Select an ecosystem.</h2>
+        </div>
+        {/* Selector */}
+        <div className="flex justify-center gap-2 mb-16">
+          {USE_CASES.map(uc => (
+            <button key={uc.id} onClick={() => setActive(uc)}
+              className={`font-mono text-xs px-5 py-2.5 rounded-lg border transition-all ${active.id === uc.id ? 'border-jade bg-jade-light text-jade' : 'border-border text-muted hover:border-jade/40 hover:text-ink'}`}>
+              {uc.sym} {uc.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Experience */}
+        <AnimatePresence mode="wait">
+          <motion.div key={active.id}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.4 }}
+            className="max-w-2xl mx-auto">
+            {/* Signal */}
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <motion.div className="w-2 h-2 rounded-full bg-jade"
+                animate={{ scale: [1, 1.4, 1], opacity: [0.8, 1, 0.8] }}
+                transition={{ duration: 1.5, repeat: Infinity }} />
+              <p className="font-mono text-xs text-jade tracking-widest">{active.signal}</p>
+            </div>
+            {/* Main copy */}
+            <h3 className="font-serif text-4xl lg:text-5xl text-ink text-center leading-tight mb-8">
+              {active.action}
+            </h3>
+            {/* Detail */}
+            <div className="border border-line rounded-xl p-6 bg-white">
+              <p className="font-mono text-[10px] text-muted tracking-widest uppercase mb-3">What happens</p>
+              <p className="text-ink/70 text-sm leading-relaxed">{active.micro}</p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </section>
+  )
+}
+
+// ─── Section 6: Closing statement ─────────────────────────────────────────────
+function ClosingStatement() {
+  return (
+    <section className="relative min-h-[50vh] bg-canvas flex items-center justify-center px-6">
+      <div className="text-center max-w-3xl mx-auto">
+        <div className="w-px h-20 bg-border mx-auto mb-16" />
+        <motion.h2 className="font-serif text-4xl lg:text-5xl text-ink leading-tight"
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+          ARVI is not a dashboard.
+          <br /><span className="text-jade">It&apos;s an intelligence system.</span>
+        </motion.h2>
+        <div className="w-px h-20 bg-border mx-auto mt-16" />
+      </div>
+    </section>
+  )
+}
+
+// ─── Section 7: Business Model ─────────────────────────────────────────────────
+function BizModel() {
+  return (
+    <section className="bg-canvas px-6 py-24 border-t border-line">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-14">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">Economics</p>
+          <h2 className="font-serif text-4xl text-ink">Self-sustaining,<br />not grant-dependent.</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          {[
+            { sym: '○', label: 'Node Subscriptions', val: '$1,200/node/yr', desc: 'Hardware + verified data per sensor' },
+            { sym: '◈', label: 'Enterprise Data API',  val: '$500/mo',       desc: 'Municipalities buy ecosystem feeds' },
+            { sym: '▸', label: 'Alert Intelligence',   val: '$2,000/mo',     desc: 'AI-classified alerts + recommendations' },
+            { sym: '⬡', label: 'Carbon Oracle',        val: '$0.80/tonne',   desc: 'Onchain proof of carbon absorption' },
+          ].map(s => (
+            <motion.div key={s.label} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 12 }}
+              viewport={{ once: true }} transition={{ duration: 0.4 }}
+              className="panel p-5 hover:border-jade/30 transition-all">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-jade text-sm">{s.sym}</span>
+                <span className="font-mono text-[11px] text-jade">{s.val}</span>
               </div>
-              <p className="text-parchment/45 text-sm leading-relaxed font-sans">{p.body}</p>
+              <p className="font-mono text-[10px] text-ink/70 mb-1">{s.label}</p>
+              <p className="text-xs text-muted">{s.desc}</p>
             </motion.div>
           ))}
         </div>
-
-        {/* Sensor differentiation */}
-        <div className="mt-10 rounded-2xl border border-white/5 bg-surface overflow-hidden">
-          <div className="px-6 py-4 border-b border-white/5">
-            <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">What makes ARVI sensors different</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-white/5">
-                  {['Metric', 'Open-Meteo', 'NASA FIRMS', 'ARVI Node'].map(h => (
-                    <th key={h} className={`px-5 py-3 text-left font-mono text-[10px] uppercase tracking-widest ${h === 'ARVI Node' ? 'text-aqua' : 'text-white/20'}`}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ['Temperature',    'City avg',    '—',           'Canopy-level'],
-                  ['Humidity',       'Station avg', '—',           'Root zone'],
-                  ['Fire detection', '—',           'Hotspot only', 'Pathogen + heat'],
-                  ['Biodiversity',   '—',           '—',           'Audio species index'],
-                  ['Soil moisture',  '—',           '—',           'Root saturation'],
-                  ['Verification',   'None',        'None',        'Onchain signed'],
-                  ['Incentives',     'None',        'None',        'USDC auto-payment'],
-                ].map(([metric, om, firms, arvi]) => (
-                  <tr key={metric} className="border-b border-white/5 hover:bg-white/[0.01]">
-                    <td className="px-5 py-3 font-mono text-white/50">{metric}</td>
-                    <td className="px-5 py-3 font-mono text-white/25">{om}</td>
-                    <td className="px-5 py-3 font-mono text-white/25">{firms}</td>
-                    <td className="px-5 py-3 font-mono text-aqua font-bold">{arvi}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── Business model ───────────────────────────────────────────────────────────
-function BusinessModel() {
-  return (
-    <section className="px-6 py-24 border-t border-white/5 bg-void">
-      <div className="max-w-5xl mx-auto">
-        <p className="font-mono text-[10px] text-white/25 tracking-[0.3em] uppercase mb-4">— Business model</p>
-        <h2 className="font-serif text-4xl lg:text-5xl text-parchment mb-4">
-          Self-sustaining,<br /><span className="text-aqua">not dependent on grants.</span>
-        </h2>
-        <p className="text-parchment/35 text-sm font-sans mb-14 max-w-xl">Every participant is economically incentivized. The agent pays for its own intelligence from subscription revenue.</p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-          {[
-            { sym: '◎', label: 'Node Subscriptions',      val: '$1,200/node/yr', desc: 'Hardware + data access per deployed sensor' },
-            { sym: '◈', label: 'Enterprise Data API',      val: '$500/mo',        desc: 'Municipalities and NGOs buy verified ecosystem feeds' },
-            { sym: '▸', label: 'Alert Intelligence',       val: '$2,000/mo',      desc: 'AI-classified alerts with intervention recommendations' },
-            { sym: '⬡', label: 'Carbon Oracle',            val: '$0.80/tonne',    desc: 'Onchain proof of carbon absorption for verified preservation' },
-          ].map(s => (
-            <div key={s.label} className="rounded-2xl border border-white/5 bg-surface p-6 hover:border-aqua/10 transition-all">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-aqua">{s.sym}</span>
-                  <span className="font-mono text-sm text-parchment/80">{s.label}</span>
-                </div>
-                <span className="font-mono text-sm text-aqua">{s.val}</span>
-              </div>
-              <p className="text-xs text-parchment/35 font-sans">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="rounded-2xl border border-white/5 bg-surface overflow-hidden mb-10">
-          <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-            <span className="font-mono text-[11px] text-parchment/60">3-Year Growth Projection</span>
-            <span className="font-mono text-[10px] text-white/20">Conservative estimate</span>
-          </div>
+        {/* Growth table */}
+        <div className="panel overflow-hidden mb-10">
+          <div className="panel-header">3-Year Growth Projection</div>
           <table className="w-full text-xs">
-            <thead><tr className="border-b border-white/5">
-              {['Period', 'Nodes', 'Ecosystems', 'Trees Protected', 'Revenue'].map(h => (
-                <th key={h} className="px-5 py-3 text-left font-mono text-[10px] text-white/20 uppercase tracking-widest">{h}</th>
+            <thead><tr className="border-b border-line">
+              {['Period','Nodes','Trees Protected','Revenue'].map(h => (
+                <th key={h} className="px-5 py-3 text-left font-mono text-[10px] text-muted uppercase tracking-widest">{h}</th>
               ))}
             </tr></thead>
             <tbody>
-              {[
-                ['Year 1', '50',   '2',  '14K',  '$42K'],
-                ['Year 2', '250',  '4',  '70K',  '$280K'],
-                ['Year 3', '1,000','5+', '280K', '$1.4M'],
-              ].map((row, i) => (
-                <tr key={row[0]} className={`border-b border-white/5 ${i === 2 ? 'bg-aqua/5' : ''}`}>
-                  <td className="px-5 py-4 font-mono text-parchment/60">{row[0]}</td>
-                  <td className="px-5 py-4 font-mono text-aqua font-bold">{row[1]}</td>
-                  <td className="px-5 py-4 font-mono text-white/40">{row[2]}</td>
-                  <td className="px-5 py-4 font-mono text-white/40">{row[3]}</td>
-                  <td className="px-5 py-4 font-mono text-aqua font-bold">{row[4]}</td>
+              {[['Year 1','50','14K','$42K'],['Year 2','250','70K','$280K'],['Year 3','1,000','280K','$1.4M']].map((row, i) => (
+                <tr key={row[0]} className={`border-b border-line ${i === 2 ? 'bg-jade-light' : ''}`}>
+                  <td className="px-5 py-4 font-mono text-muted">{row[0]}</td>
+                  <td className="px-5 py-4 font-mono font-bold text-jade">{row[1]}</td>
+                  <td className="px-5 py-4 font-mono text-ink/50">{row[2]}</td>
+                  <td className="px-5 py-4 font-mono font-bold text-jade">{row[3]}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
-        <div className="rounded-2xl border border-solar/20 bg-solar/5 p-6">
-          <p className="font-mono text-[11px] text-solar mb-5">⬡ Public Goods Impact (Octant track · Year 3)</p>
+        {/* Public goods */}
+        <div className="border border-jade/20 rounded-xl bg-jade-light p-6">
+          <p className="font-mono text-[10px] text-jade tracking-widest uppercase mb-5">Public Goods Impact — Year 3</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[['432K','Sensor readings/yr'],['$720K','Paid to operators'],['280K','Trees protected'],['1K','Community nodes']].map(([v, l]) => (
+            {[['432K','Sensor readings/yr'],['$720K','Paid to operators'],['280K','Trees protected'],['1K','Community nodes']].map(([v,l]) => (
               <div key={l}>
-                <div className="font-serif text-3xl text-solar mb-1">{v}</div>
-                <div className="font-mono text-[10px] text-parchment/35">{l}</div>
+                <div className="font-serif text-3xl text-jade mb-1">{v}</div>
+                <div className="font-mono text-[10px] text-jade/70">{l}</div>
               </div>
             ))}
           </div>
@@ -331,39 +498,69 @@ function BusinessModel() {
 // ─── CTA ──────────────────────────────────────────────────────────────────────
 function CTA() {
   return (
-    <section className="px-6 py-24 border-t border-white/5 bg-void text-center">
-      <div className="max-w-3xl mx-auto">
-        <h2 className="font-serif text-4xl lg:text-5xl text-parchment mb-4">
-          The planet generates data.<br />
-          <span className="text-aqua">ARVI acts on it.</span>
-        </h2>
-        <p className="text-parchment/35 text-sm font-sans mb-10 max-w-md mx-auto">
-          Deploy a sensor node. Join the first autonomous multi-ecosystem intelligence network.
+    <section className="bg-ink px-6 py-24 text-center">
+      <div className="max-w-xl mx-auto">
+        <motion.h2 className="font-serif text-4xl lg:text-5xl text-white leading-tight mb-6"
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+          Enter the system.
+        </motion.h2>
+        <p className="font-mono text-[11px] text-white/30 tracking-wide mb-12">
+          The planet generates data. ARVI acts on it.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href="/dashboard" className="px-8 py-4 rounded-xl font-mono text-sm font-bold text-void bg-aqua hover:bg-aqua/90 transition-all" style={{ boxShadow: '0 0 40px rgba(92,255,208,0.2)' }}>
-            Launch App ▸
+          <Link href="/dashboard" className="btn-jade">Launch App ▸</Link>
+          <Link href="/atlas" className="btn-outline" style={{ color: 'rgba(255,255,255,0.4)', borderColor: 'rgba(255,255,255,0.12)' }}>
+            ○ View Atlas
           </Link>
-          <Link href="/atlas" className="px-8 py-4 rounded-xl border border-white/10 text-parchment/55 font-mono text-sm hover:border-white/20 transition-all">
-            ◎ View Atlas
-          </Link>
-          <Link href="/register" className="px-8 py-4 rounded-xl border border-white/10 text-parchment/55 font-mono text-sm hover:border-white/20 transition-all">
+          <Link href="/register" className="btn-outline" style={{ color: 'rgba(255,255,255,0.4)', borderColor: 'rgba(255,255,255,0.12)' }}>
             Register a Node
           </Link>
         </div>
-        <p className="font-mono text-[10px] text-white/12 mt-8">
-          ERC-8004 · <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a" target="_blank" rel="noopener" className="underline hover:text-aqua/30">0xb8623d...cf43a</a> · Base Mainnet · Pantera Labs 2026
+        <p className="font-mono text-[9px] text-white/15 mt-10">
+          ERC-8004 · Base Mainnet · <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
+            target="_blank" rel="noopener" className="underline hover:text-jade/40">0xb8623d...cf43a</a> · Pantera Labs 2026
         </p>
       </div>
     </section>
   )
 }
 
+// ─── Nav ──────────────────────────────────────────────────────────────────────
+function Nav() {
+  const { scrollYProgress } = useScroll()
+  const progress = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const unsub = scrollYProgress.on('change', v => setScrolled(v > 0.02))
+    return () => unsub()
+  }, [scrollYProgress])
+
+  return (
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-canvas/95 backdrop-blur-sm border-b border-line' : 'bg-transparent'}`}>
+      {/* Progress bar */}
+      <motion.div className="absolute bottom-0 left-0 h-px bg-jade origin-left" style={{ width: progress }} />
+      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 rounded border border-jade/30 bg-jade-light flex items-center justify-center font-mono text-jade text-xs">◈</div>
+          <span className="font-mono text-sm text-ink">ARVI</span>
+          <span className="hidden sm:block font-mono text-[9px] border border-border px-2 py-0.5 rounded text-muted">v4.0</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/atlas" className="font-mono text-[11px] text-muted hover:text-ink transition-colors hidden sm:block">Atlas</Link>
+          <Link href="/dashboard" className="font-mono text-[11px] px-4 py-2 rounded-lg border border-jade/30 bg-jade-light text-jade hover:bg-jade/10 transition-all">
+            Launch App ▸
+          </Link>
+        </div>
+      </div>
+    </nav>
+  )
+}
+
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="border-t border-white/5 px-6 py-8 bg-void">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[10px] text-white/18">
+    <footer className="bg-ink border-t border-white/5 px-6 py-8">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[10px] text-white/20">
         <span>ARVI — Agentic Regeneration Via Intelligence</span>
         <div className="flex items-center gap-6">
           {[['GitHub','https://github.com/ValenteCreativo/ARVI'],['Atlas','/atlas'],['App','/dashboard'],['Register','/register']].map(([l, h]) => (
@@ -378,70 +575,20 @@ function Footer() {
   )
 }
 
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav({ section }: { section: number }) {
-  const labels = ['Awakening', 'World Canvas']
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-void/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 rounded border border-aqua/30 bg-aqua/10 flex items-center justify-center font-mono text-aqua text-xs">◈</div>
-          <span className="font-mono text-sm text-parchment/80">ARVI</span>
-          <span className="hidden sm:block font-mono text-[9px] border border-white/10 px-2 py-0.5 rounded text-white/25">v3.0 · Base Mainnet</span>
-        </div>
-        <div className="hidden md:flex items-center gap-1">
-          {labels.map((l, i) => (
-            <span key={l} className={`font-mono text-[10px] px-2 py-1 rounded transition-all ${i === section ? 'text-aqua border border-aqua/25 bg-aqua/5' : 'text-white/20'}`}>{l}</span>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/atlas" className="font-mono text-[11px] text-white/30 hover:text-white/60 transition-colors hidden sm:block">Atlas</Link>
-          <Link href="/dashboard" className="font-mono text-[11px] px-4 py-2 rounded border border-aqua/30 bg-aqua/5 text-aqua hover:bg-aqua/10 transition-all">Launch App ▸</Link>
-        </div>
-      </div>
-    </nav>
-  )
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
-const SCROLL_SECTIONS = 2
-
 export default function Landing() {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: scrollRef, offset: ['start start', 'end end'] })
-  const x = useTransform(scrollYProgress, [0, 1], ['0vw', `-${(SCROLL_SECTIONS - 1) * 100}vw`])
-
-  const [scrollProg, setScrollProg] = useState(0)
-  const [activeEco, setActiveEco] = useState(ECOSYSTEMS[0])
-
-  useEffect(() => scrollYProgress.on('change', v => setScrollProg(v)), [scrollYProgress])
-  useEffect(() => {
-    let i = 0
-    const t = setInterval(() => { i = (i + 1) % ECOSYSTEMS.length; setActiveEco(ECOSYSTEMS[i]) }, 2800)
-    return () => clearInterval(t)
-  }, [])
-
-  const section = Math.round(scrollProg * (SCROLL_SECTIONS - 1))
-
   return (
-    <div className="bg-void min-h-screen">
-      <Nav section={section} />
-
-      {/* Horizontal scroll world — 2 sections */}
-      <div ref={scrollRef} style={{ height: `${SCROLL_SECTIONS * 100}vh` }}>
-        <div className="sticky top-0 h-screen overflow-hidden">
-          <motion.div style={{ x, display: 'flex', width: `${SCROLL_SECTIONS * 100}vw`, height: '100vh' }}>
-            <HeroSection activeEco={activeEco} setActiveEco={setActiveEco} />
-            <WorldCanvasSection />
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Vertical sections */}
-      <WhatIsARVI />
-      <BusinessModel />
+    <main className="bg-canvas">
+      <Nav />
+      <Opening />
+      <FirstSignal />
+      <CoreReveal />
+      <SystemView />
+      <UseCaseSection />
+      <ClosingStatement />
+      <BizModel />
       <CTA />
       <Footer />
-    </div>
+    </main>
   )
 }
