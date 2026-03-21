@@ -420,3 +420,29 @@ Node-01 triggers the demo alert flow. Nodes 02 and 03 are "healthy" to show cont
 *This checkpoint was created during the Synthesis Hackathon planning phase.*
 *ARVI is designed to win hackathons and evolve into real environmental tech infrastructure.*
 *Builder mood: ambitious, visionary, technically serious, aesthetically demanding. Wants first place.*
+
+---
+
+## 14. EVVM DEPLOYMENT (2026-03-21T06:47Z)
+
+**Status:** ✅ DEPLOYED — Local Anvil chain (Chain ID: 31337)
+
+### Contract Addresses
+
+| Contract | Address |
+|---|---|
+| Staking | `0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6` |
+| Core | `0x8A791620dd6260079BF849Dc5567aDC3F2FdC318` |
+| Estimator | `0x610178dA211FEF7D417bC0e6FeD39F05609AD788` |
+| NameService | `0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e` |
+| Treasury | `0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82` |
+| P2PSwap | `0x0B306BF915C4d645ff596e518fAf3F9669b97016` |
+
+**EVVM Config:**
+- Name: ARVI
+- Token: ARVI Environmental Token (ARVI)
+- Admin: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (Anvil default)
+- RPC: `http://localhost:8545`
+- Broadcast log: `evvm/Testnet-Contracts/broadcast/Deploy.s.sol/31337/run-latest.json`
+
+**Next step:** Connect Bankr LLM + agent.json + agent_log.json to this EVVM instance.
