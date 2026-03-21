@@ -29,6 +29,202 @@
         "tx_hash": "0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
       },
       "status": "SUCCESS"
+    },
+    {
+      "id": "log-003",
+      "timestamp": "2026-03-21T07:16:23.259Z",
+      "status": "SUCCESS",
+      "event_type": "LLM_ANALYSIS",
+      "node_id": "node-01",
+      "ens": "n1.arvi.eth",
+      "location": "Bosque de Chapultepec, CDMX",
+      "analysis": {
+        "node_id": "node-01",
+        "anomaly_detected": true,
+        "severity": "critical",
+        "alert_type": "probable_plague",
+        "description": "Node n1.arvi.eth at Bosque de Chapultepec, CDMX shows critical health deterioration. Ahuehuete trees display symptoms consistent with probable_plague. Health score 34% is below emergency threshold. Immediate intervention required.",
+        "recommended_action": "Deploy urban forestry response team to Bosque de Chapultepec, CDMX within 24 hours. Isolate affected Ahuehuete specimens. Initiate phytosanitary treatment protocol.",
+        "confidence": 0.94,
+        "payment_warranted": true,
+        "payment_amount_usdc": 8.5,
+        "timestamp": "2026-03-21T07:16:23.259Z",
+        "model_used": "bankr-llm-simulated"
+      }
+    },
+    {
+      "id": "log-004",
+      "timestamp": "2026-03-21T07:16:44.941Z",
+      "status": "SUCCESS",
+      "event_type": "LLM_ANALYSIS",
+      "node_id": "node-01",
+      "ens": "n1.arvi.eth",
+      "location": "Bosque de Chapultepec, CDMX",
+      "analysis": {
+        "node_id": "node-01",
+        "anomaly_detected": true,
+        "severity": "critical",
+        "alert_type": "probable_plague",
+        "description": "Node n1.arvi.eth at Bosque de Chapultepec, CDMX shows critical health deterioration. Ahuehuete trees display symptoms consistent with probable_plague. Health score 34% is below emergency threshold. Immediate intervention required.",
+        "recommended_action": "Deploy urban forestry response team to Bosque de Chapultepec, CDMX within 24 hours. Isolate affected Ahuehuete specimens. Initiate phytosanitary treatment protocol.",
+        "confidence": 0.94,
+        "payment_warranted": true,
+        "payment_amount_usdc": 8.5,
+        "timestamp": "2026-03-21T07:16:44.941Z",
+        "model_used": "bankr-llm-simulated"
+      }
+    },
+    {
+      "id": "log-005",
+      "timestamp": "2026-03-21T07:18:22.283Z",
+      "status": "SUCCESS",
+      "event_type": "LLM_ANALYSIS",
+      "node_id": "node-01",
+      "ens": "n1.arvi.eth",
+      "location": "Bosque de Chapultepec, CDMX",
+      "analysis": {
+        "node_id": "node-01",
+        "anomaly_detected": true,
+        "severity": "critical",
+        "alert_type": "probable_plague",
+        "description": "Node n1.arvi.eth at Bosque de Chapultepec, CDMX shows critical health deterioration. Ahuehuete trees display symptoms consistent with probable_plague. Health score 34% is below emergency threshold. Immediate intervention required.",
+        "recommended_action": "Deploy urban forestry response team to Bosque de Chapultepec, CDMX within 24 hours. Isolate affected Ahuehuete specimens. Initiate phytosanitary treatment protocol.",
+        "confidence": 0.94,
+        "payment_warranted": true,
+        "payment_amount_usdc": 8.5,
+        "timestamp": "2026-03-21T07:18:22.283Z",
+        "model_used": "bankr-llm-simulated"
+      }
+    },
+    {
+      "id": "log-006",
+      "timestamp": "2026-03-21T07:18:22.380Z",
+      "status": "SUCCESS",
+      "event_type": "LOCUS_PAYMENT",
+      "node_id": "node-01",
+      "payment": {
+        "success": true,
+        "tx_hash": "0xSIMULATED_19d0f4263ac_node-01",
+        "amount_usdc": 8.5,
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "chain": "Base (simulated — live on deploy)",
+        "timestamp": "2026-03-21T07:18:22.380Z",
+        "simulated": true
+      }
+    },
+    {
+      "id": "log-007",
+      "timestamp": "2026-03-21T07:21:02.780Z",
+      "status": "SUCCESS",
+      "event_type": "LLM_ANALYSIS",
+      "node_id": "node-01",
+      "ens": "n1.arvi.eth",
+      "location": "Bosque de Chapultepec, CDMX",
+      "analysis": {
+        "node_id": "node-01",
+        "anomaly_detected": true,
+        "severity": "critical",
+        "alert_type": "probable_plague",
+        "description": "Node n1.arvi.eth at Bosque de Chapultepec, CDMX shows critical health deterioration. Ahuehuete trees display symptoms consistent with probable_plague. Health score 34% is below emergency threshold. Immediate intervention required.",
+        "recommended_action": "Deploy urban forestry response team to Bosque de Chapultepec, CDMX within 24 hours. Isolate affected Ahuehuete specimens. Initiate phytosanitary treatment protocol.",
+        "confidence": 0.94,
+        "payment_warranted": true,
+        "payment_amount_usdc": 8.5,
+        "timestamp": "2026-03-21T07:21:02.780Z",
+        "model_used": "bankr-llm-simulated"
+      }
+    },
+    {
+      "id": "log-008",
+      "timestamp": "2026-03-21T07:21:02.886Z",
+      "status": "SUCCESS",
+      "event_type": "LOCUS_PAYMENT",
+      "node_id": "node-01",
+      "payment": {
+        "success": true,
+        "tx_hash": "0xSIMULATED_19d0f44d6a6_node-01",
+        "amount_usdc": 8.5,
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "chain": "Base (simulated — live on deploy)",
+        "timestamp": "2026-03-21T07:21:02.886Z",
+        "simulated": true
+      }
+    },
+    {
+      "id": "log-009",
+      "timestamp": "2026-03-21T07:22:47.810Z",
+      "status": "SUCCESS",
+      "event_type": "LLM_ANALYSIS",
+      "node_id": "node-01",
+      "ens": "n1.arvi.eth",
+      "location": "Bosque de Chapultepec, CDMX",
+      "analysis": {
+        "node_id": "node-01",
+        "anomaly_detected": true,
+        "severity": "critical",
+        "alert_type": "probable_plague",
+        "description": "Node n1.arvi.eth at Bosque de Chapultepec, CDMX shows critical health deterioration. Ahuehuete trees display symptoms consistent with probable_plague. Health score 34% is below emergency threshold. Immediate intervention required.",
+        "recommended_action": "Deploy urban forestry response team to Bosque de Chapultepec, CDMX within 24 hours. Isolate affected Ahuehuete specimens. Initiate phytosanitary treatment protocol.",
+        "confidence": 0.94,
+        "payment_warranted": true,
+        "payment_amount_usdc": 8.5,
+        "timestamp": "2026-03-21T07:22:47.810Z",
+        "model_used": "bankr-llm-simulated"
+      }
+    },
+    {
+      "id": "log-010",
+      "timestamp": "2026-03-21T07:22:47.954Z",
+      "status": "SUCCESS",
+      "event_type": "LOCUS_PAYMENT",
+      "node_id": "node-01",
+      "payment": {
+        "success": true,
+        "tx_hash": "0xSIMULATED_19d0f467111_node-01",
+        "amount_usdc": 8.5,
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "chain": "Base (simulated — live on deploy)",
+        "timestamp": "2026-03-21T07:22:47.953Z",
+        "simulated": true
+      }
+    },
+    {
+      "id": "log-011",
+      "timestamp": "2026-03-21T07:24:28.134Z",
+      "status": "SUCCESS",
+      "event_type": "LLM_ANALYSIS",
+      "node_id": "node-01",
+      "ens": "n1.arvi.eth",
+      "location": "Bosque de Chapultepec, CDMX",
+      "analysis": {
+        "node_id": "n1.arvi.eth",
+        "anomaly_detected": true,
+        "severity": "critical",
+        "alert_type": "plague",
+        "description": "A probable plague has been detected affecting Ahuehuete trees in Bosque de Chapultepec, CDMX. The health score of the 47 monitored trees is critically low at 0.34, indicating severe distress and immediate threat to the urban forest.",
+        "recommended_action": "Dispatch an expert arborist team to Bosque de Chapultepec immediately to confirm the plague type, assess the extent of the infestation, and initiate targeted treatment protocols to prevent further spread and tree loss.",
+        "confidence": 0.95,
+        "payment_warranted": true,
+        "payment_amount_usdc": 9,
+        "timestamp": "2026-03-21T07:24:21.097Z",
+        "model_used": "gemini-2.5-flash"
+      }
+    },
+    {
+      "id": "log-012",
+      "timestamp": "2026-03-21T07:24:28.285Z",
+      "status": "SUCCESS",
+      "event_type": "LOCUS_PAYMENT",
+      "node_id": "node-01",
+      "payment": {
+        "success": true,
+        "tx_hash": "0xSIMULATED_19d0f47f8fd_node-01",
+        "amount_usdc": 9,
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "chain": "Base (simulated — live on deploy)",
+        "timestamp": "2026-03-21T07:24:28.285Z",
+        "simulated": true
+      }
     }
   ],
   "pending_entries": [
@@ -39,21 +235,9 @@
       "status": "PENDING"
     },
     {
-      "id": "log-004",
-      "event_type": "LLM_ANALYSIS",
-      "description": "Bankr analyzes data — detects anomaly in Node-01",
-      "status": "PENDING"
-    },
-    {
       "id": "log-005",
       "event_type": "ALERT_GENERATED",
       "description": "Agent emits structured environmental alert",
-      "status": "PENDING"
-    },
-    {
-      "id": "log-006",
-      "event_type": "LOCUS_PAYMENT",
-      "description": "USDC released to Node-01 operator on Base",
       "status": "PENDING"
     },
     {

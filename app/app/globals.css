@@ -3,12 +3,51 @@
 @tailwind utilities;
 
 :root {
-  --arvi-green: #01f094;
-  --arvi-dark: #0a0f0d;
+  --color-brand: #01f094;
+  --color-bg: #060a07;
+  --color-surface: #0a110c;
+  --font-inter: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--arvi-dark);
-  color: #e0ffe8;
-  font-family: 'Inter', monospace;
+  background: var(--color-bg);
+  color: white;
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(1, 240, 148, 0.15);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(1, 240, 148, 0.3);
+}
+
+/* Selection */
+::selection {
+  background: rgba(1, 240, 148, 0.2);
+  color: white;
+}
+
+/* Focus */
+:focus-visible {
+  outline: 1px solid rgba(1, 240, 148, 0.4);
+  outline-offset: 2px;
 }
