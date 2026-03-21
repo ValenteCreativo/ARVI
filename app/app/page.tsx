@@ -2,299 +2,297 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
+import dynamic from 'next/dynamic'
+import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 
-// ─── Cursor tracker ────────────────────────────────────────────────────────────
+const MiniWorldMap = dynamic(() => import('./components/MiniWorldMap'), {
+  ssr: false,
+  loading: () => <div className="w-full h-full rounded-xl bg-[#0A0B14]" />,
+})
+
+// ─── Section config ────────────────────────────────────────────────────────────
+const SECTIONS = [
+  { id: 'intro',      label: 'Intro',      darkBg: false },
+  { id: 'system',     label: 'System',     darkBg: false },
+  { id: 'atlas',      label: 'Atlas',      darkBg: false },
+  { id: 'dashboard',  label: 'Dashboard',  darkBg: false },
+  { id: 'economics',  label: 'Economics',  darkBg: false },
+  { id: 'enter',      label: 'Enter',      darkBg: true  },
+]
+const N = SECTIONS.length
+
+// ─── Cursor hook ───────────────────────────────────────────────────────────────
 function useCursor() {
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const sx = useSpring(x, { stiffness: 80, damping: 20 })
-  const sy = useSpring(y, { stiffness: 80, damping: 20 })
+  const rx = useMotionValue(0); const ry = useMotionValue(0)
+  const x = useSpring(rx, { stiffness: 80, damping: 20 })
+  const y = useSpring(ry, { stiffness: 80, damping: 20 })
   useEffect(() => {
-    const move = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY) }
-    window.addEventListener('mousemove', move)
-    return () => window.removeEventListener('mousemove', move)
-  }, [x, y])
-  return { x: sx, y: sy, rawX: x, rawY: y }
+    const fn = (e: MouseEvent) => { rx.set(e.clientX); ry.set(e.clientY) }
+    window.addEventListener('mousemove', fn)
+    return () => window.removeEventListener('mousemove', fn)
+  }, [rx, ry])
+  return { x, y, rx, ry }
 }
 
-// ─── Animated network background ──────────────────────────────────────────────
-function NetworkBg() {
-  const DOTS = [
-    [12,8],[28,15],[45,9],[62,18],[80,12],[92,20],
-    [8,35],[22,42],[38,30],[55,38],[72,25],[88,35],
-    [15,55],[32,62],[50,52],[68,60],[85,50],[95,65],
-    [5,75],[20,82],[42,72],[60,78],[78,70],[90,80],
-    [18,92],[35,88],[55,95],[75,85],[88,92],
-  ]
-  const LINES = [[0,3],[1,4],[2,5],[3,7],[4,8],[5,9],[6,10],[7,11],[8,12],[9,13],[10,14],[11,15],[12,16],[13,17],[14,18],[15,19],[16,20],[17,21],[18,22],[19,23],[20,24],[21,25],[22,26],[23,27],[1,8],[4,9],[7,12],[10,15],[13,18],[16,21]]
+// ─── Animated network bg ───────────────────────────────────────────────────────
+function NetworkBg({ active }: { active: boolean }) {
+  const DOTS = [[8,12],[22,8],[40,14],[60,10],[78,8],[92,15],[5,38],[18,32],[35,42],[55,35],[72,28],[88,40],[12,62],[28,58],[48,68],[65,60],[82,55],[95,70],[6,82],[20,88],[42,78],[62,85],[80,75],[90,90]]
+  const LINES = [[0,3],[1,4],[2,5],[3,6],[4,7],[5,8],[6,9],[7,10],[8,11],[9,12],[10,13],[11,14],[12,15],[13,16],[14,17],[15,18],[16,19],[17,20],[18,21],[19,22],[1,7],[4,9],[7,12],[10,15]]
   return (
-    <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: active ? 1 : 0, transition: 'opacity 1s ease' }}>
       {LINES.map(([a, b], i) => {
         if (!DOTS[a] || !DOTS[b]) return null
         return (
-          <motion.line key={i}
-            x1={`${DOTS[a][0]}%`} y1={`${DOTS[a][1]}%`}
-            x2={`${DOTS[b][0]}%`} y2={`${DOTS[b][1]}%`}
-            stroke="#DADADA" strokeWidth="0.8"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: [0, 0.5, 0.3] }}
-            transition={{ duration: 2, delay: i * 0.06, ease: 'easeOut' }}
-          />
+          <motion.line key={i} x1={`${DOTS[a][0]}%`} y1={`${DOTS[a][1]}%`} x2={`${DOTS[b][0]}%`} y2={`${DOTS[b][1]}%`}
+            stroke="#E5E5E5" strokeWidth="0.8"
+            initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+            transition={{ duration: 1.5, delay: i * 0.04 }} />
         )
       })}
       {DOTS.map(([cx, cy], i) => (
-        <motion.circle key={i} cx={`${cx}%`} cy={`${cy}%`} r="2.5"
-          fill="none" stroke="#DADADA" strokeWidth="1"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.6 }}
-          transition={{ delay: i * 0.04 + 0.5, duration: 0.4 }}
-        />
+        <motion.circle key={i} cx={`${cx}%`} cy={`${cy}%`} r="2" fill="none" stroke="#DADADA" strokeWidth="1"
+          initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.03 + 0.3 }} />
       ))}
-      {/* Animated signal lines */}
-      {[[0,4],[3,8],[9,13],[14,18],[19,23]].map(([a, b], i) => {
+      {[[0,4],[5,9],[10,14],[15,19]].map(([a,b], i) => {
         if (!DOTS[a] || !DOTS[b]) return null
         return (
-          <motion.line key={`s${i}`}
-            x1={`${DOTS[a][0]}%`} y1={`${DOTS[a][1]}%`}
-            x2={`${DOTS[b][0]}%`} y2={`${DOTS[b][1]}%`}
+          <motion.line key={`s${i}`} x1={`${DOTS[a][0]}%`} y1={`${DOTS[a][1]}%`} x2={`${DOTS[b][0]}%`} y2={`${DOTS[b][1]}%`}
             stroke="#2E7D6B" strokeWidth="1" strokeDasharray="4 8"
             animate={{ strokeDashoffset: [0, -36] }}
-            transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: 'linear', delay: i * 1.2 }}
-          />
+            transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: 'linear', delay: i * 1.4 }} />
         )
       })}
     </svg>
   )
 }
 
-// ─── Section 1: Opening ────────────────────────────────────────────────────────
-function Opening() {
-  const [ready, setReady] = useState(false)
-  useEffect(() => { setTimeout(() => setReady(true), 200) }, [])
+// ─── Progress indicator + traveling node ──────────────────────────────────────
+function Progress({ section, setSection, dark }: { section: number; setSection: (n: number) => void; dark: boolean }) {
+  const nodeX = useSpring(0, { stiffness: 120, damping: 25 })
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    const w = containerRef.current.offsetWidth
+    nodeX.set((section / (N - 1)) * (w - 16) + 8)
+  }, [section, nodeX])
+
+  const ink = dark ? 'rgba(255,255,255,0.3)' : '#DADADA'
+  const inkText = dark ? 'rgba(255,255,255,0.25)' : '#888'
+  const active = dark ? 'white' : '#2E7D6B'
+
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-canvas">
-      <NetworkBg />
-      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={{ duration: 0.8 }}>
-          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-12">
-            Environmental Intelligence
-          </p>
-        </motion.div>
-        <motion.h1 className="font-serif text-[80px] sm:text-[120px] lg:text-[160px] leading-none text-ink mb-8 tracking-tight"
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}>
-          ARVI
-        </motion.h1>
-        <motion.p className="font-mono text-sm text-muted mb-2 tracking-wide"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 0.8 }}>
-          in motion.
-        </motion.p>
-        <motion.p className="font-mono text-[11px] text-muted/60 tracking-widest"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.8 }}>
-          A system that listens, learns, and responds.
-        </motion.p>
-        <motion.div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }}>
-          <motion.div className="w-px h-12 bg-border"
-            animate={{ scaleY: [0.3, 1, 0.3] }} transition={{ duration: 2, repeat: Infinity }} />
-          <span className="font-mono text-[9px] text-muted/40 tracking-widest">scroll</span>
-        </motion.div>
+    <div className="fixed bottom-8 left-0 right-0 z-50 px-12" ref={containerRef}>
+      {/* Line */}
+      <div className="relative h-px mb-3" style={{ background: ink }}>
+        {/* Traveling node */}
+        <motion.div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2"
+          style={{ x: nodeX, marginLeft: '-6px', borderColor: active, background: 'white', boxShadow: `0 0 0 3px ${active}20` }} />
       </div>
-    </section>
+      {/* Section dots + labels */}
+      <div className="flex items-center" style={{ justifyContent: 'space-between' }}>
+        {SECTIONS.map((s, i) => (
+          <button key={s.id} onClick={() => setSection(i)}
+            className="flex flex-col items-center gap-1 group">
+            <div className="w-1 h-1 rounded-full transition-all duration-300"
+              style={{ background: i === section ? active : ink, transform: i === section ? 'scale(2)' : 'scale(1)' }} />
+            <span className="font-mono text-[8px] tracking-widest uppercase transition-colors"
+              style={{ color: i === section ? active : inkText }}>
+              {s.label}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 
-// ─── Section 2: First Signal (cursor-reactive) ────────────────────────────────
-function FirstSignal() {
-  const { rawX, rawY } = useCursor()
-  const ref = useRef<HTMLDivElement>(null)
-  const [nodes, setNodes] = useState<Array<{ x: number; y: number; active: boolean }>>([])
-  const [revealed, setRevealed] = useState(false)
+// ─── Arrow nav buttons ─────────────────────────────────────────────────────────
+function NavArrows({ section, setSection, dark }: { section: number; setSection: (n: number) => void; dark: boolean }) {
+  const c = dark ? 'rgba(255,255,255,0.3)' : '#DADADA'
+  const ch = dark ? 'white' : '#111'
+  return (
+    <>
+      {section > 0 && (
+        <button onClick={() => setSection(section - 1)}
+          className="fixed left-6 top-1/2 -translate-y-1/2 z-50 w-10 h-10 flex items-center justify-center rounded-full border transition-all"
+          style={{ borderColor: c, color: c }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = ch; (e.currentTarget as HTMLButtonElement).style.color = ch }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = c; (e.currentTarget as HTMLButtonElement).style.color = c }}>
+          <span className="font-mono text-sm">←</span>
+        </button>
+      )}
+      {section < N - 1 && (
+        <button onClick={() => setSection(section + 1)}
+          className="fixed right-6 top-1/2 -translate-y-1/2 z-50 w-10 h-10 flex items-center justify-center rounded-full border transition-all"
+          style={{ borderColor: c, color: c }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = ch; (e.currentTarget as HTMLButtonElement).style.color = ch }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = c; (e.currentTarget as HTMLButtonElement).style.color = c }}>
+          <span className="font-mono text-sm">→</span>
+        </button>
+      )}
+    </>
+  )
+}
+
+// ─── Nav bar ──────────────────────────────────────────────────────────────────
+function NavBar({ dark }: { dark: boolean }) {
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-8"
+      style={{ background: dark ? 'rgba(17,17,17,0.85)' : 'rgba(247,247,247,0.85)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.05)' : '#E5E5E5'}` }}>
+      <div className="flex items-center gap-3">
+        <div className="w-6 h-6 rounded border flex items-center justify-center font-mono text-[10px]"
+          style={{ borderColor: dark ? 'rgba(46,125,107,0.4)' : 'rgba(46,125,107,0.3)', background: dark ? 'rgba(46,125,107,0.15)' : '#EAF4F1', color: '#2E7D6B' }}>◈</div>
+        <span className="font-mono text-sm" style={{ color: dark ? 'rgba(255,255,255,0.8)' : '#111' }}>ARVI</span>
+        <span className="hidden sm:block font-mono text-[9px] border rounded px-2 py-0.5"
+          style={{ borderColor: dark ? 'rgba(255,255,255,0.1)' : '#DADADA', color: dark ? 'rgba(255,255,255,0.2)' : '#888' }}>v5.0</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <Link href="/atlas" className="font-mono text-[11px] transition-colors hidden sm:block"
+          style={{ color: dark ? 'rgba(255,255,255,0.3)' : '#888' }}>Atlas</Link>
+        <Link href="/dashboard" className="font-mono text-[11px] px-4 py-1.5 rounded-lg border transition-all"
+          style={{ borderColor: 'rgba(46,125,107,0.3)', background: '#EAF4F1', color: '#2E7D6B' }}>
+          Launch App ▸
+        </Link>
+      </div>
+    </nav>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── S0: INTRO ────────────────────────────────────────────────────────────────
+function IntroPlane({ active }: { active: boolean }) {
+  const { rx, ry } = useCursor()
+  const [nodes, setNodes] = useState<{ x: number; y: number; lit: boolean }[]>([])
 
   useEffect(() => {
-    setNodes(Array.from({ length: 12 }, (_, i) => ({
-      x: 8 + (i % 4) * 28 + (Math.floor(i / 4) % 2) * 14,
-      y: 20 + Math.floor(i / 4) * 30,
-      active: false,
+    setNodes(Array.from({ length: 16 }, (_, i) => ({
+      x: 6 + (i % 4) * 30 + (Math.floor(i / 4) % 2) * 15,
+      y: 25 + Math.floor(i / 4) * 18,
+      lit: false,
     })))
   }, [])
 
   useEffect(() => {
-    const unsub = rawX.on('change', () => {
-      if (!ref.current) return
-      const rect = ref.current.getBoundingClientRect()
-      const lx = (rawX.get() - rect.left) / rect.width * 100
-      const ly = (rawY.get() - rect.top) / rect.height * 100
-      setNodes(prev => prev.map(n => ({
-        ...n,
-        active: Math.hypot(n.x - lx, n.y - ly) < 15,
-      })))
-      const anyActive = nodes.some(n => Math.hypot(n.x - lx, n.y - ly) < 15)
-      if (anyActive) setRevealed(true)
+    if (!active) return
+    const unsub = rx.on('change', () => {
+      const lx = (rx.get() / window.innerWidth) * 100
+      const ly = (ry.get() / window.innerHeight) * 100
+      setNodes(prev => prev.map(n => ({ ...n, lit: Math.hypot(n.x - lx, n.y - ly) < 12 })))
     })
-    return () => unsub()
-  }, [rawX, rawY, nodes])
+    return unsub
+  }, [active, rx, ry])
 
   return (
-    <section ref={ref} className="relative min-h-screen flex flex-col items-center justify-center bg-canvas cursor-zone overflow-hidden">
-      <div className="grid-bg absolute inset-0 opacity-60" />
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
+      <NetworkBg active={active} />
 
-      {/* Reactive nodes */}
+      {/* Cursor-reactive nodes */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {nodes.map((n, i) => (
           <g key={i}>
-            <motion.circle cx={`${n.x}%`} cy={`${n.y}%`} r="4"
-              fill={n.active ? '#EAF4F1' : 'white'}
-              stroke={n.active ? '#2E7D6B' : '#DADADA'}
-              strokeWidth={n.active ? '1.5' : '1'}
-              animate={{ r: n.active ? 7 : 4, opacity: n.active ? 1 : 0.7 }}
-              transition={{ duration: 0.2 }}
-            />
-            {n.active && (
-              <motion.circle cx={`${n.x}%`} cy={`${n.y}%`} r="12"
-                fill="none" stroke="#2E7D6B" strokeWidth="0.5"
-                initial={{ r: 7, opacity: 0.8 }} animate={{ r: 22, opacity: 0 }}
-                transition={{ duration: 1, repeat: Infinity }}
-              />
+            <motion.circle cx={`${n.x}%`} cy={`${n.y}%`}
+              fill={n.lit ? '#EAF4F1' : 'white'} stroke={n.lit ? '#2E7D6B' : '#DADADA'}
+              strokeWidth={n.lit ? '1.5' : '1'}
+              animate={{ r: n.lit ? 8 : 5 }} transition={{ duration: 0.2 }} />
+            {n.lit && (
+              <motion.circle cx={`${n.x}%`} cy={`${n.y}%`} r="8" fill="none" stroke="#2E7D6B" strokeWidth="0.5"
+                initial={{ r: 8, opacity: 0.8 }} animate={{ r: 22, opacity: 0 }}
+                transition={{ duration: 1, repeat: Infinity }} />
             )}
           </g>
         ))}
       </svg>
 
-      <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
-        <motion.p className="font-mono text-[10px] text-muted/40 tracking-widest uppercase mb-16"
-          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          move your cursor
+      <div className="relative z-10 text-center px-8 max-w-3xl mx-auto">
+        <motion.p className="font-mono text-[10px] text-muted tracking-[0.5em] uppercase mb-10"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
+          Environmental Intelligence
         </motion.p>
-        <AnimatePresence>
-          {revealed ? (
-            <motion.div key="revealed"
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}>
-              <h2 className="font-serif text-5xl lg:text-6xl text-ink mb-6">
-                Intelligence is not.
-              </h2>
-              <p className="font-mono text-sm text-muted">Data is everywhere.</p>
-            </motion.div>
-          ) : (
-            <motion.div key="waiting" initial={{ opacity: 0.6 }} exit={{ opacity: 0 }}>
-              <h2 className="font-serif text-5xl lg:text-6xl text-border">
-                Data is everywhere.
-              </h2>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <motion.h1 className="font-serif leading-none text-ink mb-6" style={{ fontSize: 'clamp(72px, 14vw, 160px)' }}
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 30 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}>
+          ARVI
+        </motion.h1>
+        <motion.p className="font-mono text-sm text-muted mb-2"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.9, duration: 0.8 }}>
+          in motion.
+        </motion.p>
+        <motion.p className="font-mono text-[11px] text-muted/50 tracking-widest"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.2, duration: 0.8 }}>
+          A system that listens, learns, and responds.
+        </motion.p>
+        <motion.p className="font-mono text-[9px] text-muted/30 mt-12 tracking-widest"
+          animate={{ opacity: active ? [0.3, 0.8, 0.3] : 0 }} transition={{ duration: 2.5, repeat: Infinity, delay: 2 }}>
+          move your cursor · press → to enter
+        </motion.p>
       </div>
-    </section>
+    </div>
   )
 }
 
-// ─── Section 3: Core Reveal ────────────────────────────────────────────────────
-function CoreReveal() {
-  return (
-    <section className="relative min-h-screen flex items-center justify-center bg-canvas px-6">
-      <div className="max-w-3xl mx-auto text-center">
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-          <div className="w-px h-20 bg-border mx-auto mb-16" />
-        </motion.div>
-        <motion.h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-ink leading-tight mb-10"
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
-          ARVI is an autonomous intelligence layer
-          <br /><span className="text-jade">that transforms environmental signals</span>
-          <br />into actionable systems.
-        </motion.h2>
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.4, duration: 0.6 }}>
-          <p className="font-mono text-[11px] text-muted tracking-[0.2em] uppercase">
-            sensing &nbsp;—&nbsp; understanding &nbsp;—&nbsp; action
-          </p>
-        </motion.div>
-        <div className="w-px h-20 bg-border mx-auto mt-16" />
-      </div>
-    </section>
-  )
-}
-
-// ─── Section 4: System View (Interactive Node Graph) ─────────────────────────
-const SYSTEM_NODES = [
-  { id: 'sensor',  x: 12,  y: 50, label: 'Sensor Node',      micro: 'Collects real-world signals.\nTree-level. Not city averages.',     sym: '○' },
-  { id: 'data',    x: 32,  y: 28, label: 'Data Layer',        micro: 'Hyperlocal streams.\nSoil, air, biodiversity, pathogen risk.', sym: '—' },
-  { id: 'agent',   x: 52,  y: 50, label: 'Intelligence Agent',micro: 'Interprets and reacts\nin real-time. No human in the loop.',    sym: '◈' },
-  { id: 'network', x: 72,  y: 28, label: 'Network',           micro: 'Coordinates intelligence\nacross ecosystems and regions.',        sym: '⬡' },
-  { id: 'action',  x: 88,  y: 50, label: 'Action Layer',      micro: 'Alerts logged onchain.\nOperators paid automatically.',           sym: '▸' },
+// ─── S1: SYSTEM ───────────────────────────────────────────────────────────────
+const SYS_NODES = [
+  { id: 'sensor',  x: 12, y: 50, label: 'Sensor',    sym: '○', micro: 'Hyperlocal signals.\nTree-level, not city averages.' },
+  { id: 'data',    x: 30, y: 28, label: 'Data',       sym: '—', micro: 'Soil, air, biodiversity,\npathogen risk. Continuous.' },
+  { id: 'agent',   x: 52, y: 50, label: 'Agent',      sym: '◈', micro: 'Interprets patterns.\nActs without waiting.' },
+  { id: 'network', x: 72, y: 28, label: 'Network',    sym: '⬡', micro: 'Coordinates intelligence\nacross regions.' },
+  { id: 'action',  x: 88, y: 50, label: 'Action',     sym: '▸', micro: 'Alerts onchain.\nOperators paid instantly.' },
 ]
+const SYS_EDGES = [['sensor','data'],['sensor','agent'],['data','agent'],['agent','network'],['agent','action'],['network','action']]
 
-const SYSTEM_EDGES = [
-  ['sensor', 'data'], ['sensor', 'agent'],
-  ['data', 'agent'],  ['agent', 'network'],
-  ['agent', 'action'],['network', 'action'],
-]
-
-function SystemView() {
-  const [active, setActive] = useState<string | null>(null)
-  const nodeMap = Object.fromEntries(SYSTEM_NODES.map(n => [n.id, n]))
+function SystemPlane({ active }: { active: boolean }) {
+  const [focused, setFocused] = useState<string | null>(null)
+  const nm = Object.fromEntries(SYS_NODES.map(n => [n.id, n]))
 
   return (
-    <section className="relative min-h-screen bg-canvas flex flex-col items-center justify-center px-6 py-24 overflow-hidden">
-      <div className="grid-bg-sm absolute inset-0 opacity-30" />
-      <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="relative z-10 w-full max-w-5xl">
-        <div className="text-center mb-16">
-          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">The System</p>
-          <h2 className="font-serif text-3xl lg:text-4xl text-ink">Click any node.</h2>
+    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg-sm opacity-30" />
+      <div className="relative z-10 w-full max-w-4xl px-8">
+        <div className="text-center mb-10">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">The System</p>
+          <h2 className="font-serif text-3xl text-ink">
+            {focused
+              ? nm[focused]?.label
+              : <span className="text-muted/50">click any node</span>}
+          </h2>
         </div>
 
-        {/* SVG Graph */}
-        <div className="relative w-full" style={{ paddingBottom: '38%' }}>
+        <div className="relative w-full" style={{ paddingBottom: '36%' }}>
           <svg className="absolute inset-0 w-full h-full overflow-visible">
-            {/* Edges */}
-            {SYSTEM_EDGES.map(([a, b]) => {
-              const na = nodeMap[a]; const nb = nodeMap[b]
-              const isActive = active === a || active === b
+            {SYS_EDGES.map(([a, b]) => {
+              const na = nm[a]; const nb = nm[b]; if (!na || !nb) return null
+              const isLit = focused === a || focused === b
               return (
                 <motion.line key={`${a}-${b}`}
-                  x1={`${na.x}%`} y1={`${na.y}%`}
-                  x2={`${nb.x}%`} y2={`${nb.y}%`}
-                  stroke={isActive ? '#2E7D6B' : '#DADADA'}
-                  strokeWidth={isActive ? '1.5' : '1'}
-                  strokeDasharray={isActive ? '4 6' : 'none'}
-                  animate={isActive ? { strokeDashoffset: [0, -20] } : {}}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                />
+                  x1={`${na.x}%`} y1={`${na.y}%`} x2={`${nb.x}%`} y2={`${nb.y}%`}
+                  stroke={isLit ? '#2E7D6B' : '#DADADA'} strokeWidth={isLit ? '1.5' : '1'}
+                  strokeDasharray={isLit ? '4 6' : 'none'}
+                  animate={isLit ? { strokeDashoffset: [0, -20] } : {}}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }} />
               )
             })}
-            {/* Nodes */}
-            {SYSTEM_NODES.map(node => {
-              const isActive = active === node.id
+            {SYS_NODES.map(node => {
+              const isActive = focused === node.id
+              const isDim = focused && focused !== node.id && !SYS_EDGES.some(([a, b]) => (a === focused && b === node.id) || (b === focused && a === node.id))
               return (
-                <g key={node.id} style={{ cursor: 'pointer' }} onClick={() => setActive(isActive ? null : node.id)}>
-                  <motion.circle
-                    cx={`${node.x}%`} cy={`${node.y}%`}
-                    r={isActive ? '20' : '14'}
+                <g key={node.id} style={{ cursor: 'pointer' }} onClick={() => setFocused(isActive ? null : node.id)}>
+                  <motion.circle cx={`${node.x}%`} cy={`${node.y}%`}
                     fill={isActive ? '#EAF4F1' : 'white'}
                     stroke={isActive ? '#2E7D6B' : '#DADADA'}
                     strokeWidth={isActive ? '1.5' : '1'}
-                    animate={{ r: isActive ? 20 : 14 }}
-                    transition={{ duration: 0.25 }}
-                  />
-                  {isActive && (
-                    <motion.circle cx={`${node.x}%`} cy={`${node.y}%`} r="28"
-                      fill="none" stroke="#2E7D6B" strokeWidth="0.5"
-                      initial={{ opacity: 0.5, r: 20 }} animate={{ opacity: 0, r: 38 }}
-                      transition={{ duration: 1.2, repeat: Infinity }}
-                    />
-                  )}
-                  <text
-                    x={`${node.x}%`} y={`${node.y}%`}
-                    textAnchor="middle" dominantBaseline="middle"
-                    fill={isActive ? '#2E7D6B' : '#888888'}
-                    style={{ fontSize: '12px', fontFamily: 'DM Mono, monospace', pointerEvents: 'none', userSelect: 'none' }}>
+                    animate={{ r: isActive ? 22 : 16, opacity: isDim ? 0.3 : 1 }}
+                    transition={{ duration: 0.25 }} />
+                  {isActive && <motion.circle cx={`${node.x}%`} cy={`${node.y}%`} r="22" fill="none" stroke="#2E7D6B" strokeWidth="0.5"
+                    initial={{ r: 22, opacity: 0.6 }} animate={{ r: 38, opacity: 0 }} transition={{ duration: 1.2, repeat: Infinity }} />}
+                  <text x={`${node.x}%`} y={`${node.y}%`} textAnchor="middle" dominantBaseline="middle"
+                    fill={isActive ? '#2E7D6B' : '#888'} style={{ fontSize: '13px', fontFamily: 'DM Mono,monospace', pointerEvents: 'none', userSelect: 'none' }}>
                     {node.sym}
                   </text>
-                  <text
-                    x={`${node.x}%`} y={`${node.y + 9}%`}
-                    textAnchor="middle"
-                    fill={isActive ? '#111111' : '#888888'}
-                    style={{ fontSize: '9px', fontFamily: 'DM Mono, monospace', pointerEvents: 'none', userSelect: 'none', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    {node.label.split(' ')[0]}
+                  <text x={`${node.x}%`} y={`${node.y + 10}%`} textAnchor="middle"
+                    fill={isActive ? '#111' : '#888'} style={{ fontSize: '8px', fontFamily: 'DM Mono,monospace', pointerEvents: 'none', userSelect: 'none', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    {node.label}
                   </text>
                 </g>
               )
@@ -302,293 +300,359 @@ function SystemView() {
           </svg>
         </div>
 
-        {/* Micro-copy reveal */}
-        <div className="mt-8 h-20 flex items-center justify-center">
+        <div className="h-16 flex items-center justify-center mt-4">
           <AnimatePresence mode="wait">
-            {active && (
-              <motion.div key={active}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
-                className="text-center">
-                <p className="font-mono text-[11px] text-muted tracking-[0.3em] uppercase mb-1">{nodeMap[active]?.label}</p>
-                <p className="font-serif text-xl text-ink whitespace-pre-line">{nodeMap[active]?.micro.replace(/\n/g, ' ')}</p>
-              </motion.div>
-            )}
-            {!active && (
+            {focused ? (
+              <motion.p key={focused} className="font-serif text-xl text-ink text-center"
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                {nm[focused]?.micro.replace('\n', ' ')}
+              </motion.p>
+            ) : (
               <motion.p key="idle" className="font-mono text-[10px] text-muted/40 tracking-widest"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                — select a node to reveal its role —
+                — sensing → understanding → action —
               </motion.p>
             )}
           </AnimatePresence>
         </div>
-      </motion.div>
-    </section>
+      </div>
+    </div>
   )
 }
 
-// ─── Section 5: Use Case as Experience ─────────────────────────────────────────
-const USE_CASES = [
-  {
-    id: 'water',
-    label: 'Water',
-    sym: '○',
-    signal: 'pH anomaly detected.',
-    action: 'A river changes. ARVI detects. Agents respond.',
-    micro: 'Sensor reads pH 5.8 — below safe threshold. Agent confirms industrial runoff pattern. Action triggered: water authority alerted + operator paid.',
-  },
-  {
-    id: 'forest',
-    label: 'Forest',
-    sym: '◎',
-    signal: 'Pathogen risk: 89%.',
-    action: 'A canopy shows stress. ARVI classifies. Response deploys.',
-    micro: '47 Ahuehuete trees under plague threat. Biodiversity score collapsed to 31%. Phytosanitary team dispatched — 8.5 USDC paid to node operator.',
-  },
-  {
-    id: 'soil',
-    label: 'Soil',
-    sym: '▸',
-    signal: 'Carbon sequestration falling.',
-    action: 'The soil speaks. ARVI listens. The record is permanent.',
-    micro: 'Root zone moisture at 18% — drought stress confirmed. CO₂ absorption model shows −22% vs baseline. Alert logged onchain.',
-  },
-  {
-    id: 'air',
-    label: 'Air',
-    sym: '◈',
-    signal: 'AQI 112 — unhealthy zone.',
-    action: 'Invisible signals become visible decisions.',
-    micro: 'PM2.5 spike at canopy level — not visible in city averages. Cross-reference with wind data confirms industrial source. Municipality notified.',
-  },
-]
-
-function UseCaseSection() {
-  const [active, setActive] = useState<typeof USE_CASES[0]>(USE_CASES[1])
+// ─── S2: ATLAS ────────────────────────────────────────────────────────────────
+function AtlasPlane({ active }: { active: boolean }) {
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+  const nodes = [
+    { id: 'n01', label: 'Chapultepec', status: 'CRITICAL', color: '#C0392B', x: '38%', y: '42%' },
+    { id: 'n02', label: 'Alameda',     status: 'WARNING',  color: '#B85C00', x: '50%', y: '45%' },
+    { id: 'n03', label: 'Tlatelolco',  status: 'WARNING',  color: '#B85C00', x: '55%', y: '40%' },
+  ]
 
   return (
-    <section className="relative min-h-screen bg-canvas flex flex-col items-center justify-center px-6 py-24">
-      <div className="max-w-5xl mx-auto w-full">
-        <div className="text-center mb-16">
-          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">Use cases</p>
-          <h2 className="font-serif text-4xl text-ink">Select an ecosystem.</h2>
-        </div>
-        {/* Selector */}
-        <div className="flex justify-center gap-2 mb-16">
-          {USE_CASES.map(uc => (
-            <button key={uc.id} onClick={() => setActive(uc)}
-              className={`font-mono text-xs px-5 py-2.5 rounded-lg border transition-all ${active.id === uc.id ? 'border-jade bg-jade-light text-jade' : 'border-border text-muted hover:border-jade/40 hover:text-ink'}`}>
-              {uc.sym} {uc.label}
-            </button>
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg opacity-40" />
+
+      <div className="relative z-10 w-full max-w-5xl px-8 flex items-center gap-12">
+        {/* Map container */}
+        <div className="flex-1 relative" style={{ height: '65vh' }}>
+          <div className="absolute inset-0 rounded-2xl overflow-hidden border border-[#E5E5E5]" style={{ boxShadow: '0 4px 40px rgba(0,0,0,0.08)' }}>
+            {active && <MiniWorldMap className="w-full h-full" />}
+          </div>
+          {/* Node overlays */}
+          {nodes.map(n => (
+            <div key={n.id} className="absolute cursor-pointer z-10"
+              style={{ left: n.x, top: n.y, transform: 'translate(-50%,-50%)' }}
+              onMouseEnter={() => setHoveredNode(n.id)}
+              onMouseLeave={() => setHoveredNode(null)}>
+              <motion.div className="relative" animate={{ scale: hoveredNode === n.id ? 1.2 : 1 }}>
+                <span className="relative flex w-3 h-3">
+                  <span className="absolute inline-flex h-full w-full rounded-full animate-ping opacity-50" style={{ background: n.color }} />
+                  <span className="relative inline-flex rounded-full w-3 h-3" style={{ background: n.color }} />
+                </span>
+                <AnimatePresence>
+                  {hoveredNode === n.id && (
+                    <motion.div className="absolute left-4 top-0 whitespace-nowrap rounded-lg px-3 py-2 pointer-events-none"
+                      initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
+                      style={{ background: 'white', border: '1px solid #E5E5E5', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                      <p className="font-mono text-[10px] text-ink">{n.label}</p>
+                      <p className="font-mono text-[9px]" style={{ color: n.color }}>{n.status}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* Experience */}
-        <AnimatePresence mode="wait">
-          <motion.div key={active.id}
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-2xl mx-auto">
-            {/* Signal */}
-            <div className="flex items-center justify-center gap-3 mb-8">
-              <motion.div className="w-2 h-2 rounded-full bg-jade"
-                animate={{ scale: [1, 1.4, 1], opacity: [0.8, 1, 0.8] }}
-                transition={{ duration: 1.5, repeat: Infinity }} />
-              <p className="font-mono text-xs text-jade tracking-widest">{active.signal}</p>
-            </div>
-            {/* Main copy */}
-            <h3 className="font-serif text-4xl lg:text-5xl text-ink text-center leading-tight mb-8">
-              {active.action}
-            </h3>
-            {/* Detail */}
-            <div className="border border-line rounded-xl p-6 bg-white">
-              <p className="font-mono text-[10px] text-muted tracking-widest uppercase mb-3">What happens</p>
-              <p className="text-ink/70 text-sm leading-relaxed">{active.micro}</p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </section>
-  )
-}
-
-// ─── Section 6: Closing statement ─────────────────────────────────────────────
-function ClosingStatement() {
-  return (
-    <section className="relative min-h-[50vh] bg-canvas flex items-center justify-center px-6">
-      <div className="text-center max-w-3xl mx-auto">
-        <div className="w-px h-20 bg-border mx-auto mb-16" />
-        <motion.h2 className="font-serif text-4xl lg:text-5xl text-ink leading-tight"
-          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-          ARVI is not a dashboard.
-          <br /><span className="text-jade">It&apos;s an intelligence system.</span>
-        </motion.h2>
-        <div className="w-px h-20 bg-border mx-auto mt-16" />
-      </div>
-    </section>
-  )
-}
-
-// ─── Section 7: Business Model ─────────────────────────────────────────────────
-function BizModel() {
-  return (
-    <section className="bg-canvas px-6 py-24 border-t border-line">
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-14">
-          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">Economics</p>
-          <h2 className="font-serif text-4xl text-ink">Self-sustaining,<br />not grant-dependent.</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {[
-            { sym: '○', label: 'Node Subscriptions', val: '$1,200/node/yr', desc: 'Hardware + verified data per sensor' },
-            { sym: '◈', label: 'Enterprise Data API',  val: '$500/mo',       desc: 'Municipalities buy ecosystem feeds' },
-            { sym: '▸', label: 'Alert Intelligence',   val: '$2,000/mo',     desc: 'AI-classified alerts + recommendations' },
-            { sym: '⬡', label: 'Carbon Oracle',        val: '$0.80/tonne',   desc: 'Onchain proof of carbon absorption' },
-          ].map(s => (
-            <motion.div key={s.label} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 12 }}
-              viewport={{ once: true }} transition={{ duration: 0.4 }}
-              className="panel p-5 hover:border-jade/30 transition-all">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-jade text-sm">{s.sym}</span>
-                <span className="font-mono text-[11px] text-jade">{s.val}</span>
-              </div>
-              <p className="font-mono text-[10px] text-ink/70 mb-1">{s.label}</p>
-              <p className="text-xs text-muted">{s.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-        {/* Growth table */}
-        <div className="panel overflow-hidden mb-10">
-          <div className="panel-header">3-Year Growth Projection</div>
-          <table className="w-full text-xs">
-            <thead><tr className="border-b border-line">
-              {['Period','Nodes','Trees Protected','Revenue'].map(h => (
-                <th key={h} className="px-5 py-3 text-left font-mono text-[10px] text-muted uppercase tracking-widest">{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {[['Year 1','50','14K','$42K'],['Year 2','250','70K','$280K'],['Year 3','1,000','280K','$1.4M']].map((row, i) => (
-                <tr key={row[0]} className={`border-b border-line ${i === 2 ? 'bg-jade-light' : ''}`}>
-                  <td className="px-5 py-4 font-mono text-muted">{row[0]}</td>
-                  <td className="px-5 py-4 font-mono font-bold text-jade">{row[1]}</td>
-                  <td className="px-5 py-4 font-mono text-ink/50">{row[2]}</td>
-                  <td className="px-5 py-4 font-mono font-bold text-jade">{row[3]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {/* Public goods */}
-        <div className="border border-jade/20 rounded-xl bg-jade-light p-6">
-          <p className="font-mono text-[10px] text-jade tracking-widest uppercase mb-5">Public Goods Impact — Year 3</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[['432K','Sensor readings/yr'],['$720K','Paid to operators'],['280K','Trees protected'],['1K','Community nodes']].map(([v,l]) => (
-              <div key={l}>
-                <div className="font-serif text-3xl text-jade mb-1">{v}</div>
-                <div className="font-mono text-[10px] text-jade/70">{l}</div>
+        {/* Right panel */}
+        <div className="w-72 shrink-0">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">Atlas</p>
+          <h2 className="font-serif text-4xl text-ink mb-4">The planet<br />is not static.</h2>
+          <p className="text-muted text-sm mb-6">Neither is its data. 3 active nodes in CDMX. Real signals, continuously updated.</p>
+          <div className="space-y-2 mb-8">
+            {nodes.map(n => (
+              <div key={n.id} className="flex items-center justify-between rounded-lg border border-[#E5E5E5] bg-white px-4 py-2.5">
+                <span className="font-mono text-[11px] text-ink">{n.label}</span>
+                <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border"
+                  style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>{n.status}</span>
               </div>
             ))}
           </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── CTA ──────────────────────────────────────────────────────────────────────
-function CTA() {
-  return (
-    <section className="bg-ink px-6 py-24 text-center">
-      <div className="max-w-xl mx-auto">
-        <motion.h2 className="font-serif text-4xl lg:text-5xl text-white leading-tight mb-6"
-          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          Enter the system.
-        </motion.h2>
-        <p className="font-mono text-[11px] text-white/30 tracking-wide mb-12">
-          The planet generates data. ARVI acts on it.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href="/dashboard" className="btn-jade">Launch App ▸</Link>
-          <Link href="/atlas" className="btn-outline" style={{ color: 'rgba(255,255,255,0.4)', borderColor: 'rgba(255,255,255,0.12)' }}>
-            ○ View Atlas
-          </Link>
-          <Link href="/register" className="btn-outline" style={{ color: 'rgba(255,255,255,0.4)', borderColor: 'rgba(255,255,255,0.12)' }}>
-            Register a Node
-          </Link>
-        </div>
-        <p className="font-mono text-[9px] text-white/15 mt-10">
-          ERC-8004 · Base Mainnet · <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
-            target="_blank" rel="noopener" className="underline hover:text-jade/40">0xb8623d...cf43a</a> · Pantera Labs 2026
-        </p>
-      </div>
-    </section>
-  )
-}
-
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav() {
-  const { scrollYProgress } = useScroll()
-  const progress = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
-  const [scrolled, setScrolled] = useState(false)
-  useEffect(() => {
-    const unsub = scrollYProgress.on('change', v => setScrolled(v > 0.02))
-    return () => unsub()
-  }, [scrollYProgress])
-
-  return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-canvas/95 backdrop-blur-sm border-b border-line' : 'bg-transparent'}`}>
-      {/* Progress bar */}
-      <motion.div className="absolute bottom-0 left-0 h-px bg-jade origin-left" style={{ width: progress }} />
-      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 rounded border border-jade/30 bg-jade-light flex items-center justify-center font-mono text-jade text-xs">◈</div>
-          <span className="font-mono text-sm text-ink">ARVI</span>
-          <span className="hidden sm:block font-mono text-[9px] border border-border px-2 py-0.5 rounded text-muted">v4.0</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/atlas" className="font-mono text-[11px] text-muted hover:text-ink transition-colors hidden sm:block">Atlas</Link>
-          <Link href="/dashboard" className="font-mono text-[11px] px-4 py-2 rounded-lg border border-jade/30 bg-jade-light text-jade hover:bg-jade/10 transition-all">
-            Launch App ▸
+          <Link href="/atlas"
+            className="block w-full text-center font-mono text-[11px] py-3 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
+            Open full Atlas ↗
           </Link>
         </div>
       </div>
-    </nav>
+    </div>
   )
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
+// ─── S3: DASHBOARD ────────────────────────────────────────────────────────────
+const DASH_NODES = [
+  { id: 'n01', name: 'Chapultepec', health: 0.34, status: 'CRITICAL', color: '#C0392B', alert: 'Probable plague detected. 47 ahuehuete trees.' },
+  { id: 'n02', name: 'Alameda',     health: 0.71, status: 'WARNING',  color: '#B85C00', alert: 'Drought stress developing. Soil moisture low.' },
+  { id: 'n03', name: 'Tlatelolco',  health: 0.52, status: 'WARNING',  color: '#B85C00', alert: 'AQI 112 — unhealthy. Canopy stress rising.' },
+]
+
+function DashboardPlane() {
+  const [active, setActive] = useState(DASH_NODES[0])
   return (
-    <footer className="bg-ink border-t border-white/5 px-6 py-8">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[10px] text-white/20">
-        <span>ARVI — Agentic Regeneration Via Intelligence</span>
-        <div className="flex items-center gap-6">
-          {[['GitHub','https://github.com/ValenteCreativo/ARVI'],['Atlas','/atlas'],['App','/dashboard'],['Register','/register']].map(([l, h]) => (
-            h.startsWith('http')
-              ? <a key={l} href={h} target="_blank" rel="noopener" className="hover:text-white/40 transition-colors">{l}</a>
-              : <Link key={l} href={h} className="hover:text-white/40 transition-colors">{l}</Link>
+    <div className="relative w-full h-full flex items-center justify-center" style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg opacity-30" />
+      <div className="relative z-10 w-full max-w-5xl px-8">
+        <div className="mb-10 flex items-end justify-between">
+          <div>
+            <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">Dashboard</p>
+            <h2 className="font-serif text-4xl text-ink">Active systems.</h2>
+          </div>
+          <Link href="/dashboard" className="font-mono text-[11px] px-5 py-2.5 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
+            Full Dashboard ▸
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {DASH_NODES.map(n => (
+            <motion.button key={n.id} onClick={() => setActive(n)}
+              className="rounded-2xl border p-5 text-left transition-all"
+              style={{ background: active.id === n.id ? 'white' : 'rgba(255,255,255,0.5)', borderColor: active.id === n.id ? n.color + '40' : '#E5E5E5', boxShadow: active.id === n.id ? `0 4px 24px ${n.color}15` : 'none' }}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-[10px] text-muted">{n.name}</span>
+                <span className="font-mono text-[8px] font-bold px-2 py-0.5 rounded-full border"
+                  style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>{n.status}</span>
+              </div>
+              <div className="flex items-end justify-between">
+                <div className="font-serif text-3xl" style={{ color: n.color }}>{(n.health * 100).toFixed(0)}%</div>
+                <span className="font-mono text-[9px] text-muted">health</span>
+              </div>
+              <div className="mt-3 h-1 rounded-full bg-[#E5E5E5] overflow-hidden">
+                <motion.div className="h-full rounded-full" initial={{ width: 0 }}
+                  animate={{ width: `${n.health * 100}%` }} transition={{ duration: 0.8, delay: 0.2 }}
+                  style={{ background: n.color }} />
+              </div>
+            </motion.button>
           ))}
         </div>
-        <span>Pantera Labs · 2026</span>
+
+        <AnimatePresence mode="wait">
+          <motion.div key={active.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="rounded-2xl border bg-white p-5 flex items-center justify-between"
+            style={{ borderColor: `${active.color}25` }}>
+            <div className="flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: active.color }} />
+              <p className="text-sm text-ink/70">{active.alert}</p>
+            </div>
+            <span className="font-mono text-[10px] text-muted shrink-0 ml-4">Agent response: active</span>
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </footer>
+    </div>
   )
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
-export default function Landing() {
+// ─── S4: ECONOMICS ────────────────────────────────────────────────────────────
+const FLOW_STEPS = [
+  { sym: '○', label: 'Signal',    val: '432K/yr',  desc: 'Sensor readings', x: 12 },
+  { sym: '◈', label: 'Verified',  val: '3 nodes',  desc: 'Onchain signed',  x: 38 },
+  { sym: '▸', label: 'Rewarded',  val: '$720K/yr', desc: 'To operators',    x: 64 },
+  { sym: '⬡', label: 'Protected', val: '280K',     desc: 'Trees by Year 3', x: 88 },
+]
+
+function EconomicsPlane() {
+  const [step, setStep] = useState(-1)
+  useEffect(() => {
+    const t = setInterval(() => setStep(s => (s + 1) % FLOW_STEPS.length), 1200)
+    return () => clearInterval(t)
+  }, [])
+
   return (
-    <main className="bg-canvas">
-      <Nav />
-      <Opening />
-      <FirstSignal />
-      <CoreReveal />
-      <SystemView />
-      <UseCaseSection />
-      <ClosingStatement />
-      <BizModel />
-      <CTA />
-      <Footer />
-    </main>
+    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg opacity-25" />
+      <div className="relative z-10 w-full max-w-5xl px-8">
+        <div className="text-center mb-16">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">Economics</p>
+          <h2 className="font-serif text-4xl text-ink">Self-sustaining,<br /><span style={{ color: '#2E7D6B' }}>not grant-dependent.</span></h2>
+        </div>
+
+        {/* Animated flow */}
+        <div className="relative" style={{ paddingBottom: '22%', marginBottom: '40px' }}>
+          <svg className="absolute inset-0 w-full h-full overflow-visible">
+            {FLOW_STEPS.map((s, i) => {
+              if (i === FLOW_STEPS.length - 1) return null
+              const next = FLOW_STEPS[i + 1]
+              const isActive = step === i || step === i + 1
+              return (
+                <g key={i}>
+                  <motion.line x1={`${s.x + 6}%`} y1="50%" x2={`${next.x - 6}%`} y2="50%"
+                    stroke={isActive ? '#2E7D6B' : '#E5E5E5'} strokeWidth={isActive ? '1.5' : '1'}
+                    strokeDasharray={isActive ? '4 6' : 'none'}
+                    animate={isActive ? { strokeDashoffset: [0, -20] } : {}}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
+                  {isActive && (
+                    <motion.circle r="4" fill="#2E7D6B"
+                      animate={{ cx: [`${s.x + 6}%`, `${next.x - 6}%`] }}
+                      transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }} cy="50%" />
+                  )}
+                </g>
+              )
+            })}
+            {FLOW_STEPS.map((s, i) => {
+              const isActive = step === i
+              return (
+                <g key={s.label}>
+                  <motion.circle cx={`${s.x}%`} cy="50%" r={isActive ? 28 : 20}
+                    fill={isActive ? '#EAF4F1' : 'white'} stroke={isActive ? '#2E7D6B' : '#DADADA'}
+                    strokeWidth={isActive ? '1.5' : '1'}
+                    animate={{ r: isActive ? 28 : 20 }} transition={{ duration: 0.3 }} />
+                  <text x={`${s.x}%`} y="50%" textAnchor="middle" dominantBaseline="middle"
+                    fill={isActive ? '#2E7D6B' : '#888'}
+                    style={{ fontSize: '14px', fontFamily: 'DM Mono,monospace', userSelect: 'none' }}>{s.sym}</text>
+                  <text x={`${s.x}%`} y="76%" textAnchor="middle"
+                    fill={isActive ? '#111' : '#888'}
+                    style={{ fontSize: '9px', fontFamily: 'DM Mono,monospace', userSelect: 'none', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{s.label}</text>
+                </g>
+              )
+            })}
+          </svg>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+          {FLOW_STEPS.map((s, i) => (
+            <motion.div key={s.label} className="rounded-xl border bg-white p-4 text-center transition-all"
+              animate={{ borderColor: step === i ? '#2E7D6B40' : '#E5E5E5', boxShadow: step === i ? '0 4px 20px rgba(46,125,107,0.12)' : 'none' }}>
+              <div className="font-serif text-2xl mb-1" style={{ color: step === i ? '#2E7D6B' : '#111' }}>{s.val}</div>
+              <div className="font-mono text-[9px] text-muted uppercase tracking-widest mb-0.5">{s.label}</div>
+              <div className="font-mono text-[9px] text-muted/60">{s.desc}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── S5: ENTER ────────────────────────────────────────────────────────────────
+function EnterPlane({ active }: { active: boolean }) {
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: '#111111' }}>
+      {/* Background network */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-10">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <motion.line key={i}
+            x1={`${Math.random() * 100}%`} y1={`${Math.random() * 100}%`}
+            x2={`${Math.random() * 100}%`} y2={`${Math.random() * 100}%`}
+            stroke="#2E7D6B" strokeWidth="0.5" strokeDasharray="3 6"
+            animate={{ strokeDashoffset: [0, -18] }}
+            transition={{ duration: 4 + Math.random() * 3, repeat: Infinity, ease: 'linear', delay: Math.random() * 3 }} />
+        ))}
+      </svg>
+
+      <div className="relative z-10 text-center px-8 max-w-2xl mx-auto">
+        <motion.p className="font-mono text-[10px] tracking-[0.5em] uppercase mb-10"
+          style={{ color: 'rgba(255,255,255,0.2)' }}
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.3 }}>
+          ARVI — Agentic Regeneration Via Intelligence
+        </motion.p>
+        <motion.h2 className="font-serif leading-tight mb-4" style={{ fontSize: 'clamp(40px, 6vw, 72px)', color: 'white' }}
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 20 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}>
+          ARVI is not a dashboard.
+        </motion.h2>
+        <motion.h2 className="font-serif leading-tight mb-12" style={{ fontSize: 'clamp(40px, 6vw, 72px)', color: '#2E7D6B' }}
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.7, duration: 0.8 }}>
+          It&apos;s an intelligence system.
+        </motion.h2>
+        <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-3"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1, duration: 0.6 }}>
+          <Link href="/dashboard" className="btn-jade">Launch App ▸</Link>
+          <Link href="/atlas" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border transition-all"
+            style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>○ View Atlas</Link>
+          <Link href="/register" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border transition-all"
+            style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>Register Node</Link>
+        </motion.div>
+        <motion.p className="font-mono text-[9px] mt-10" style={{ color: 'rgba(255,255,255,0.12)' }}
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.4 }}>
+          ERC-8004 · Base Mainnet ·{' '}
+          <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
+            target="_blank" rel="noopener" className="underline hover:text-jade transition-colors">0xb8623d...cf43a</a>
+          {' '}· Pantera Labs 2026
+        </motion.p>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════════════════════════
+export default function Landing() {
+  const [section, setSection] = useState(0)
+  const lastWheel = useRef(0)
+
+  const advance = useCallback((dir: 1 | -1) => {
+    setSection(s => Math.max(0, Math.min(N - 1, s + dir)))
+  }, [])
+
+  // Wheel → horizontal
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const now = Date.now()
+      if (now - lastWheel.current < 700) return
+      lastWheel.current = now
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+      advance(delta > 0 ? 1 : -1)
+    }
+    window.addEventListener('wheel', onWheel, { passive: false })
+    return () => window.removeEventListener('wheel', onWheel)
+  }, [advance])
+
+  // Arrow keys
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') advance(1)
+      if (e.key === 'ArrowLeft') advance(-1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [advance])
+
+  // Touch swipe
+  useEffect(() => {
+    let startX = 0
+    const onTouchStart = (e: TouchEvent) => { startX = e.touches[0].clientX }
+    const onTouchEnd = (e: TouchEvent) => {
+      const dx = startX - e.changedTouches[0].clientX
+      if (Math.abs(dx) > 50) advance(dx > 0 ? 1 : -1)
+    }
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => { window.removeEventListener('touchstart', onTouchStart); window.removeEventListener('touchend', onTouchEnd) }
+  }, [advance])
+
+  const dark = SECTIONS[section].darkBg
+
+  return (
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: dark ? '#111111' : '#F7F7F7' }}>
+      <NavBar dark={dark} />
+
+      {/* Horizontal strip */}
+      <motion.div
+        style={{ display: 'flex', width: `${N * 100}vw`, height: '100vh' }}
+        animate={{ x: `${-section * 100}vw` }}
+        transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><AtlasPlane active={section === 2} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><DashboardPlane /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 5} /></div>
+      </motion.div>
+
+      {/* Navigation */}
+      <Progress section={section} setSection={setSection} dark={dark} />
+      <NavArrows section={section} setSection={setSection} dark={dark} />
+    </div>
   )
 }
