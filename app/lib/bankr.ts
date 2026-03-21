@@ -94,13 +94,13 @@ Return a JSON object with these exact fields:
         'Authorization': `Bearer ${BANKR_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gemini-2.5-flash',
+        max_tokens: 3000,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: userMessage }
         ],
-        temperature: 0.3,
-        response_format: { type: 'json_object' }
+        temperature: 0.3
       })
     })
 
@@ -111,10 +111,12 @@ Return a JSON object with these exact fields:
 
     const data = await response.json()
     const content = data.choices?.[0]?.message?.content
-    if (!content) throw new Error('Empty response from Bankr')
+    if (!content) throw new Error('Empty response from LLM')
 
-    const result = JSON.parse(content) as AnalysisResult
-    result.model_used = data.model || 'bankr-llm'
+    // Strip markdown code blocks if present (Gemini sometimes wraps JSON)
+    const clean = content.replace(/^```json\n?/,'').replace(/^```\n?/,'').replace(/\n?```$/,'').trim()
+    const result = JSON.parse(clean) as AnalysisResult
+    result.model_used = data.model || 'gemini-2.0-flash'
     return result
 
   } catch (err) {
