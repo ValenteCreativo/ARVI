@@ -568,9 +568,9 @@ POST /api/analyze { node_id: "node-01" }
 ```
 
 **API keys in use:**
-- `BANKR_API_KEY=bk_ZGEJUPR7C6MCT8BUZQRY3XJE7652NJ3N`
-- `LOCUS_API_KEY=claw_dev_DUAjJTRUsJSHMBvCVtPedRtruYvTDOXz`
-- `SYNTHESIS_API_KEY=sk-synth-fd95f8a170b9944d92cfe060b75b8cd8754fc223f45b3fa0`
+- `BANKR_API_KEY` — see `.env` (gitignored)
+- `LOCUS_API_KEY` — see `.env` (gitignored)
+- `SYNTHESIS_API_KEY` — see `.env` (gitignored)
 
 **Note on network access from dev server:**
 - `bankr.ai` and `locus.finance` are unreachable from the AWS dev server (network restriction)
@@ -664,7 +664,7 @@ The `/atlas` page is a full-screen map intelligence view. Signature feature insp
    - Shows "⚡ Live weather via Open-Meteo" badge when real data is available
 
 3. **NASA FIRMS fire hotspots** — fetched from NASA's real-time satellite fire detection API:
-   - API key: `5e31f5817ee2bdfc0d663f884c10243d`
+   - API key: `NASA_FIRMS_API_KEY` — see `.env` (gitignored)
    - Endpoint: `https://firms.modaps.eosdis.nasa.gov/api/area/csv/{key}/MODIS_NRT/MEX/1`
    - Covers all of Mexico, last 24 hours
    - Rendered as orange radial gradient markers, scaled by brightness temperature
@@ -695,14 +695,14 @@ The atlas is the moment that separates ARVI from a hackathon project. The judge 
 
 **Vercel Environment Variables required:**
 ```
-BANKR_API_KEY        = bk_ZGEJUPR7C6MCT8BUZQRY3XJE7652NJ3N
+BANKR_API_KEY        = <see .env — do not commit>
 BANKR_API_URL        = https://api.bankr.ai/v1
-LOCUS_API_KEY        = claw_dev_DUAjJTRUsJSHMBvCVtPedRtruYvTDOXz
+LOCUS_API_KEY        = <see .env — do not commit>
 LOCUS_API_URL        = https://api.locus.finance
-SYNTHESIS_API_KEY    = sk-synth-fd95f8a170b9944d92cfe060b75b8cd8754fc223f45b3fa0
+SYNTHESIS_API_KEY    = <see .env — do not commit>
 SYNTHESIS_PARTICIPANT_ID = d88080a57309466c96340338faed7862
 SYNTHESIS_ERC8004_TX = 0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a
-NASA_FIRMS_API_KEY   = 5e31f5817ee2bdfc0d663f884c10243d
+NASA_FIRMS_API_KEY   = <see .env — do not commit>
 ```
 
 ---
@@ -744,7 +744,7 @@ ARVI's visual identity has evolved through 4 projects:
 | Integration | Status | Notes |
 |---|---|---|
 | **Bankr LLM** | ✅ Working | gemini-2.5-flash via synthesis API; switches to bankr.ai on Vercel |
-| **Locus Payments** | ⚠️ Simulated | claw_dev key configured; real calls on Vercel production |
+| **Locus Payments** | ⚠️ Simulated | LOCUS_API_KEY configured; real calls on Vercel production |
 | **Open-Meteo** | ✅ Working | Free, no key — current weather for CDMX nodes |
 | **NASA FIRMS** | ✅ Configured | Key active (5000 tx/10min limit); fire hotspots for Mexico |
 | **ENS** | ✅ Conceptual | Nodes have ENS names (n1.arvi.eth, n2.arvi.eth, n3.arvi.eth) in data |
@@ -776,14 +776,14 @@ cfd487b  feat: add agent.json manifest + agent_log.json — ERC-8004 identity
 |---|---|---|
 | 2026-03-21T07:00Z | Bankr API unreachable from AWS dev server | Network restriction; workaround: synthesis API key with OpenAI-compatible format; real Bankr on Vercel |
 | 2026-03-21T07:10Z | Use gemini-2.5-flash as primary model | OpenAI-compatible, high quality, fast; works via synthesis API endpoint |
-| 2026-03-21T07:15Z | Locus simulation fallback | claw_dev key configured but endpoint unreachable locally; deterministic fake tx for demo continuity |
+| 2026-03-21T07:15Z | Locus simulation fallback | LOCUS_API_KEY configured but endpoint unreachable locally; deterministic fake tx for demo continuity |
 | 2026-03-21T07:24Z | Real LLM verified working | Gemini 2.5 Flash analyzed Chapultepec plague case with 95% confidence; output structurally correct |
 | 2026-03-21T07:37Z | Vercel 404 → root dir fix | Next.js app lives in `app/` subdirectory; Vercel needs explicit root dir + vercel.json |
 | 2026-03-21T07:46Z | CVE-2025-29927 Next.js patch | Vercel blocks 15.2.2; upgrade to 15.2.9 resolves middleware bypass vulnerability |
 | 2026-03-21T08:00Z | Landing redesign decision | v1 landing was functional but not emotionally compelling; need "intelligence space" feel |
 | 2026-03-21T08:30Z | Design references analyzed | REMBU→SEN→AONA→ARVI pattern; David Martin whiteboard; Crucix HUD; Ground Station telemetry; Arnis OSM |
 | 2026-03-21T08:46Z | Draggable cards + agent cursor | Signature differentiator: makes the agent *visible* as autonomous before user does anything |
-| 2026-03-21T08:46Z | NASA FIRMS integration | Key acquired (5e31f5...) — real satellite fire detection adds genuine intelligence layer at zero cost |
+| 2026-03-21T08:46Z | NASA FIRMS integration | NASA_FIRMS_API_KEY acquired — real satellite fire detection adds genuine intelligence layer at zero cost |
 | 2026-03-21T08:50Z | Business model section added | Octant explicitly asked for financial projections during validation; mandatory for that track |
 | 2026-03-21T09:00Z | "Why sensors vs APIs" comparison | Critical for judge evaluation — proactively answers the obvious "why not just use OpenWeatherMap" objection |
 
