@@ -1168,55 +1168,64 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg opacity-40" />
-      <div className="relative z-10 text-center px-8 max-w-3xl mx-auto">
-        <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mb-12"
-          initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }} style={{ originY: 0 }} />
-        <motion.p className="font-mono text-sm tracking-[0.5em] uppercase mb-8"
-          style={{ color: 'rgba(17,17,17,0.72)' }}
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.4 }}>
-          ARVI — Agentic Regeneration Via Intelligence
-        </motion.p>
-        <motion.h2 className="font-serif text-ink leading-tight mb-2" style={{ fontSize: 'clamp(38px, 5.5vw, 68px)' }}
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 16 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}>
-          ARVI is not a dashboard.
-        </motion.h2>
-        <motion.h2 className="font-serif leading-tight mb-12" style={{ fontSize: 'clamp(38px, 5.5vw, 68px)', color: '#2E7D6B' }}
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.8, duration: 0.7 }}>
-          It&apos;s an agentic economy — environmental intelligence for prevention and resilience.
-        </motion.h2>
-        <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-3"
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 8 }}
-          transition={{ delay: 1.1, duration: 0.5 }}>
-          <Link href="/dashboard" className="font-mono text-sm font-bold px-8 py-3 rounded-xl transition-all"
+
+      {/* Two-column layout: quote left, buttons right */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+
+        {/* LEFT — quote block */}
+        <div className="flex flex-col items-start">
+          <motion.div className="w-px h-12 bg-[#DADADA] mb-8"
+            initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }} style={{ originY: 0 }} />
+          <motion.p className="font-mono text-xs tracking-[0.4em] uppercase mb-6"
+            style={{ color: 'rgba(17,17,17,0.55)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.4 }}>
+            ARVI — Agentic Regeneration Via Intelligence
+          </motion.p>
+          <motion.h2 className="font-serif text-ink leading-tight mb-3" style={{ fontSize: 'clamp(30px, 3.8vw, 52px)' }}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 16 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}>
+            ARVI is not a dashboard.
+          </motion.h2>
+          <motion.h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(30px, 3.8vw, 52px)', color: '#2E7D6B' }}
+            initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.8, duration: 0.7 }}>
+            It&apos;s an agentic economy — environmental intelligence for prevention and resilience.
+          </motion.h2>
+          <motion.div className="w-px h-12 bg-[#DADADA] mt-8"
+            initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
+            transition={{ duration: 0.5, delay: 1.3 }} style={{ originY: 0 }} />
+          <motion.p className="font-mono text-[10px] mt-4" style={{ color: 'rgba(17,17,17,0.45)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.5 }}>
+            ERC-8004 · Base Mainnet · EVVM ·{' '}
+            <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
+              target="_blank" rel="noopener" className="underline hover:text-[#2E7D6B] transition-colors">0xb8623d...cf43a</a>
+            {' '}· Pantera Labs 2026
+          </motion.p>
+        </div>
+
+        {/* RIGHT — vertical buttons */}
+        <motion.div className="flex flex-col gap-4 items-stretch"
+          initial={{ opacity: 0, x: 20 }} animate={{ opacity: active ? 1 : 0, x: active ? 0 : 20 }}
+          transition={{ delay: 1.0, duration: 0.6 }}>
+          <Link href="/dashboard" className="font-mono text-sm font-bold px-8 py-4 rounded-xl text-center transition-all hover:scale-105"
             style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 20px rgba(46,125,107,0.25)' }}>
             Launch App ▸
           </Link>
-          <Link href="/waitlist" className="font-mono text-sm px-6 py-3 rounded-xl border transition-all hover:scale-105"
-            style={{ borderColor: '#7d6b2e80', color: '#7d6b2e' }}>
+          <Link href="/waitlist" className="font-mono text-sm px-6 py-4 rounded-xl border text-center transition-all hover:scale-105 hover:border-[#7d6b2e]"
+            style={{ borderColor: '#7d6b2e60', color: '#7d6b2e' }}>
             ○ Buy a Sensor
           </Link>
-          <Link href="/waitlist" className="font-mono text-sm px-6 py-3 rounded-xl border transition-all hover:scale-105"
-            style={{ borderColor: '#5e72e480', color: '#5e72e4' }}>
+          <Link href="/waitlist" className="font-mono text-sm px-6 py-4 rounded-xl border text-center transition-all hover:scale-105 hover:border-[#5e72e4]"
+            style={{ borderColor: '#5e72e460', color: '#5e72e4' }}>
             ⬡ Join as Agent
           </Link>
-          <Link href="/register" className="font-mono text-sm px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
+          <Link href="/register" className="font-mono text-sm px-6 py-4 rounded-xl border text-center transition-all hover:scale-105 hover:border-[#2E7D6B] hover:text-[#2E7D6B]"
+            style={{ borderColor: '#DADADA', color: 'rgba(17,17,17,0.50)' }}>
             Register Node
           </Link>
         </motion.div>
-        <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mt-12"
-          initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
-          transition={{ duration: 0.5, delay: 1.3 }} style={{ originY: 0 }} />
-        <motion.p className="font-mono text-xs mt-4" style={{ color: 'rgba(17,17,17,0.60)' }}
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.5 }}>
-          ERC-8004 · Base Mainnet · EVVM ·{' '}
-          <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
-            target="_blank" rel="noopener" className="underline hover:text-[#2E7D6B] transition-colors">0xb8623d...cf43a</a>
-          {' '}· Pantera Labs 2026
-        </motion.p>
       </div>
     </div>
   )
