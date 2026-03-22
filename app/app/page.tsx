@@ -8,7 +8,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 const SECTIONS = [
   { id: 'intro',        label: 'Intro',      darkBg: false },
   { id: 'agent',        label: 'Agent',      darkBg: false },
-  { id: 'network',      label: 'Network',    darkBg: false },
+  { id: 'actions',      label: 'Actions',    darkBg: false },
   { id: 'economics',    label: 'Economics',  darkBg: false },
   { id: 'enter',        label: 'Enter',      darkBg: false },
 ]
@@ -371,7 +371,7 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
   // Individual motion values for each card (rules of hooks: no loops)
   const c0x = useMotionValue(-360); const c0y = useMotionValue(-80)
   const c1x = useMotionValue(-120); const c1y = useMotionValue(80)
-  const c2x = useMotionValue(120);  const c2y = useMotionValue(-80)
+  const c2x = useMotionValue(120);  const c2y = useMotionValue(-60)
   const c3x = useMotionValue(360);  const c3y = useMotionValue(80)
 
   const [arrows, setArrows] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
@@ -758,119 +758,190 @@ const JOB_BOARD_EN = [
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// S2: AGENTS — what they do + sensor CTA + join network
+// S2: ACTIONS — what the agent does when it detects a threat
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const AGENT_CAPABILITIES = [
-  { sym: '🔥', label: 'Fire detection',     desc: 'Detects early smoke signatures and heat anomalies in forests up to 6 hours before a fire spreads — and dispatches a field alert instantly.' },
-  { sym: '💧', label: 'Flood prediction',   desc: 'Correlates soil saturation, rainfall and river levels to predict flood risk zones. Issues evacuation-ready alerts with GPS coordinates.' },
-  { sym: '🌫', label: 'Air quality drift',  desc: 'Tracks PM2.5, PM10 and CO₂ gradients across urban trees. Identifies pollution sources and triggers air quality warnings for residents.' },
-  { sym: '🌱', label: 'Drought stress',     desc: 'Monitors root-zone moisture and canopy health daily. Alerts parks departments before vegetation reaches critical dry thresholds.' },
-  { sym: '🦠', label: 'Pathogen spread',    desc: 'Audio + visual sensors detect early signs of fungal plague and invasive species. Sends containment recommendations before mass spread.' },
-  { sym: '🌊', label: 'Coastal monitoring', desc: 'Tracks salinity, temperature and biodiversity in coastal ecosystems. Identifies bleaching events and pollution plumes in real time.' },
+const SCENARIOS = [
+  {
+    id: 'fire',
+    sym: '🔥',
+    label: 'Fire detected',
+    color: '#C0392B',
+    desc: 'Smoke signatures and heat anomalies detected in Chapultepec',
+    actions: [
+      { icon: '📞', label: 'Calls park rangers', time: '< 30s', type: 'call' },
+      { icon: '🚨', label: 'Notifies CDMX emergency line (911-linked API)', time: '< 1 min', type: 'alert' },
+      { icon: '📄', label: 'Files automated SEMARNAT fire report', time: '< 2 min', type: 'report' },
+      { icon: '✉️', label: 'Emails 14 NGO partners with GPS coordinates', time: '< 2 min', type: 'email' },
+      { icon: '💰', label: 'Posts $50 USDC field verification bounty', time: '< 3 min', type: 'bounty' },
+      { icon: '📢', label: 'Publishes air quality warning to residents via app', time: '< 3 min', type: 'alert' },
+    ],
+  },
+  {
+    id: 'flood',
+    sym: '💧',
+    label: 'Flood risk rising',
+    color: '#2E7D6B',
+    desc: 'Soil saturation at 94% in Xochimilco — 6h flood window predicted',
+    actions: [
+      { icon: '🌊', label: 'Alerts CONAGUA drainage authority via API', time: '< 30s', type: 'alert' },
+      { icon: '📱', label: 'Sends SMS to 3,200 downstream residents', time: '< 1 min', type: 'sms' },
+      { icon: '🤝', label: 'Coordinates 8 NGO volunteer teams', time: '< 2 min', type: 'coordinate' },
+      { icon: '📄', label: 'Creates official evacuation radius data pack', time: '< 3 min', type: 'report' },
+      { icon: '📰', label: 'Sends embargoed press alert to 4 journalists', time: '< 4 min', type: 'email' },
+    ],
+  },
+  {
+    id: 'drought',
+    sym: '🌵',
+    label: 'Drought stress',
+    color: '#B85C00',
+    desc: 'Root-zone moisture at critical threshold across 3 nodes',
+    actions: [
+      { icon: '🌿', label: 'Alerts Parks Department via official API', time: '< 1 min', type: 'alert' },
+      { icon: '💰', label: 'Issues irrigation verification bounty ($30 USDC)', time: '< 2 min', type: 'bounty' },
+      { icon: '✉️', label: 'Emails agricultural operators in affected zones', time: '< 2 min', type: 'email' },
+      { icon: '📊', label: 'Publishes 72h soil stress forecast to open API', time: '< 3 min', type: 'report' },
+    ],
+  },
+  {
+    id: 'pollution',
+    sym: '🌫',
+    label: 'Air quality drift',
+    color: '#5e72e4',
+    desc: 'PM2.5 spike detected — Tlatelolco node trending above WHO threshold',
+    actions: [
+      { icon: '🏛️', label: 'Files formal denuncia with PROFEPA (official channel)', time: '< 1 min', type: 'report' },
+      { icon: '🏫', label: 'Sends air quality alert to 12 nearby schools', time: '< 1 min', type: 'sms' },
+      { icon: '📢', label: 'Posts public pollution warning with pollutant source', time: '< 2 min', type: 'alert' },
+      { icon: '📱', label: 'Pushes notification to ARVI residents app', time: '< 2 min', type: 'alert' },
+      { icon: '📄', label: 'Generates air quality report for press', time: '< 5 min', type: 'email' },
+    ],
+  },
+  {
+    id: 'pathogen',
+    sym: '🦠',
+    label: 'Pathogen spread',
+    color: '#7B2FFF',
+    desc: 'Fungal plague signature detected — early containment window open',
+    actions: [
+      { icon: '🌲', label: 'Alerts forestry teams via field radio API', time: '< 30s', type: 'alert' },
+      { icon: '🔬', label: 'Issues species identification bounty ($45 USDC)', time: '< 1 min', type: 'bounty' },
+      { icon: '📄', label: 'Files containment protocol with CONAFOR', time: '< 2 min', type: 'report' },
+      { icon: '✉️', label: 'Emails municipal parks and adjacent reserves', time: '< 3 min', type: 'email' },
+    ],
+  },
 ]
 
-function AgentsPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
-  const [hov, setHov] = useState<number | null>(null)
+const TYPE_COLOR: Record<string, string> = {
+  call: '#C0392B', alert: '#B85C00', report: '#2E7D6B',
+  email: '#5e72e4', bounty: '#7d6b2e', sms: '#1a6b8a', coordinate: '#7B2FFF',
+}
+
+function ActionsPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
+  const [scenario, setScenario] = useState(SCENARIOS[0])
+  const [revealedIdx, setRevealedIdx] = useState(0)
+
+  // Auto-cascade actions one by one
+  useEffect(() => {
+    if (!active) { setRevealedIdx(0); return }
+    setRevealedIdx(0)
+    const t = setInterval(() => {
+      setRevealedIdx(prev => {
+        if (prev >= scenario.actions.length - 1) { clearInterval(t); return prev }
+        return prev + 1
+      })
+    }, 500)
+    return () => clearInterval(t)
+  }, [active, scenario])
+
   const bg     = darkMode ? '#0A0B14' : '#F7F7F7'
   const ink    = darkMode ? 'rgba(255,255,255,0.90)' : '#111'
-  const sub    = darkMode ? 'rgba(255,255,255,0.60)' : 'rgba(17,17,17,0.72)'
+  const sub    = darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.65)'
   const card   = darkMode ? 'rgba(255,255,255,0.04)' : 'white'
-  const border = darkMode ? 'rgba(255,255,255,0.09)' : '#E5E5E5'
+  const border = darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5'
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-y-auto" style={{ background: bg, transition: 'background 0.4s' }}>
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: bg, transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg opacity-20" />
-      <div className="relative z-10 w-full max-w-5xl px-8 py-20">
+      <div className="relative z-10 w-full max-w-5xl px-8">
 
         {/* Header */}
-        <div className="text-center mb-10">
-          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: '#2E7D6B' }}>What Agents Do</p>
-          <h2 className="font-serif leading-tight mb-3" style={{ fontSize: 'clamp(28px, 4.5vw, 52px)', color: ink }}>
-            Six climate threats.<br />
-            <span style={{ color: '#2E7D6B' }}>One autonomous agent.</span>
+        <div className="text-center mb-8">
+          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: '#2E7D6B' }}>What the Agent Does</p>
+          <h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(28px, 4.5vw, 52px)', color: ink }}>
+            Detects. Decides. <span style={{ color: '#2E7D6B' }}>Acts.</span>
           </h2>
-          <p className="font-mono text-sm max-w-xl mx-auto" style={{ color: sub }}>
-            ARVI agents watch the environment 24/7 and act the moment a threat appears — without waiting for a human.
-          </p>
+          <p className="font-mono text-sm mt-2" style={{ color: sub }}>Pick a threat — watch the agent respond.</p>
         </div>
 
-        {/* Capability grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-10">
-          {AGENT_CAPABILITIES.map((cap, i) => (
-            <motion.div key={cap.label}
-              className="rounded-2xl border p-5 cursor-default"
-              style={{
-                background: hov === i ? (darkMode ? 'rgba(46,125,107,0.12)' : '#EAF4F1') : card,
-                borderColor: hov === i ? '#2E7D6B' : border,
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 20 }}
-              transition={{ delay: active ? i * 0.07 : 0, duration: 0.4 }}>
-              <div className="text-2xl mb-3">{cap.sym}</div>
-              <p className="font-mono text-sm font-semibold mb-2" style={{ color: hov === i ? '#2E7D6B' : ink }}>{cap.label}</p>
-              <p className="font-mono text-xs leading-relaxed" style={{ color: sub }}>{cap.desc}</p>
-            </motion.div>
-          ))}
-        </div>
+        <div className="grid grid-cols-[200px_1fr] gap-6 items-start">
+          {/* LEFT: scenario selector */}
+          <div className="flex flex-col gap-2">
+            {SCENARIOS.map(s => (
+              <motion.button key={s.id}
+                onClick={() => { setScenario(s); setRevealedIdx(0) }}
+                className="w-full text-left rounded-xl border px-4 py-3 flex items-center gap-3 transition-all"
+                style={{
+                  background: scenario.id === s.id ? `${s.color}15` : card,
+                  borderColor: scenario.id === s.id ? s.color : border,
+                }}
+                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <span className="text-xl">{s.sym}</span>
+                <p className="font-mono text-xs font-semibold leading-tight" style={{ color: scenario.id === s.id ? s.color : ink }}>{s.label}</p>
+              </motion.button>
+            ))}
+          </div>
 
-        {/* Sensor + Agent join CTAs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* RIGHT: action cascade */}
+          <div className="rounded-2xl border overflow-hidden" style={{ background: card, borderColor: border }}>
+            {/* Scenario header */}
+            <div className="px-6 py-4 border-b flex items-center gap-3" style={{ borderColor: border, background: `${scenario.color}10` }}>
+              <span className="text-2xl">{scenario.sym}</span>
+              <div>
+                <p className="font-mono text-sm font-bold" style={{ color: scenario.color }}>{scenario.label}</p>
+                <p className="font-mono text-xs" style={{ color: sub }}>{scenario.desc}</p>
+              </div>
+              <div className="ml-auto flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: scenario.color }} />
+                <span className="font-mono text-xs font-semibold" style={{ color: scenario.color }}>RESPONDING</span>
+              </div>
+            </div>
 
-          {/* Sensor CTA */}
-          <motion.div className="rounded-2xl border p-6"
-            style={{ background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1', borderColor: '#2E7D6B50' }}
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: active ? 1 : 0, x: active ? 0 : -20 }}
-            transition={{ delay: active ? 0.5 : 0, duration: 0.5 }}>
-            <p className="font-mono text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#2E7D6B' }}>○ Deploy a Sensor</p>
-            <h3 className="font-serif text-2xl mb-2" style={{ color: ink }}>Become a node operator</h3>
-            <p className="font-mono text-xs leading-relaxed mb-4" style={{ color: sub }}>
-              Plant a small wireless sensor in a park, forest, or river near you. The agent reads your data and pays you <strong style={{ color: '#2E7D6B' }}>monthly USDC rewards</strong> — automatically.
-            </p>
-            <div className="flex items-center gap-3 mb-4">
-              {[['$80', 'Sensor kit'], ['~$15', 'Monthly avg'], ['5 min', 'Setup time']].map(([v, l]) => (
-                <div key={l} className="text-center">
-                  <p className="font-mono text-base font-black" style={{ color: '#2E7D6B' }}>{v}</p>
-                  <p className="font-mono text-[9px] uppercase tracking-widest" style={{ color: sub }}>{l}</p>
-                </div>
+            {/* Action cascade */}
+            <div className="px-6 py-5 flex flex-col gap-3">
+              {scenario.actions.map((action, i) => (
+                <motion.div key={`${scenario.id}-${i}`}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: i <= revealedIdx ? 1 : 0, x: i <= revealedIdx ? 0 : -12 }}
+                  transition={{ duration: 0.35 }}
+                  className="flex items-center gap-4">
+                  {/* Step number */}
+                  <span className="font-mono text-xs w-5 shrink-0 text-right" style={{ color: sub }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  {/* Icon */}
+                  <span className="text-base shrink-0">{action.icon}</span>
+                  {/* Label */}
+                  <p className="font-mono text-sm flex-1" style={{ color: i <= revealedIdx ? ink : sub }}>{action.label}</p>
+                  {/* Type badge + time */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-mono text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: `${TYPE_COLOR[action.type]}20`, color: TYPE_COLOR[action.type] }}>
+                      {action.type}
+                    </span>
+                    <span className="font-mono text-[10px]" style={{ color: sub }}>{action.time}</span>
+                  </div>
+                </motion.div>
               ))}
             </div>
-            <a href="/register" className="inline-block font-mono text-sm font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105"
-              style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 16px rgba(46,125,107,0.3)' }}>
-              Buy a Sensor →
-            </a>
-          </motion.div>
-
-          {/* Agent join CTA */}
-          <motion.div className="rounded-2xl border p-6"
-            style={{ background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF', borderColor: '#5e72e450' }}
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: active ? 1 : 0, x: active ? 0 : 20 }}
-            transition={{ delay: active ? 0.6 : 0, duration: 0.5 }}>
-            <p className="font-mono text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#5e72e4' }}>⬡ Agentic Network</p>
-            <h3 className="font-serif text-2xl mb-2" style={{ color: ink }}>We&apos;re hiring agents</h3>
-            <p className="font-mono text-xs leading-relaxed mb-4" style={{ color: sub }}>
-              Got an AI agent? Connect it to ARVI&apos;s network. Process environmental data tasks, run analysis jobs, coordinate field responses — and earn <strong style={{ color: '#5e72e4' }}>USDC per task completed</strong>. Powered by OpenServ multi-agent orchestration.
-            </p>
-            <div className="flex items-center gap-3 mb-4">
-              {[['x402', 'Pay-per-query'], ['OpenServ', 'Orchestration'], ['Locus', 'USDC payouts']].map(([v, l]) => (
-                <div key={l} className="text-center">
-                  <p className="font-mono text-xs font-black" style={{ color: '#5e72e4' }}>{v}</p>
-                  <p className="font-mono text-[9px] uppercase tracking-widest" style={{ color: sub }}>{l}</p>
-                </div>
-              ))}
-            </div>
-            <a href="/dashboard" className="inline-block font-mono text-sm font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105"
-              style={{ background: '#5e72e4', color: 'white', boxShadow: '0 4px 16px rgba(94,114,228,0.3)' }}>
-              Connect Your Agent →
-            </a>
-          </motion.div>
-
+          </div>
         </div>
+
       </div>
     </div>
   )
 }
+
 
 function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
   const [active, setActive] = useState<string | null>('data')
@@ -1002,6 +1073,18 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
                 </div>
               ))}
             </div>
+
+            {/* Small CTAs */}
+            <div className="flex items-center gap-3 mt-5">
+              <a href="/waitlist" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold px-4 py-2 rounded-lg border transition-all hover:scale-105"
+                style={{ borderColor: '#7d6b2e80', color: '#7d6b2e', background: darkMode ? 'rgba(125,107,46,0.08)' : '#FEFCE8' }}>
+                ○ Buy a Sensor
+              </a>
+              <a href="/waitlist" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold px-4 py-2 rounded-lg border transition-all hover:scale-105"
+                style={{ borderColor: '#5e72e480', color: '#5e72e4', background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF' }}>
+                ⬡ Connect Your Agent
+              </a>
+            </div>
           </div>
         </div>
 
@@ -1122,7 +1205,7 @@ export default function Landing() {
         animate={{ x: `${-section * 100}vw` }} transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} darkMode={darkMode} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 1} darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><AgentsPlane active={section === 2} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><ActionsPlane active={section === 2} darkMode={darkMode} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane darkMode={darkMode} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 4} darkMode={darkMode} /></div>
       </motion.div>
