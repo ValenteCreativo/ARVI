@@ -822,7 +822,7 @@ export default function Dashboard() {
                 {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
                 {tab === 'atlas'        && (
                   <div style={{ height: '60vh', minHeight: '400px' }} className="rounded-xl overflow-hidden border border-line">
-                    <MapComponent weatherNodes={weatherNodes} fires={fires} />
+                    <MapComponent weatherNodes={[]} fires={[]} />
                   </div>
                 )}
               </motion.div>
