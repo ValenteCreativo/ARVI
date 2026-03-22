@@ -13,7 +13,7 @@ const MapComponent = dynamic(() => import('../atlas/MapComponent'), {
   loading: () => <div className="w-full h-full flex items-center justify-center text-muted font-mono text-sm">Loading Atlas…</div>,
 })
 
-type Tab = 'world' | 'sensors' | 'intelligence' | 'actions' | 'global' | 'atlas' | 'console'
+type Tab = 'home' | 'global' | 'sensors' | 'intelligence' | 'actions' | 'bounties' | 'world' | 'atlas' | 'console'
 type PipelineStage = 'idle' | 'sense' | 'analyze' | 'act' | 'pay' | 'done'
 const STAGE_IDX: Record<PipelineStage, number> = { idle: 0, sense: 1, analyze: 2, act: 3, pay: 4, done: 5 }
 
@@ -618,10 +618,270 @@ function ActionsTab({ stage, log, result, onRun, loading }: {
   )
 }
 
+
+// ─── Node Picker (horizontal, replaces sidebar) ──────────────────────────────
+function NodePicker({ active, onChange, darkMode }: { active: NodeData; onChange: (n: NodeData) => void; darkMode?: boolean }) {
+  return (
+    <div className={`flex items-center gap-2 px-6 py-3 border-b overflow-x-auto ${darkMode ? 'border-white/10 bg-[#0F1020]' : 'border-line bg-white'}`}>
+      <span className="font-mono text-[9px] text-muted uppercase tracking-widest shrink-0 mr-1">Node:</span>
+      {ARVI_NODES.map(node => {
+        const nc = healthColor(node.health_score)
+        const isActive = node.node_id === active.node_id
+        return (
+          <button key={node.node_id} onClick={() => onChange(node)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono text-[10px] shrink-0 transition-all active:scale-95"
+            style={{
+              borderColor: isActive ? nc : (darkMode ? 'rgba(255,255,255,0.12)' : '#E5E5E5'),
+              background: isActive ? `${nc}12` : 'transparent',
+              color: isActive ? nc : (darkMode ? 'rgba(255,255,255,0.45)' : '#999'),
+            }}>
+            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: nc }} />
+            {node.location.split(',')[0]}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ─── Home Tab (Command Center) ─────────────────────────────────────────────────
+function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, darkMode }: {
+  nodes: typeof ARVI_NODES; log: LogEntry[]; onRun: () => void; loading: boolean;
+  onTab: (t: Tab) => void; globalFires: number; globalTemp: string; darkMode?: boolean
+}) {
+  const netHealth = nodes.reduce((a, n) => a + n.health_score, 0) / nodes.length
+  const alertCount = nodes.filter(n => n.anomaly_detected || n.health_score < 0.4).length
+  const nc = healthColor(netHealth)
+  const MapDynamic = dynamic(() => import('../atlas/MapComponent'), { ssr: false, loading: () => <div className="w-full h-full bg-[#f8f8f5]" /> })
+
+  const AGENT_TASKS = [
+    { sym: '◈', task: 'Analyze 72h CO₂ drift across 3 nodes', bounty: '6 USDC', status: 'OPEN' },
+    { sym: '⬡', task: 'Cross-reference NASA FIRMS fire data', bounty: '8 USDC', status: 'OPEN' },
+    { sym: '○', task: 'Evaluate reforestation project MRV score', bounty: '12 USDC', status: 'CLAIMED' },
+  ]
+
+  return (
+    <div className="space-y-5">
+      {/* ── Row 1: KPI cards ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: 'Nodes Online', val: `${nodes.length}/3`, sub: 'CDMX network', color: '#2E7D6B', sym: '○', click: () => onTab('sensors') },
+          { label: 'Network Health', val: `${(netHealth*100).toFixed(0)}%`, sub: alertCount > 0 ? `${alertCount} alert${alertCount>1?'s':''}` : 'all nominal', color: nc, sym: '◈', click: () => onTab('sensors') },
+          { label: 'Fire Hotspots', val: globalFires > 0 ? String(globalFires) : '…', sub: 'Mexico · NASA FIRMS · 24h', color: globalFires > 20 ? '#C0392B' : globalFires > 5 ? '#B85C00' : '#2E7D6B', sym: '▸', click: () => onTab('global') },
+          { label: 'Avg Temperature', val: globalTemp !== '--' ? `${globalTemp}°C` : '…', sub: 'Open-Meteo live', color: '#888', sym: '⬡', click: () => onTab('global') },
+        ].map(item => (
+          <motion.button key={item.label} onClick={item.click} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+            className={`rounded-2xl border text-left p-4 transition-all ${darkMode ? 'bg-white/3 border-white/8 hover:border-white/20' : 'bg-white border-line hover:border-jade/40'}`}>
+            <div className="flex items-start justify-between mb-2">
+              <p className="font-mono text-[9px] text-muted uppercase tracking-widest leading-tight">{item.label}</p>
+              <span className="font-mono text-[10px]" style={{ color: item.color }}>{item.sym}</span>
+            </div>
+            <div className="font-serif text-3xl mb-1" style={{ color: item.color }}>{item.val}</div>
+            <p className="font-mono text-[9px] text-muted/60">{item.sub}</p>
+          </motion.button>
+        ))}
+      </div>
+
+      {/* ── Row 2: Map + Agent Log ── */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Mini map */}
+        <div className={`rounded-2xl border overflow-hidden ${darkMode ? 'border-white/8' : 'border-line'}`} style={{ height: '260px' }}>
+          <div className={`flex items-center justify-between px-4 py-2.5 border-b ${darkMode ? 'bg-[#0F1020] border-white/8' : 'bg-white border-line'}`}>
+            <span className="font-mono text-[10px] font-semibold" style={{ color: '#2E7D6B' }}>○ Node Map — CDMX</span>
+            <button onClick={() => onTab('atlas')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">Full Atlas ↗</button>
+          </div>
+          <div className="h-full" style={{ background: '#f8f8f5' }}>
+            <MapDynamic weatherNodes={[]} fires={[]} />
+          </div>
+        </div>
+
+        {/* Agent activity feed */}
+        <div className={`rounded-2xl border flex flex-col ${darkMode ? 'bg-white/3 border-white/8' : 'bg-white border-line'}`}>
+          <div className={`flex items-center justify-between px-4 py-2.5 border-b ${darkMode ? 'border-white/8' : 'border-line'}`}>
+            <div className="flex items-center gap-2">
+              <SignalDot color="#2E7D6B" pulse={loading} />
+              <span className="font-mono text-[10px] font-semibold" style={{ color: '#2E7D6B' }}>Agent Activity</span>
+            </div>
+            <button onClick={() => onTab('console')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">Console ↗</button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-1.5" style={{ maxHeight: '200px' }}>
+            {log.slice(0, 10).map((entry, i) => (
+              <div key={i} className="font-mono text-[10px] leading-relaxed flex items-start gap-2">
+                <span className="text-muted/40 shrink-0">{entry.ts}</span>
+                <span className="font-semibold shrink-0" style={{ color: entry.color }}>{entry.type}</span>
+                <span className="text-ink/50">{entry.msg}</span>
+              </div>
+            ))}
+          </div>
+          <div className={`px-4 py-3 border-t ${darkMode ? 'border-white/8' : 'border-line'}`}>
+            <button onClick={onRun} disabled={loading}
+              className="w-full rounded-xl py-2.5 font-mono text-xs font-bold transition-all disabled:opacity-40"
+              style={{ background: loading ? 'transparent' : '#2E7D6B', color: loading ? '#2E7D6B' : 'white', border: '1px solid #2E7D6B' }}>
+              {loading ? '● Running…' : '▸ Run Agent Now'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Row 3: Sensor grid + Agent tasks ── */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Sensor nodes compact grid */}
+        <div className={`rounded-2xl border overflow-hidden ${darkMode ? 'border-white/8' : 'border-line'}`}>
+          <div className={`flex items-center justify-between px-4 py-2.5 border-b ${darkMode ? 'bg-[#0F1020] border-white/8' : 'bg-white border-line'}`}>
+            <span className="font-mono text-[10px] font-semibold text-ink">◈ Sensor Network</span>
+            <button onClick={() => onTab('sensors')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">Details ↗</button>
+          </div>
+          <div className={`p-4 space-y-3 ${darkMode ? 'bg-white/3' : 'bg-white'}`}>
+            {nodes.map(node => {
+              const nc2 = healthColor(node.health_score)
+              return (
+                <div key={node.node_id} className={`rounded-xl border p-3 ${darkMode ? 'border-white/8' : 'border-line'}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-[11px] font-semibold text-ink">{node.location.split(',')[0]}</span>
+                    <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border" style={{ color: nc2, borderColor: `${nc2}30`, background: `${nc2}10` }}>{healthLabel(node.health_score)}</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { l: 'Temp', v: `${node.temperature_c}°C` },
+                      { l: 'AQI', v: String(node.air_quality_index) },
+                      { l: 'CO₂', v: `${node.co2_ppm}` },
+                      { l: 'Bio', v: `${(node.biodiversity_score*100).toFixed(0)}%` },
+                    ].map(m => (
+                      <div key={m.l} className={`rounded-lg p-2 text-center ${darkMode ? 'bg-white/5' : 'bg-canvas'}`}>
+                        <p className="font-mono text-[8px] text-muted mb-0.5">{m.l}</p>
+                        <p className="font-mono text-[10px] font-medium text-ink">{m.v}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-2.5 flex items-center gap-2">
+                    <Bar value={node.health_score * 100} color={nc2} />
+                    <span className="font-mono text-[9px] shrink-0" style={{ color: nc2 }}>{(node.health_score*100).toFixed(0)}%</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Agent task board mini */}
+        <div className={`rounded-2xl border flex flex-col ${darkMode ? 'bg-white/3 border-white/8' : 'bg-white border-line'}`}>
+          <div className={`flex items-center justify-between px-4 py-2.5 border-b ${darkMode ? 'border-white/8' : 'border-line'}`}>
+            <span className="font-mono text-[10px] font-semibold" style={{ color: '#5e72e4' }}>⬡ Agent Task Board</span>
+            <button onClick={() => onTab('bounties')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">All Bounties ↗</button>
+          </div>
+          <div className={`flex-1 p-4 space-y-2 ${darkMode ? '' : ''}`}>
+            {AGENT_TASKS.map((t, i) => (
+              <div key={i} className={`rounded-xl border px-3 py-2.5 flex items-center justify-between ${darkMode ? 'border-white/8' : 'border-line'}`}>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-sm" style={{ color: '#5e72e4' }}>{t.sym}</span>
+                  <p className="font-mono text-[10px] text-ink">{t.task}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-2">
+                  <span className="font-mono text-[10px] font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
+                  <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full border"
+                    style={{ color: t.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: t.status === 'OPEN' ? '#2E7D6B40' : '#DADADA' }}>{t.status}</span>
+                </div>
+              </div>
+            ))}
+            <div className={`rounded-xl border px-3 py-2.5 text-center ${darkMode ? 'border-white/8' : 'border-line border-dashed'}`}>
+              <p className="font-mono text-[9px] text-muted">New tasks published after each agent run</p>
+            </div>
+          </div>
+          {/* ERC-8004 badge */}
+          <div className={`px-4 py-3 border-t ${darkMode ? 'border-white/8' : 'border-line'}`}>
+            <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
+              target="_blank" rel="noopener"
+              className="font-mono text-[9px] text-muted/40 hover:text-jade transition-colors">
+              ERC-8004 · Base Mainnet · EVVM ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Bounties Tab ──────────────────────────────────────────────────────────────
+function BountiesTab({ darkMode }: { darkMode?: boolean }) {
+  const AGENT_TASKS = [
+    { sym: '◈', task: 'Analyze 72h CO₂ drift across all 3 nodes', detail: 'Cross-correlate sensor readings and identify anomaly source. Return confidence score + affected zone.', bounty: '6 USDC', status: 'OPEN', tag: 'Analysis' },
+    { sym: '⬡', task: 'Cross-reference NASA FIRMS fire data with sensor AQI', detail: 'Fetch latest FIRMS hotspots, compare with current AQI readings. Flag spatial overlap within 2km.', bounty: '8 USDC', status: 'OPEN', tag: 'Cross-reference' },
+    { sym: '○', task: 'Evaluate reforestation project MRV impact score', detail: 'Collect before/after sensor evidence for Bosque Tlalpan intervention. Generate Octant-ready evaluation.', bounty: '12 USDC', status: 'CLAIMED', tag: 'MRV' },
+    { sym: '◈', task: 'Aggregate biodiversity change report for Q1 2026', detail: 'Pull audio sensor logs, compute species diversity index change vs Q4 2025.', bounty: '10 USDC', status: 'OPEN', tag: 'Report' },
+  ]
+  const HUMAN_TASKS = [
+    { sym: '🔥', task: 'Verify fire risk in Chapultepec Forest', detail: 'Sensors detected unusual heat signatures near the south perimeter. Go to the marked zone, confirm on the ground, and submit a photo + short report.', bounty: '12 USDC', status: 'OPEN', color: '#C0392B' },
+    { sym: '💧', task: 'Survey flood conditions in Xochimilco wetlands', detail: 'Soil saturation at 92%. Walk the marked wetland path, photograph water levels, confirm if drainage channels are blocked.', bounty: '8 USDC', status: 'OPEN', color: '#2E7D6B' },
+    { sym: '🌫', task: 'Ground-check air quality near Tlatelolco market', detail: 'PM2.5 spike detected. Visit the market area and identify the visible pollution source (traffic, burning, or construction).', bounty: '5 USDC', status: 'CLAIMED', color: '#B85C00' },
+    { sym: '🌿', task: 'Install sensor kit at Bosque de Aragón', detail: 'Node-04 deployment site confirmed. Bring your kit (or pick up at HQ), follow the installation guide, submit GPS coordinates + photo.', bounty: '20 USDC', status: 'OPEN', color: '#1a6b8a' },
+  ]
+
+  return (
+    <div className="space-y-6">
+      {/* Agent board */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[9px] uppercase tracking-widest font-semibold" style={{ color: '#5e72e4' }}>⬡ Agent Task Board</span>
+            <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border" style={{ color: '#5e72e4', borderColor: '#5e72e440', background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF' }}>For agents</span>
+          </div>
+          <span className="font-mono text-[9px] text-muted">Paid via Locus · Base</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {AGENT_TASKS.map((t, i) => (
+            <div key={i} className={`rounded-2xl border p-4 ${darkMode ? 'bg-white/3 border-white/8' : 'bg-white border-line'}`}>
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-base" style={{ color: '#5e72e4' }}>{t.sym}</span>
+                  <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: '#5e72e412', color: '#5e72e4' }}>{t.tag}</span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
+                  <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border"
+                    style={{ color: t.status==='OPEN'?'#2E7D6B':'#888', borderColor: t.status==='OPEN'?'#2E7D6B40':'#DADADA' }}>{t.status}</span>
+                </div>
+              </div>
+              <p className="font-mono text-[11px] font-semibold text-ink mb-1.5">{t.task}</p>
+              <p className="font-mono text-[9px] leading-snug text-muted">{t.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Human board */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[9px] uppercase tracking-widest font-semibold" style={{ color: '#2E7D6B' }}>○ Field Bounty Board</span>
+            <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border" style={{ color: '#2E7D6B', borderColor: '#2E7D6B40', background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1' }}>For humans</span>
+          </div>
+          <span className="font-mono text-[9px] text-muted">Go to the field · earn USDC</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {HUMAN_TASKS.map((t, i) => (
+            <div key={i} className={`rounded-2xl border p-4 ${darkMode ? 'bg-white/3 border-white/8' : 'bg-white border-line'}`}>
+              <div className="flex items-start justify-between mb-2">
+                <span className="text-2xl">{t.sym}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
+                  <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border"
+                    style={{ color: t.status==='OPEN'?'#2E7D6B':'#888', borderColor: t.status==='OPEN'?'#2E7D6B40':'#DADADA' }}>{t.status}</span>
+                </div>
+              </div>
+              <p className="font-mono text-[11px] font-semibold text-ink mb-1.5">{t.task}</p>
+              <p className="font-mono text-[9px] leading-snug text-muted">{t.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Dashboard ────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [activeNode, setActiveNode] = useState<NodeData>(ARVI_NODES[0])
-  const [tab, setTab] = useState<Tab>('world')
+  const [tab, setTab] = useState<Tab>('home')
   const [darkMode, setDarkMode] = useState(false)
   const [results, setResults] = useState<Record<string, Record<string, unknown>>>({})
   const [loading, setLoading] = useState(false)
@@ -732,49 +992,7 @@ export default function Dashboard() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
-        <aside className={`w-56 shrink-0 border-r flex flex-col ${darkMode ? "bg-[#0F1020] border-white/10" : "border-line bg-white"}`}>
-          <div className="px-4 py-3 border-b border-line">
-            <div className="flex items-center justify-between mb-2">
-              <p className="font-mono text-[9px] text-muted uppercase tracking-widest">Network · CDMX</p>
-              <span className="font-mono text-[9px] text-jade">{(netHealth * 100).toFixed(0)}%</span>
-            </div>
-            <Bar value={netHealth * 100} color={healthColor(netHealth)} />
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {ARVI_NODES.map(node => {
-              const nc = healthColor(node.health_score)
-              const isActive = node.node_id === activeNode.node_id
-              return (
-                <button key={node.node_id} onClick={() => { setActiveNode(node); if (tab === 'global') setTab('sensors') }}
-                  className={`w-full text-left px-4 py-4 border-b transition-all ${isActive && tab !== 'global' ? 'bg-jade-light border-l-2 border-l-jade' : 'hover:bg-canvas/60 border-line'}`}
-                  style={isActive && tab !== 'global' ? { borderLeftColor: nc } : {}}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-mono text-[9px] text-muted">{node.ens}</span>
-                    <span className="font-mono text-[8px] font-bold px-1.5 py-0.5 rounded-full border"
-                      style={{ color: nc, borderColor: `${nc}30`, background: `${nc}10` }}>
-                      {healthLabel(node.health_score)}
-                    </span>
-                  </div>
-                  <p className="font-mono text-[11px] text-ink mb-2">{node.location.split(',')[0]}</p>
-                  <div className="flex items-center gap-2">
-                    <Bar value={node.health_score * 100} color={nc} />
-                    <span className="font-mono text-[10px] shrink-0" style={{ color: nc }}>{(node.health_score * 100).toFixed(0)}%</span>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-          <div className="px-4 py-3 border-t border-line">
-            <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
-              target="_blank" rel="noopener"
-              className="font-mono text-[9px] text-muted/40 hover:text-jade transition-colors block">
-              ERC-8004 · Base Mainnet ↗
-            </a>
-          </div>
-        </aside>
-
-        {/* Main panel */}
+        {/* Main panel — no sidebar, node picker inline */}
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Tabs + run button */}
           <div className="border-b border-line bg-white px-6 pt-4 pb-0">
@@ -789,7 +1007,7 @@ export default function Dashboard() {
                     </div>
                   )}
               </div>
-              <button onClick={runAgent} disabled={loading || tab === 'global'}
+              <button onClick={runAgent} disabled={loading || ['global','home','bounties','atlas','world'].includes(tab)}
                 className="btn-jade disabled:opacity-40 flex items-center gap-2">
                 {loading
                   ? <><span className="w-3 h-3 border border-white/40 border-t-white rounded-full animate-spin" />Running</>
@@ -798,13 +1016,15 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center gap-1">
               {([
-                ['global', '⬡ Global Feed'],
-                ['world', '⬡ Network'],
-                ['sensors', '○ Sensors'],
+                ['home',         '⊞ Home'],
+                ['global',       '⬡ Global'],
+                ['sensors',      '○ Sensors'],
                 ['intelligence', '◈ Intelligence'],
-                ['actions', '▸ Actions'],
-                ['atlas', '○ Atlas'],
-                ['console', '◈ Console'],
+                ['actions',      '▸ Actions'],
+                ['bounties',     '● Bounties'],
+                ['world',        '⬡ Network'],
+                ['atlas',        '○ Atlas'],
+                ['console',      '◈ Console'],
               ] as [Tab, string][]).map(([id, label]) => (
                 <button key={id} onClick={() => setTab(id)}
                   className={`font-mono text-[11px] px-4 py-2.5 border-b-2 transition-all ${tab === id ? 'text-jade border-jade' : 'text-muted border-transparent hover:text-ink'}`}>
@@ -814,23 +1034,30 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Node picker — shown only for node-specific tabs */}
+          {['sensors','intelligence','actions','console'].includes(tab) && (
+            <NodePicker active={activeNode} onChange={node => setActiveNode(node)} darkMode={darkMode} />
+          )}
+
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6 bg-canvas">
             <AnimatePresence mode="wait">
               <motion.div key={tab + activeNode.node_id}
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}>
+                {tab === 'home'         && <HomeTab nodes={ARVI_NODES} log={log} onRun={runAgent} loading={loading} onTab={setTab} globalFires={globalFires} globalTemp={globalTemp} darkMode={darkMode} />}
                 {tab === 'global'       && <GlobalTab />}
-                {tab === 'sensors'      && <SensorTab node={activeNode} />}
-                {tab === 'intelligence' && <IntelligenceTab node={activeNode} result={result} onRun={runAgent} loading={loading} />}
-                {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
-                {tab === 'world'       && <AgentWorld darkMode={darkMode} />}
-                {tab === 'console'     && <TrackingConsole node={activeNode} darkMode={darkMode} />}
+                {tab === 'bounties'     && <BountiesTab darkMode={darkMode} />}
+                {tab === 'world'        && <AgentWorld darkMode={darkMode} />}
                 {tab === 'atlas'        && (
-                  <div style={{ height: '60vh', minHeight: '400px' }} className="rounded-xl overflow-hidden border border-line">
+                  <div style={{ height: '60vh', minHeight: '400px' }} className="rounded-xl overflow-hidden border border-line bg-[#f8f8f5]">
                     <MapComponent weatherNodes={[]} fires={[]} />
                   </div>
                 )}
+                {tab === 'sensors'      && <SensorTab node={activeNode} />}
+                {tab === 'intelligence' && <IntelligenceTab node={activeNode} result={result} onRun={runAgent} loading={loading} />}
+                {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
+                {tab === 'console'      && <TrackingConsole node={activeNode} darkMode={darkMode} />}
               </motion.div>
             </AnimatePresence>
           </div>
