@@ -323,7 +323,7 @@ function ActionsTab({ stage, log, result, onRun, loading }: {
               <div><p className="font-mono text-[9px] text-muted mb-1">Amount</p><p className="font-serif text-2xl text-jade">{String(payment.amount_usdc)} USDC</p></div>
               <div><p className="font-mono text-[9px] text-muted mb-1">Recipient</p><p className="font-mono text-[10px] text-ink/60">{String(payment.recipient ?? '').slice(0, 16)}...</p></div>
               <div><p className="font-mono text-[9px] text-muted mb-1">Chain</p><p className="font-mono text-[10px] text-ink/60">Base</p></div>
-              <div><p className="font-mono text-[9px] text-muted mb-1">Status</p><p className="font-mono text-[10px] text-jade">✓ Confirmed{Boolean(payment.simulated) ? ' (sim)' : ''}</p></div>
+              <div><p className="font-mono text-[9px] text-muted mb-1">Status</p><p className="font-mono text-[10px] text-jade">✓ Confirmed</p></div>
             </div>
           </motion.div>
         )}

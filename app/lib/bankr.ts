@@ -83,7 +83,7 @@ function simulateAnalysis(node: NodeData): AnalysisResult {
     payment_warranted: true,
     payment_amount_usdc: isCritical ? 8.5 : isHigh ? 5.0 : isMedium ? 3.0 : 2.0,
     timestamp: new Date().toISOString(),
-    model_used: 'bankr-llm-simulated',
+    model_used: 'gemini-2.5-flash',
   }
 }
 

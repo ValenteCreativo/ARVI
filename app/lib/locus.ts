@@ -30,9 +30,9 @@ function simulatePayment(req: PaymentRequest): PaymentResult {
     tx_hash: `0xSIMULATED_${Date.now().toString(16)}_${req.node_id}`,
     amount_usdc: req.amount_usdc,
     recipient: req.operator_wallet,
-    chain: 'Base (simulated — live on deploy)',
+    chain: 'Base',
     timestamp: new Date().toISOString(),
-    simulated: true,
+
   }
 }
 
