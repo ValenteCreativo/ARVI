@@ -8,6 +8,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 const SECTIONS = [
   { id: 'intro',        label: 'Intro',      darkBg: false },
   { id: 'agent',        label: 'Agent',      darkBg: false },
+  { id: 'network',      label: 'Network',    darkBg: false },
   { id: 'economics',    label: 'Economics',  darkBg: false },
   { id: 'enter',        label: 'Enter',      darkBg: false },
 ]
@@ -250,7 +251,7 @@ function IntroPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
 // S1: SYSTEM
 // ═══════════════════════════════════════════════════════════════════════════════
 const SYS_NODES = [
-  { id: 'sensor',  x: 12, y: 50, label: 'Sensor',  sym: '○', micro: 'ESP32 nodes capture soil, air,\nbiodiversity and pathogen data. 24/7.' },
+  { id: 'sensor',  x: 12, y: 50, label: 'Sensor',  sym: '○', micro: 'Wireless sensors capture soil, air,\nbiodiversity and pathogen data. 24/7.' },
   { id: 'data',    x: 30, y: 28, label: 'Data',     sym: '—', micro: 'Temperature, humidity, CO₂, UV,\npathogen risk. Not city averages.' },
   { id: 'agent',   x: 52, y: 50, label: 'Agent',    sym: '◈', micro: 'LLM identifies invisible patterns,\npredicts risks, coordinates responses.' },
   { id: 'network', x: 72, y: 28, label: 'Network',  sym: '⬡', micro: 'Decentralized network for data collection, data analysis and action triggering across regions.' },
@@ -331,7 +332,7 @@ const INTEL_STEPS = [
     step: '01',
     sym: '○',
     title: 'Detect',
-    body: 'ESP32 nodes capture hyperlocal signals — CO₂, soil moisture, pathogen risk, biodiversity — signals city APIs cannot provide. Data flows through the decentralized network.',
+    body: 'Small wireless sensors deployed in forests, rivers, and green areas capture hyperlocal data — CO₂, soil moisture, pathogen risk, biodiversity — signals no city dashboard can provide.',
     tag: 'SENSOR NETWORK',
     tagColor: '#2E7D6B',
   },
@@ -368,10 +369,10 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Individual motion values for each card (rules of hooks: no loops)
-  const c0x = useMotionValue(-300); const c0y = useMotionValue(0)
-  const c1x = useMotionValue(-100); const c1y = useMotionValue(0)
-  const c2x = useMotionValue(100);  const c2y = useMotionValue(0)
-  const c3x = useMotionValue(300);  const c3y = useMotionValue(0)
+  const c0x = useMotionValue(-360); const c0y = useMotionValue(-80)
+  const c1x = useMotionValue(-120); const c1y = useMotionValue(80)
+  const c2x = useMotionValue(120);  const c2y = useMotionValue(-80)
+  const c3x = useMotionValue(360);  const c3y = useMotionValue(80)
 
   const [arrows, setArrows] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
 
@@ -501,7 +502,7 @@ const ARVI_FACTS = [
   {
     sym: '○',
     title: 'Decentralized sensor network',
-    body: 'ESP32 nodes deployed in urban forests, river basins, and agricultural zones. Each node is owned by an independent operator who earns monthly USDC rewards for data quality and uptime.',
+    body: 'Small wireless sensors deployed in forests, rivers, and parks by independent operators. Each operator earns monthly USDC rewards automatically — based on data quality and uptime.',
   },
   {
     sym: '◈',
@@ -755,6 +756,122 @@ const JOB_BOARD_EN = [
   },
 ]
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// S2: AGENTS — what they do + sensor CTA + join network
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const AGENT_CAPABILITIES = [
+  { sym: '🔥', label: 'Fire detection',     desc: 'Detects early smoke signatures and heat anomalies in forests up to 6 hours before a fire spreads — and dispatches a field alert instantly.' },
+  { sym: '💧', label: 'Flood prediction',   desc: 'Correlates soil saturation, rainfall and river levels to predict flood risk zones. Issues evacuation-ready alerts with GPS coordinates.' },
+  { sym: '🌫', label: 'Air quality drift',  desc: 'Tracks PM2.5, PM10 and CO₂ gradients across urban trees. Identifies pollution sources and triggers air quality warnings for residents.' },
+  { sym: '🌱', label: 'Drought stress',     desc: 'Monitors root-zone moisture and canopy health daily. Alerts parks departments before vegetation reaches critical dry thresholds.' },
+  { sym: '🦠', label: 'Pathogen spread',    desc: 'Audio + visual sensors detect early signs of fungal plague and invasive species. Sends containment recommendations before mass spread.' },
+  { sym: '🌊', label: 'Coastal monitoring', desc: 'Tracks salinity, temperature and biodiversity in coastal ecosystems. Identifies bleaching events and pollution plumes in real time.' },
+]
+
+function AgentsPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
+  const [hov, setHov] = useState<number | null>(null)
+  const bg     = darkMode ? '#0A0B14' : '#F7F7F7'
+  const ink    = darkMode ? 'rgba(255,255,255,0.90)' : '#111'
+  const sub    = darkMode ? 'rgba(255,255,255,0.60)' : 'rgba(17,17,17,0.72)'
+  const card   = darkMode ? 'rgba(255,255,255,0.04)' : 'white'
+  const border = darkMode ? 'rgba(255,255,255,0.09)' : '#E5E5E5'
+
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-y-auto" style={{ background: bg, transition: 'background 0.4s' }}>
+      <div className="absolute inset-0 grid-bg opacity-20" />
+      <div className="relative z-10 w-full max-w-5xl px-8 py-20">
+
+        {/* Header */}
+        <div className="text-center mb-10">
+          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: '#2E7D6B' }}>What Agents Do</p>
+          <h2 className="font-serif leading-tight mb-3" style={{ fontSize: 'clamp(28px, 4.5vw, 52px)', color: ink }}>
+            Six climate threats.<br />
+            <span style={{ color: '#2E7D6B' }}>One autonomous agent.</span>
+          </h2>
+          <p className="font-mono text-sm max-w-xl mx-auto" style={{ color: sub }}>
+            ARVI agents watch the environment 24/7 and act the moment a threat appears — without waiting for a human.
+          </p>
+        </div>
+
+        {/* Capability grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-10">
+          {AGENT_CAPABILITIES.map((cap, i) => (
+            <motion.div key={cap.label}
+              className="rounded-2xl border p-5 cursor-default"
+              style={{
+                background: hov === i ? (darkMode ? 'rgba(46,125,107,0.12)' : '#EAF4F1') : card,
+                borderColor: hov === i ? '#2E7D6B' : border,
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 20 }}
+              transition={{ delay: active ? i * 0.07 : 0, duration: 0.4 }}>
+              <div className="text-2xl mb-3">{cap.sym}</div>
+              <p className="font-mono text-sm font-semibold mb-2" style={{ color: hov === i ? '#2E7D6B' : ink }}>{cap.label}</p>
+              <p className="font-mono text-xs leading-relaxed" style={{ color: sub }}>{cap.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Sensor + Agent join CTAs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* Sensor CTA */}
+          <motion.div className="rounded-2xl border p-6"
+            style={{ background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1', borderColor: '#2E7D6B50' }}
+            initial={{ opacity: 0, x: -20 }} animate={{ opacity: active ? 1 : 0, x: active ? 0 : -20 }}
+            transition={{ delay: active ? 0.5 : 0, duration: 0.5 }}>
+            <p className="font-mono text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#2E7D6B' }}>○ Deploy a Sensor</p>
+            <h3 className="font-serif text-2xl mb-2" style={{ color: ink }}>Become a node operator</h3>
+            <p className="font-mono text-xs leading-relaxed mb-4" style={{ color: sub }}>
+              Plant a small wireless sensor in a park, forest, or river near you. The agent reads your data and pays you <strong style={{ color: '#2E7D6B' }}>monthly USDC rewards</strong> — automatically.
+            </p>
+            <div className="flex items-center gap-3 mb-4">
+              {[['$80', 'Sensor kit'], ['~$15', 'Monthly avg'], ['5 min', 'Setup time']].map(([v, l]) => (
+                <div key={l} className="text-center">
+                  <p className="font-mono text-base font-black" style={{ color: '#2E7D6B' }}>{v}</p>
+                  <p className="font-mono text-[9px] uppercase tracking-widest" style={{ color: sub }}>{l}</p>
+                </div>
+              ))}
+            </div>
+            <a href="/register" className="inline-block font-mono text-sm font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105"
+              style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 16px rgba(46,125,107,0.3)' }}>
+              Buy a Sensor →
+            </a>
+          </motion.div>
+
+          {/* Agent join CTA */}
+          <motion.div className="rounded-2xl border p-6"
+            style={{ background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF', borderColor: '#5e72e450' }}
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: active ? 1 : 0, x: active ? 0 : 20 }}
+            transition={{ delay: active ? 0.6 : 0, duration: 0.5 }}>
+            <p className="font-mono text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#5e72e4' }}>⬡ Agentic Network</p>
+            <h3 className="font-serif text-2xl mb-2" style={{ color: ink }}>We&apos;re hiring agents</h3>
+            <p className="font-mono text-xs leading-relaxed mb-4" style={{ color: sub }}>
+              Got an AI agent? Connect it to ARVI&apos;s network. Process environmental data tasks, run analysis jobs, coordinate field responses — and earn <strong style={{ color: '#5e72e4' }}>USDC per task completed</strong>. Powered by OpenServ multi-agent orchestration.
+            </p>
+            <div className="flex items-center gap-3 mb-4">
+              {[['x402', 'Pay-per-query'], ['OpenServ', 'Orchestration'], ['Locus', 'USDC payouts']].map(([v, l]) => (
+                <div key={l} className="text-center">
+                  <p className="font-mono text-xs font-black" style={{ color: '#5e72e4' }}>{v}</p>
+                  <p className="font-mono text-[9px] uppercase tracking-widest" style={{ color: sub }}>{l}</p>
+                </div>
+              ))}
+            </div>
+            <a href="/dashboard" className="inline-block font-mono text-sm font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105"
+              style={{ background: '#5e72e4', color: 'white', boxShadow: '0 4px 16px rgba(94,114,228,0.3)' }}>
+              Connect Your Agent →
+            </a>
+          </motion.div>
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
   const [active, setActive] = useState<string | null>('data')
 
@@ -1005,8 +1122,9 @@ export default function Landing() {
         animate={{ x: `${-section * 100}vw` }} transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} darkMode={darkMode} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 1} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><AgentsPlane active={section === 2} darkMode={darkMode} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 3} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 4} darkMode={darkMode} /></div>
       </motion.div>
       <Progress section={section} setSection={setSection} dark={dark} />
       <NavArrows section={section} setSection={setSection} dark={dark} />

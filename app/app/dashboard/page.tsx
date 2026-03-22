@@ -6,13 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ARVI_NODES, type NodeData } from '@/data/nodes'
 import dynamic from 'next/dynamic'
 import TrackingConsole from './TrackingConsole'
+import AgentWorld from './AgentWorld'
 
 const MapComponent = dynamic(() => import('../atlas/MapComponent'), {
   ssr: false,
   loading: () => <div className="w-full h-full flex items-center justify-center text-muted font-mono text-sm">Loading Atlas…</div>,
 })
 
-type Tab = 'sensors' | 'intelligence' | 'actions' | 'global' | 'atlas' | 'console'
+type Tab = 'world' | 'sensors' | 'intelligence' | 'actions' | 'global' | 'atlas' | 'console'
 type PipelineStage = 'idle' | 'sense' | 'analyze' | 'act' | 'pay' | 'done'
 const STAGE_IDX: Record<PipelineStage, number> = { idle: 0, sense: 1, analyze: 2, act: 3, pay: 4, done: 5 }
 
@@ -620,7 +621,7 @@ function ActionsTab({ stage, log, result, onRun, loading }: {
 // ─── Main Dashboard ────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [activeNode, setActiveNode] = useState<NodeData>(ARVI_NODES[0])
-  const [tab, setTab] = useState<Tab>('global')
+  const [tab, setTab] = useState<Tab>('world')
   const [darkMode, setDarkMode] = useState(false)
   const [results, setResults] = useState<Record<string, Record<string, unknown>>>({})
   const [loading, setLoading] = useState(false)
@@ -798,6 +799,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-1">
               {([
                 ['global', '⬡ Global Feed'],
+                ['world', '⬡ Network'],
                 ['sensors', '○ Sensors'],
                 ['intelligence', '◈ Intelligence'],
                 ['actions', '▸ Actions'],
@@ -822,6 +824,7 @@ export default function Dashboard() {
                 {tab === 'sensors'      && <SensorTab node={activeNode} />}
                 {tab === 'intelligence' && <IntelligenceTab node={activeNode} result={result} onRun={runAgent} loading={loading} />}
                 {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
+                {tab === 'world'       && <AgentWorld darkMode={darkMode} />}
                 {tab === 'console'     && <TrackingConsole node={activeNode} darkMode={darkMode} />}
                 {tab === 'atlas'        && (
                   <div style={{ height: '60vh', minHeight: '400px' }} className="rounded-xl overflow-hidden border border-line">
