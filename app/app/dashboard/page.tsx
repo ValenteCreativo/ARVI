@@ -8,6 +8,10 @@ import dynamic from 'next/dynamic'
 import TrackingConsole from './TrackingConsole'
 import AgentWorld from './AgentWorld'
 import ForestWorld from './ForestWorld'
+import LiveAgentEvent, { type AgentEvent } from './LiveAgentEvent'
+import LoopVisualizer, { type LoopData } from './LoopVisualizer'
+import ThresholdPanel from './ThresholdPanel'
+import EvidencePanel from './EvidencePanel'
 
 const MapComponent = dynamic(() => import('../atlas/MapComponent'), {
   ssr: false,
@@ -102,10 +106,10 @@ function GlobalTab() {
       {/* Global stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Fire Hotspots', val: loading ? '...' : String(fires.length), sub: 'Mexico · NASA FIRMS · 24h', color: fires.length > 20 ? '#C0392B' : fires.length > 5 ? '#B85C00' : '#2E7D6B', icon: '▸' },
-          { label: 'High Confidence', val: loading ? '...' : String(fireHigh), sub: 'Fire hotspots confirmed', color: fireHigh > 10 ? '#C0392B' : '#B85C00', icon: '○' },
-          { label: 'Avg Temperature', val: loading ? '...' : `${avgTemp}°C`, sub: 'Network mean · Open-Meteo', color: '#888', icon: '◈' },
-          { label: 'Max UV Index', val: loading ? '...' : String(maxUV), sub: 'Across all nodes today', color: Number(maxUV) > 8 ? '#B85C00' : '#2E7D6B', icon: '⬡' },
+          { label: 'Fire Hotspots', val: loading ? '-' : String(fires.length), sub: 'Mexico · NASA FIRMS · 24h', color: fires.length > 20 ? '#C0392B' : fires.length > 5 ? '#B85C00' : '#2E7D6B', icon: '▸' },
+          { label: 'High Confidence', val: loading ? '-' : String(fireHigh), sub: 'Fire hotspots confirmed', color: fireHigh > 10 ? '#C0392B' : '#B85C00', icon: '○' },
+          { label: 'Avg Temperature', val: loading ? '-' : `${avgTemp}°C`, sub: 'Network mean · Open-Meteo', color: '#888', icon: '◈' },
+          { label: 'Max UV Index', val: loading ? '-' : String(maxUV), sub: 'Across all nodes today', color: Number(maxUV) > 8 ? '#B85C00' : '#2E7D6B', icon: '⬡' },
         ].map(item => (
           <div key={item.label} className="panel p-4">
             <div className="flex items-start justify-between mb-2">
@@ -126,7 +130,7 @@ function GlobalTab() {
             <span>NASA FIRMS — Active Fire Intelligence</span>
           </div>
           <span className="font-mono text-[9px] text-muted/50 normal-case tracking-normal">
-            {loading ? 'fetching...' : `${fires.length} hotspots detected · 24h window`}
+            {loading ? 'loading data…' : `${fires.length} hotspots detected · 24h window`}
           </span>
         </div>
         <div className="p-5">
@@ -487,6 +491,16 @@ function IntelligenceTab({ node, result, onRun, loading }: {
         </div>
       </div>
 
+      {/* Threshold Panel */}
+      {analysis && (
+        <ThresholdPanel
+          temperature={node.temperature_c}
+          soilMoisture={node.soil_moisture_pct}
+          aqi={node.air_quality_index}
+          pathogenRisk={node.pathogen_risk}
+        />
+      )}
+
       {/* Trend grid */}
       <div className="panel overflow-hidden">
         <div className="panel-header">Trend Indicators</div>
@@ -654,10 +668,13 @@ function NodePicker({ active, onChange, darkMode }: { active: NodeData; onChange
   )
 }
 
-// ─── Home Tab (Command Center) ─────────────────────────────────────────────────
-function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, darkMode }: {
+// ─── Home Tab ─────────────────────────────────────────────────────────────────
+function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, darkMode, liveEvent, liveEventLoading, loopData, loopState, loopActiveStep, onViewEvidence }: {
   nodes: typeof ARVI_NODES; log: LogEntry[]; onRun: () => void; loading: boolean;
-  onTab: (t: Tab) => void; globalFires: number; globalTemp: string; darkMode?: boolean
+  onTab: (t: Tab) => void; globalFires: number; globalTemp: string; darkMode?: boolean;
+  liveEvent: AgentEvent | null; liveEventLoading: boolean;
+  loopData: LoopData | null; loopState: 'idle' | 'running' | 'complete'; loopActiveStep: number;
+  onViewEvidence: () => void;
 }) {
   const netHealth = nodes.reduce((a, n) => a + n.health_score, 0) / nodes.length
   const alertCount = nodes.filter(n => n.anomaly_detected || n.health_score < 0.4).length
@@ -672,6 +689,12 @@ function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, d
 
   return (
     <div className="space-y-5">
+      {/* ── Live Agent Event Banner ── */}
+      <LiveAgentEvent event={liveEvent} loading={liveEventLoading} onViewEvidence={onViewEvidence} darkMode={darkMode} />
+
+      {/* ── Agent Loop Visualizer ── */}
+      <LoopVisualizer data={loopData} state={loopState} activeStep={loopActiveStep} darkMode={darkMode} />
+
       {/* ── Row 1: KPI cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
@@ -1003,6 +1026,15 @@ export default function Dashboard() {
   const [globalFires, setGlobalFires] = useState(0)
   const [globalTemp, setGlobalTemp] = useState<string>('--')
 
+  // Phase 1 & 2 & 4 state
+  const [liveEvent, setLiveEvent] = useState<AgentEvent | null>(null)
+  const [liveEventLoading, setLiveEventLoading] = useState(false)
+  const [loopData, setLoopData] = useState<LoopData | null>(null)
+  const [loopState, setLoopState] = useState<'idle' | 'running' | 'complete'>('idle')
+  const [loopActiveStep, setLoopActiveStep] = useState(-1)
+  const [evidenceOpen, setEvidenceOpen] = useState(false)
+  const autoRanRef = useRef(false)
+
   useEffect(() => {
     const tick = () => setNow(new Date().toISOString().replace('T', ' ').slice(0, 19))
     tick(); const t = setInterval(tick, 1000); return () => clearInterval(t)
@@ -1019,41 +1051,185 @@ export default function Dashboard() {
     }).catch(() => {})
   }, [])
 
+  // Phase 6: On mount, restore from localStorage + auto-run
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('arvi_last_event')
+      if (stored) {
+        const parsed = JSON.parse(stored) as AgentEvent
+        // Check if < 24h old
+        const age = Date.now() - new Date(parsed.timestamp).getTime()
+        if (age < 24 * 60 * 60 * 1000) {
+          setLiveEvent(parsed)
+          // Restore loop data
+          const storedLoop = localStorage.getItem('arvi_last_loop')
+          if (storedLoop) setLoopData(JSON.parse(storedLoop) as LoopData)
+          setLoopState('complete')
+          setLoopActiveStep(-1)
+        }
+      }
+    } catch { /* ignore parse errors */ }
+
+    // Auto-run on mount (silently, only once)
+    if (!autoRanRef.current) {
+      autoRanRef.current = true
+      runAgentSilent()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Also restore intelligence tab result from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('arvi_last_result')
+      if (stored) {
+        const parsed = JSON.parse(stored) as Record<string, Record<string, unknown>>
+        setResults(parsed)
+      }
+    } catch { /* ignore */ }
+  }, [])
+
   const addLog = (type: string, msg: string, color: string) => {
     const ts = new Date().toISOString().slice(11, 19)
     setLog(prev => [{ ts, type, msg, color }, ...prev].slice(0, 30))
   }
 
+  // Build AgentEvent from API response
+  const buildEvent = (data: Record<string, unknown>): AgentEvent => {
+    const a = data.analysis as Record<string, unknown>
+    const node = data.node as Record<string, unknown>
+    const alert = data.alert as Record<string, unknown> | undefined
+    const nodeData = ARVI_NODES.find(n => n.node_id === String(node?.id)) || ARVI_NODES[0]
+    return {
+      node_id: String(node?.id || 'node-01'),
+      location: String(node?.location || nodeData.location),
+      alert_type: String(a?.alert_type || 'unknown'),
+      severity: (String(a?.severity || 'medium')) as AgentEvent['severity'],
+      description: String(a?.description || ''),
+      confidence: Number(a?.confidence ?? 0),
+      temperature_c: nodeData.temperature_c,
+      soil_moisture_pct: nodeData.soil_moisture_pct,
+      air_quality_index: nodeData.air_quality_index,
+      pathogen_risk: nodeData.pathogen_risk,
+      timestamp: String(a?.timestamp || new Date().toISOString()),
+      model_used: String(a?.model_used || 'unknown'),
+      simulated: !!a?.simulated,
+      alert_id: String(alert?.id || ''),
+    }
+  }
+
+  // Build LoopData from API response
+  const buildLoopData = (data: Record<string, unknown>): LoopData => {
+    const a = data.analysis as Record<string, unknown>
+    const node = data.node as Record<string, unknown>
+    const alert = data.alert as Record<string, unknown> | undefined
+    const ts = String(a?.timestamp || new Date().toISOString())
+    return {
+      dataInput: `Open-Meteo · ${String(node?.id || 'node-01')} · ${ts.slice(11, 16)} UTC`,
+      analysis: `${String(a?.model_used || 'LLM')} · ${String(a?.alert_type || '').replace(/_/g, ' ')} · ${((Number(a?.confidence ?? 0)) * 100).toFixed(0)}% confidence`,
+      decision: `Threshold crossed: ${String(a?.severity || 'medium').toUpperCase()} severity`,
+      action: 'Alert written to /alert-log.json',
+      proof: `ID: ${String(alert?.id || 'N/A').slice(0, 8)} · ${ts.slice(0, 19)}`,
+    }
+  }
+
+  // Silent auto-run for LiveAgentEvent (no tab switch)
+  const runAgentSilent = useCallback(async () => {
+    setLiveEventLoading(true)
+    setLoopState('running')
+    setLoopActiveStep(0)
+    try {
+      setLoopActiveStep(0)
+      await new Promise(r => setTimeout(r, 400))
+      setLoopActiveStep(1)
+      const res = await fetch('/api/analyze', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ node_id: 'node-01' })
+      })
+      const data = await res.json() as Record<string, unknown>
+      setResults(prev => {
+        const next = { ...prev, 'node-01': data }
+        try { localStorage.setItem('arvi_last_result', JSON.stringify(next)) } catch { /* */ }
+        return next
+      })
+      setLoopActiveStep(2)
+      await new Promise(r => setTimeout(r, 300))
+      setLoopActiveStep(3)
+      await new Promise(r => setTimeout(r, 200))
+      setLoopActiveStep(4)
+
+      const ev = buildEvent(data)
+      setLiveEvent(ev)
+      try { localStorage.setItem('arvi_last_event', JSON.stringify(ev)) } catch { /* */ }
+
+      const ld = buildLoopData(data)
+      setLoopData(ld)
+      try { localStorage.setItem('arvi_last_loop', JSON.stringify(ld)) } catch { /* */ }
+
+      setLoopState('complete')
+      setLoopActiveStep(-1)
+
+      addLog('SENSE', `node-01 — Bosque de Chapultepec, CDMX`, '#2E7D6B')
+      const a = data.analysis as Record<string, unknown>
+      addLog('ANALYZE', `${String(a?.model_used)} · ${String(a?.alert_type).replace(/_/g, ' ')}`, '#888')
+      addLog('ACT', `Alert logged → /alert-log.json`, '#2E7D6B')
+    } catch (e) {
+      addLog('ERROR', String(e), '#C0392B')
+      setLoopState('idle')
+      setLoopActiveStep(-1)
+    } finally {
+      setLiveEventLoading(false)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const runAgent = useCallback(async () => {
     if (loading) return
     setLoading(true); setStage('sense'); setTab('actions')
+
+    // Also update loop
+    setLoopState('running'); setLoopActiveStep(0)
+
     addLog('SENSE', `${activeNode.node_id} — ${activeNode.location}`, '#2E7D6B')
     await new Promise(r => setTimeout(r, 700))
-    setStage('analyze')
+    setStage('analyze'); setLoopActiveStep(1)
     addLog('ANALYZE', 'LLM analysis — Bankr/Gemini Gateway', '#888')
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ node_id: activeNode.node_id })
       })
-      const data = await res.json()
-      setResults(prev => ({ ...prev, [activeNode.node_id]: data }))
-      setStage('act')
+      const data = await res.json() as Record<string, unknown>
+      setResults(prev => {
+        const next = { ...prev, [activeNode.node_id]: data }
+        try { localStorage.setItem('arvi_last_result', JSON.stringify(next)) } catch { /* */ }
+        return next
+      })
+      setStage('act'); setLoopActiveStep(2)
       const a = data.analysis as Record<string, unknown>
       addLog('ACT', `${String(a?.severity).toUpperCase()} · ${String(a?.alert_type).replace(/_/g, ' ')} · ${((a?.confidence as number ?? 0)*100).toFixed(0)}% conf`, a?.severity === 'critical' ? '#C0392B' : '#B85C00')
-      await new Promise(r => setTimeout(r, 500)); setStage('pay')
+      await new Promise(r => setTimeout(r, 500)); setStage('pay'); setLoopActiveStep(3)
       const p = data.payment as Record<string, unknown>
       if (p && !p.simulated) {
         addLog('PAY', `${String(p.amount_usdc)} USDC → ${String(p.recipient ?? '').slice(0, 16)}...`, '#2E7D6B')
       } else if (p) {
         addLog('PAY', 'Payment simulated — no real tx', '#B85C00')
       }
-      await new Promise(r => setTimeout(r, 300))
+      await new Promise(r => setTimeout(r, 300)); setLoopActiveStep(4)
       if (data.alert) {
         addLog('ALERT', `Alert logged → /alert-log.json · ${String((data.alert as Record<string, unknown>).id ?? '').slice(0, 8)}`, '#2E7D6B')
       }
       setStage('done')
-    } catch (e) { addLog('ERROR', String(e), '#C0392B') }
+
+      // Update live event
+      const ev = buildEvent(data)
+      setLiveEvent(ev)
+      try { localStorage.setItem('arvi_last_event', JSON.stringify(ev)) } catch { /* */ }
+      const ld = buildLoopData(data)
+      setLoopData(ld)
+      try { localStorage.setItem('arvi_last_loop', JSON.stringify(ld)) } catch { /* */ }
+      setLoopState('complete'); setLoopActiveStep(-1)
+    } catch (e) { addLog('ERROR', String(e), '#C0392B'); setLoopState('idle'); setLoopActiveStep(-1) }
     finally { setLoading(false); setTimeout(() => setStage('idle'), 2000) }
   }, [loading, activeNode])
 
@@ -1071,7 +1247,7 @@ export default function Dashboard() {
             <div className="w-px h-4 bg-border" />
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded border border-jade/30 bg-jade-light flex items-center justify-center font-mono text-jade text-[10px]">◈</div>
-              <span className="font-mono text-sm text-ink">ARVI — Climate Intelligence</span>
+              <span className="font-mono text-sm text-ink">ARVI · Active</span>
             </div>
           </div>
           {/* Live global stats in header */}
@@ -1156,7 +1332,7 @@ export default function Dashboard() {
               <motion.div key={tab + activeNode.node_id}
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}>
-                {tab === 'home'         && <HomeTab nodes={ARVI_NODES} log={log} onRun={runAgent} loading={loading} onTab={setTab} globalFires={globalFires} globalTemp={globalTemp} darkMode={darkMode} />}
+                {tab === 'home'         && <HomeTab nodes={ARVI_NODES} log={log} onRun={runAgent} loading={loading} onTab={setTab} globalFires={globalFires} globalTemp={globalTemp} darkMode={darkMode} liveEvent={liveEvent} liveEventLoading={liveEventLoading} loopData={loopData} loopState={loopState} loopActiveStep={loopActiveStep} onViewEvidence={() => setEvidenceOpen(true)} />}
                 {tab === 'global'       && <GlobalTab />}
                 {tab === 'bounties'     && <BountiesTab darkMode={darkMode} />}
                 {tab === 'world'        && <AgentNetworkTab darkMode={darkMode} />}
@@ -1169,6 +1345,9 @@ export default function Dashboard() {
           </div>
         </main>
       </div>
+
+      {/* Evidence Panel (Phase 4) */}
+      <EvidencePanel event={liveEvent} open={evidenceOpen} onClose={() => setEvidenceOpen(false)} darkMode={darkMode} />
     </div>
   )
 }

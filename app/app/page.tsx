@@ -235,7 +235,7 @@ function IntroPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
 
         <motion.p className="font-mono text-base font-medium" style={{ color: darkMode ? 'rgba(255,255,255,0.80)' : 'rgba(17,17,17,0.85)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.1, duration: 0.8 }}>
-          The first autonomous agent economy that detects environmental threats and acts — in seconds.
+          The first agent economy that detects environmental threats and acts — with verifiable evidence.
         </motion.p>
 
         <motion.p className="font-mono text-xs mt-12 tracking-widest" style={{ color: 'rgba(17,17,17,0.75)' }}
@@ -593,7 +593,7 @@ function WhatPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }
         {/* Agent actions row */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.6 }}>
           <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.85)' }}>
-            What the agent can do autonomously
+            What the agent does (see evidence)
           </p>
           <div className="flex flex-wrap gap-2">
             {AGENT_ACTIONS.map((a, i) => (
@@ -626,7 +626,7 @@ const NET_NODES = [
   { id: 'op1', x: 8,  y: 22, label: 'Chapultepec', role: 'operator', color: '#C0392B' },
   { id: 'op2', x: 8,  y: 50, label: 'Alameda',     role: 'operator', color: '#B85C00' },
   { id: 'op3', x: 8,  y: 78, label: 'Tlatelolco',  role: 'operator', color: '#B85C00' },
-  { id: 'hub', x: 50, y: 50, label: 'ARVI Agent',  role: 'agent',    color: '#2E7D6B' },
+  { id: 'hub', x: 50, y: 50, label: 'Agent Pantera',  role: 'agent',    color: '#2E7D6B' },
   { id: 'al',  x: 88, y: 18, label: 'Public Alert',    role: 'output', color: '#888' },
   { id: 'jb',  x: 88, y: 36, label: 'Job Board',       role: 'output', color: '#888' },
   { id: 'cc',  x: 88, y: 54, label: 'Carbon Credit',   role: 'output', color: '#888' },
@@ -654,7 +654,7 @@ function NetworkPlane({ active, darkMode }: { active: boolean; darkMode?: boolea
     op1: 'Chapultepec node — CRITICAL. Plague detected. 47 ahuehuete trees at risk.',
     op2: 'Alameda node — WARNING. Soil moisture 12% below baseline.',
     op3: 'Tlatelolco node — WARNING. AQI 112. Canopy stress rising.',
-    hub: 'ARVI Agent — Pantera. ERC-8004 registered on Base Mainnet. Analyzing 3 active nodes.',
+    hub: 'Agent Pantera — Pantera. ERC-8004 registered on Base Mainnet. Analyzing 3 active nodes.',
     al:  'Public alert broadcast to 240 subscribers and municipal dashboard.',
     jb:  'Field validation job posted. Bounty: 12 USDC. Status: OPEN.',
     cc:  'Sensor data submitted as evidence for carbon credit verification via Octant.',

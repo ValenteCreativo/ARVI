@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'ARVI — Environmental Intelligence',
-  description: 'An autonomous intelligence layer that transforms environmental signals into actionable systems.',
+  description: 'An intelligence layer that transforms environmental signals into verifiable actions.',
   openGraph: {
     title: 'ARVI — Environmental Intelligence',
     description: 'Signals become decisions. Autonomous ecosystem monitoring on Base.',
