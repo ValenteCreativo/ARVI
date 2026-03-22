@@ -6,13 +6,10 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 
 // ─── Section config ────────────────────────────────────────────────────────────
 const SECTIONS = [
-  { id: 'intro',        label: 'Intro',        darkBg: false },
-  { id: 'system',       label: 'System',       darkBg: false },
-  { id: 'intelligence', label: 'Intelligence', darkBg: false },
-  { id: 'what',         label: 'What',         darkBg: false },
-  { id: 'network',      label: 'Network',      darkBg: false },
-  { id: 'economics',    label: 'Economics',    darkBg: false },
-  { id: 'enter',        label: 'Enter',        darkBg: false },
+  { id: 'intro',        label: 'Intro',      darkBg: false },
+  { id: 'agent',        label: 'Agent',      darkBg: false },
+  { id: 'economics',    label: 'Economics',  darkBg: false },
+  { id: 'enter',        label: 'Enter',      darkBg: false },
 ]
 const N = SECTIONS.length
 
@@ -235,7 +232,7 @@ function IntroPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
           </span>
         </motion.div>
 
-        <motion.p className="font-mono text-base font-medium" style={{ color: 'rgba(17,17,17,0.85)' }}
+        <motion.p className="font-mono text-base font-medium" style={{ color: darkMode ? 'rgba(255,255,255,0.80)' : 'rgba(17,17,17,0.85)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.1, duration: 0.8 }}>
           The first autonomous agent that detects environmental threats and acts — in seconds.
         </motion.p>
@@ -334,8 +331,8 @@ const INTEL_STEPS = [
     step: '01',
     sym: '○',
     title: 'Detect',
-    body: 'Sensor captures hyperlocal data: soil moisture, temperature, CO₂, UV, biodiversity score, pathogen risk. Signals city-scale APIs cannot provide.',
-    tag: 'DATA COLLECTION',
+    body: 'ESP32 nodes capture hyperlocal signals — CO₂, soil moisture, pathogen risk, biodiversity — that city APIs can't provide. Data flows through the decentralized network.',
+    tag: 'SENSOR NETWORK',
     tagColor: '#2E7D6B',
   },
   {
@@ -343,9 +340,9 @@ const INTEL_STEPS = [
     step: '02',
     sym: '◈',
     title: 'Analyze',
-    body: 'LLM agent correlates multi-stream data across time. Identifies patterns invisible to the human eye: slow-onset droughts, early-stage plague, air quality drift.',
-    tag: 'PATTERN RECOGNITION',
-    tagColor: '#2E7D6B',
+    body: 'Bankr orchestrates the LLM agent across multi-stream data. Identifies invisible patterns: slow droughts, early plague, air drift. OpenServ coordinates multi-agent responses.',
+    tag: 'BANKR · OPENSERV',
+    tagColor: '#5e72e4',
   },
   {
     id: 'act',
@@ -361,9 +358,9 @@ const INTEL_STEPS = [
     step: '04',
     sym: '⬡',
     title: 'Verify',
-    body: 'Field worker confirms anomaly. Data validated onchain. Reading qualifies as verifiable climate evidence — usable for carbon credit issuance and ESG compliance.',
-    tag: 'ONCHAIN VALIDATION',
-    tagColor: '#2E7D6B',
+    body: 'Readings timestamped onchain via ERC-8004 · Base. Locus handles USDC payments to operators and agents. Data becomes verifiable MRV evidence for carbon credits.',
+    tag: 'LOCUS · ERC-8004',
+    tagColor: '#5e72e4',
   },
 ]
 
@@ -464,10 +461,10 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
               transition={{ duration: 0.5, delay: active ? idx * 0.1 : 0 }}
               whileDrag={{ scale: 1.04, zIndex: 50 }}
               whileHover={{ boxShadow: '0 8px 32px rgba(0,0,0,0.09)' }}
-              className="absolute w-56 rounded-2xl border bg-white p-4 cursor-grab active:cursor-grabbing">
+              className="absolute w-56 rounded-2xl border p-4 cursor-grab active:cursor-grabbing" style={{ background: darkMode ? 'rgba(255,255,255,0.06)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.12)' : '#E5E5E5' }}>
               {/* Step number */}
               <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-xs tracking-widest" style={{ color: 'rgba(17,17,17,0.30)' }}>STEP {card.step}</span>
+                <span className="font-mono text-xs tracking-widest" style={{ color: darkMode ? 'rgba(255,255,255,0.30)' : 'rgba(17,17,17,0.30)' }}>STEP {card.step}</span>
                 <span className="font-mono text-xs px-2 py-0.5 rounded-full border"
                   style={{ color: card.tagColor, borderColor: `${card.tagColor}30`, background: `${card.tagColor}10` }}>
                   {card.tag}
@@ -475,9 +472,9 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
               </div>
               <div className="flex items-start gap-2 mb-2">
                 <span className="font-mono text-base shrink-0" style={{ color: card.tagColor }}>{card.sym}</span>
-                <p className="font-mono text-sm font-medium text-ink">{card.title}</p>
+                <p className="font-mono text-sm font-medium" style={{ color: darkMode ? 'rgba(255,255,255,0.90)' : '#111' }}>{card.title}</p>
               </div>
-              <p className="text-sm leading-relaxed" style={{ color: 'rgba(17,17,17,0.60)' }}>{card.body}</p>
+              <p className="text-sm leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.60)' : 'rgba(17,17,17,0.72)' }}>{card.body}</p>
             </motion.div>
           )
         })}
@@ -807,7 +804,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
         {/* Header */}
         <div className="text-center mb-8">
           <p className="font-mono text-sm tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: '#2E7D6B' }}>Business Model</p>
-          <h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(32px, 5vw, 52px)', color: darkMode ? '#F0F0F0' : '#111' }}>
+          <h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(32px, 5vw, 52px)', color: darkMode ? 'rgba(255,255,255,0.92)' : '#111' }}>
             Self-funded. <span style={{ color: '#2E7D6B' }}>Community-owned.</span>
           </h2>
         </div>
@@ -850,7 +847,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
 
           {/* RIGHT: Job board */}
           <div className="flex flex-col gap-3">
-            <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>Live Job Board</p>
+            <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>Agentic Job Board</p>
             {JOBS.map((job, i) => (
               <div key={i} className="rounded-xl border px-5 py-4 flex items-center justify-between"
                 style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
@@ -868,8 +865,13 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
               </div>
             ))}
 
+            {/* Agent join CTA */}
+            <div className="rounded-xl border px-4 py-3 mt-1" style={{ background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF', borderColor: darkMode ? 'rgba(94,114,228,0.25)' : '#C7D0FF' }}>
+              <p className="font-mono text-xs font-semibold mb-0.5" style={{ color: '#5e72e4' }}>⬡ Open to External Agents</p>
+              <p className="font-mono text-xs" style={{ color: darkMode ? 'rgba(255,255,255,0.50)' : 'rgba(17,17,17,0.65)' }}>Any agent can join the network, process data tasks, and earn USDC — powered by OpenServ multi-agent orchestration.</p>
+            </div>
             {/* Standards */}
-            <div className="grid grid-cols-3 gap-2 mt-1">
+            <div className="grid grid-cols-3 gap-2 mt-2">
               {[
                 { sym: '◈', label: 'x402', sub: 'Data standard' },
                 { sym: '⬡', label: 'ESG·MRV', sub: 'Compliance' },
@@ -1002,12 +1004,9 @@ export default function Landing() {
       <motion.div className={darkMode ? 'dark-content' : ''} style={{ display: 'flex', width: `${N * 100}vw`, height: '100vh' }}
         animate={{ x: `${-section * 100}vw` }} transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 2} darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><WhatPlane active={section === 3} darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><NetworkPlane active={section === 4} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 1} darkMode={darkMode} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 6} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 3} darkMode={darkMode} /></div>
       </motion.div>
       <Progress section={section} setSection={setSection} dark={dark} />
       <NavArrows section={section} setSection={setSection} dark={dark} />
