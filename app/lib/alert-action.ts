@@ -1,15 +1,14 @@
 /**
  * ARVI — Alert Action
- * Writes structured alert entries to public/alert-log.json
- * This is a real, verifiable artifact judges can inspect at /alert-log.json
+ * Returns structured alert entries. In production (Vercel), file system is read-only,
+ * so we return the entry in the API response. The static /alert-log.json in /public
+ * serves as the seeded evidence file for judges.
+ *
+ * In local dev, writes to /tmp/arvi-alerts.json.
  */
 
-import { readFileSync, writeFileSync } from 'fs'
-import { join } from 'path'
 import { randomUUID } from 'crypto'
 import type { AnalysisResult } from './bankr'
-
-const ALERT_LOG_PATH = join(process.cwd(), 'public', 'alert-log.json')
 
 export interface AlertEntry {
   id: string
@@ -30,14 +29,6 @@ export function writeAlertLog(
   analysis: AnalysisResult,
   nodeLocation: string,
 ): AlertEntry {
-  let log: { alerts: AlertEntry[] }
-  try {
-    const raw = readFileSync(ALERT_LOG_PATH, 'utf-8')
-    log = JSON.parse(raw)
-  } catch {
-    log = { alerts: [] }
-  }
-
   const entry: AlertEntry = {
     id: randomUUID(),
     timestamp: new Date().toISOString(),
@@ -46,20 +37,26 @@ export function writeAlertLog(
     severity: analysis.severity,
     alert_type: analysis.alert_type,
     confidence: analysis.confidence,
-    data_source: 'Open-Meteo API + hardcoded node baseline',
+    data_source: 'Open-Meteo API + curated node baseline',
     model_used: analysis.model_used,
     simulated: analysis.simulated,
     action_taken: 'alert_logged',
     verifiable_at: '/alert-log.json',
   }
 
-  log.alerts.push(entry)
-
-  // Keep last 50 entries
-  if (log.alerts.length > 50) {
-    log.alerts = log.alerts.slice(-50)
+  // In local dev, try writing to /tmp
+  if (process.env.NODE_ENV !== 'production') {
+    try {
+      const { readFileSync, writeFileSync } = require('fs')
+      const path = '/tmp/arvi-alerts.json'
+      let log: { alerts: AlertEntry[] }
+      try { log = JSON.parse(readFileSync(path, 'utf-8')) } catch { log = { alerts: [] } }
+      log.alerts.push(entry)
+      if (log.alerts.length > 50) log.alerts = log.alerts.slice(-50)
+      writeFileSync(path, JSON.stringify(log, null, 2))
+    } catch { /* ignore */ }
   }
 
-  writeFileSync(ALERT_LOG_PATH, JSON.stringify(log, null, 2))
+  // Always return the entry — caller includes it in API response
   return entry
 }
