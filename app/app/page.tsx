@@ -483,12 +483,7 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
         })}
       </div>
 
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10">
-        <Link href="/dashboard" className="font-mono text-sm px-8 py-3 rounded-xl transition-all"
-          style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 20px rgba(46,125,107,0.25)' }}>
-          See it live ▸
-        </Link>
-      </div>
+
     </div>
   )
 }
@@ -764,108 +759,138 @@ const JOB_BOARD_EN = [
 ]
 
 function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
+  const [active, setActive] = useState<string | null>('data')
+
+  const STREAMS = [
+    {
+      id: 'data',
+      sym: '◈',
+      label: 'Data API',
+      tag: 'x402',
+      headline: 'Pay-per-request environmental data',
+      detail: 'AI agents, researchers, and cities query real-time sensor streams via x402 micropayments. No subscription, no intermediary.',
+      color: '#2E7D6B',
+    },
+    {
+      id: 'carbon',
+      sym: '⬡',
+      label: 'Carbon MRV',
+      tag: 'ESG',
+      headline: 'Verifiable carbon credit evidence',
+      detail: 'Sensor readings become certified MRV evidence — directly usable for carbon credit issuance and ESG compliance reports.',
+      color: '#1a6b8a',
+    },
+    {
+      id: 'hardware',
+      sym: '○',
+      label: 'Sensor Kits',
+      tag: '$80',
+      headline: 'Deploy a node, earn monthly USDC',
+      detail: 'Buy the branded kit or build open-source. Agent auto-pays operators in USDC every month based on data quality.',
+      color: '#7d6b2e',
+    },
+  ]
+
+  const JOBS = [
+    { alert: 'FIRE · Chapultepec', bounty: '12 USDC', status: 'OPEN',   color: '#C0392B' },
+    { alert: 'FLOOD · Xochimilco',  bounty: '8 USDC',  status: 'OPEN',   color: '#2E7D6B' },
+    { alert: 'AQI · Tlatelolco',    bounty: '5 USDC',  status: 'CLAIMED', color: '#B85C00' },
+  ]
+
+  const sel = STREAMS.find(s => s.id === active)
+
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg opacity-20" />
-      <div className="relative z-10 w-full max-w-5xl px-8">
+      <div className="relative z-10 w-full max-w-4xl px-8">
+
+        {/* Header */}
         <div className="text-center mb-8">
-          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>Business Model</p>
-          <h2 className="font-serif text-4xl text-ink">
-            Self-funded.<br />
-            <span style={{ color: '#2E7D6B' }}>Community-owned.</span>
+          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: '#2E7D6B' }}>Business Model</p>
+          <h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(32px, 5vw, 52px)', color: darkMode ? '#F0F0F0' : '#111' }}>
+            Self-funded. <span style={{ color: '#2E7D6B' }}>Community-owned.</span>
           </h2>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          {/* Revenue streams */}
-          <div>
-            <p className="font-mono text-xs tracking-widest uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>Revenue Streams</p>
-            <div className="space-y-2">
-              {BIZ_STREAMS.map(s => (
-                <div key={s.label} className="rounded-xl border bg-white p-4 flex items-center gap-4">
-                  <span className="font-mono text-xl shrink-0 w-6 text-center" style={{ color: '#2E7D6B' }}>{s.sym}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-mono text-sm text-ink font-medium">{s.label}</p>
-                      <span className="font-mono text-xs text-jade">{s.val}</span>
-                    </div>
-                    <p className="font-mono text-xs text-muted mt-0.5">{s.desc}</p>
-                    <p className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.60)' }}>{s.note}</p>
+          {/* LEFT: Revenue streams — interactive selector */}
+          <div className="flex flex-col gap-3">
+            {STREAMS.map(s => (
+              <motion.button key={s.id} onClick={() => setActive(s.id)}
+                className="w-full text-left rounded-xl border px-5 py-4 transition-all"
+                style={{
+                  background: active === s.id ? (darkMode ? 'rgba(46,125,107,0.15)' : '#EAF4F1') : (darkMode ? 'rgba(255,255,255,0.03)' : 'white'),
+                  borderColor: active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5'),
+                  boxShadow: active === s.id ? `0 0 0 1px ${s.color}40` : 'none',
+                }}
+                whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-xl" style={{ color: active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.3)' : '#DADADA') }}>{s.sym}</span>
+                    <span className="font-mono text-sm font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{s.label}</span>
                   </div>
+                  <span className="font-mono text-xs px-2 py-0.5 rounded-full" style={{ background: active === s.id ? s.color : 'transparent', color: active === s.id ? 'white' : (darkMode ? 'rgba(255,255,255,0.35)' : '#999'), border: `1px solid ${active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.15)' : '#E5E5E5')}` }}>{s.tag}</span>
                 </div>
-              ))}
-              {/* Carbon credits highlight */}
-              <div className="rounded-xl border border-jade/30 bg-[#EAF4F1] p-4">
-                <p className="font-mono text-xs text-jade uppercase tracking-widest mb-1">◈ Carbon Credit Market</p>
-                <p className="font-mono text-sm" style={{ color: 'rgba(17,17,17,0.85)' }}>
-                  MRV evidence for carbon credits & ESG compliance — auto-generated from sensor readings.
-                </p>
-              </div>
-            </div>
+                <p className="font-mono text-xs mt-1.5" style={{ color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.65)' }}>{s.headline}</p>
+              </motion.button>
+            ))}
+
+            {/* Expanded detail */}
+            <AnimatePresence mode="wait">
+              {sel && (
+                <motion.div key={sel.id} className="rounded-xl border px-5 py-4"
+                  style={{ borderColor: `${sel.color}40`, background: darkMode ? 'rgba(255,255,255,0.03)' : 'white' }}
+                  initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.25 }}>
+                  <p className="font-mono text-xs leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.65)' : 'rgba(17,17,17,0.75)' }}>{sel.detail}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Job board */}
-          <div>
-            <p className="font-mono text-xs tracking-widest uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>Job Board — Live Example</p>
-            <div className="space-y-2">
-              {JOB_BOARD_EN.map((job, i) => (
-                <div key={i} className="rounded-xl border bg-white p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: job.color }} />
-                      <span className="font-mono text-sm font-medium" style={{ color: job.color }}>{job.alert}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm text-jade">{job.bounty}</span>
-                      <span className="font-mono text-xs px-2 py-0.5 rounded-full border"
-                        style={{ color: job.status === 'OPEN' ? '#2E7D6B' : '#999', borderColor: job.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: job.status === 'OPEN' ? '#EAF4F1' : 'transparent' }}>
-                        {job.status}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.72)' }}>{job.task}</p>
+          {/* RIGHT: Job board */}
+          <div className="flex flex-col gap-3">
+            <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>Live Job Board</p>
+            {JOBS.map((job, i) => (
+              <div key={i} className="rounded-xl border px-5 py-4 flex items-center justify-between"
+                style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
+                <div className="flex items-center gap-3">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: job.color }} />
+                  <span className="font-mono text-sm font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{job.alert}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-sm font-semibold" style={{ color: '#2E7D6B' }}>{job.bounty}</span>
+                  <span className="font-mono text-xs px-2.5 py-0.5 rounded-full border"
+                    style={{ color: job.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: job.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: job.status === 'OPEN' ? '#EAF4F1' : 'transparent' }}>
+                    {job.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* Standards */}
+            <div className="grid grid-cols-3 gap-2 mt-1">
+              {[
+                { sym: '◈', label: 'x402', sub: 'Data standard' },
+                { sym: '⬡', label: 'ESG·MRV', sub: 'Compliance' },
+                { sym: '○', label: 'DIY', sub: 'Open hardware' },
+              ].map(b => (
+                <div key={b.label} className="rounded-xl border px-3 py-3 text-center"
+                  style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
+                  <div className="font-mono text-base mb-0.5" style={{ color: '#2E7D6B' }}>{b.sym}</div>
+                  <div className="font-mono text-sm font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{b.label}</div>
+                  <div className="font-mono text-xs" style={{ color: darkMode ? 'rgba(255,255,255,0.40)' : 'rgba(17,17,17,0.55)' }}>{b.sub}</div>
                 </div>
               ))}
-            </div>
-            {/* Operator model */}
-            <div className="mt-3 rounded-xl border border-[#DADADA] bg-canvas p-4">
-              <p className="font-mono text-xs tracking-widest uppercase mb-2" style={{ color: 'rgba(17,17,17,0.70)' }}>Operator Model</p>
-              <div className="space-y-1">
-                {[
-                  { label: 'Buy sensor kit', val: '$80 USD + branded case' },
-                  { label: 'Build your own', val: 'Open hardware + GitHub' },
-                  { label: 'Monthly reward', val: 'USDC · auto-paid by agent' },
-                ].map(r => (
-                  <div key={r.label} className="flex items-center justify-between">
-                    <span className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.72)' }}>{r.label}</span>
-                    <span className="font-mono text-xs text-jade">{r.val}</span>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Standards strip — visible above the navbar */}
-        <div className="mt-5 grid grid-cols-3 gap-3">
-          {[
-            { icon: '◈', label: 'Data standard', val: 'x402 compatible' },
-            { icon: '⬡', label: 'Compliance',    val: 'ESG · Carbon MRV' },
-            { icon: '○', label: 'Hardware',       val: 'Open source + DIY' },
-          ].map(item => (
-            <div key={item.label} className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white px-4 py-3">
-              <span className="font-mono text-base shrink-0" style={{ color: '#2E7D6B' }}>{item.icon}</span>
-              <div>
-                <p className="font-mono text-xs uppercase tracking-widest" style={{ color: 'rgba(17,17,17,0.70)' }}>{item.label}</p>
-                <p className="font-mono text-sm font-medium text-ink mt-0.5">{item.val}</p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   )
 }
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // S6: ENTER

@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ARVI_NODES, type NodeData } from '@/data/nodes'
 import dynamic from 'next/dynamic'
+import TrackingConsole from './TrackingConsole'
 
 const MapComponent = dynamic(() => import('../atlas/MapComponent'), {
   ssr: false,
   loading: () => <div className="w-full h-full flex items-center justify-center text-muted font-mono text-sm">Loading Atlas…</div>,
 })
 
-type Tab = 'sensors' | 'intelligence' | 'actions' | 'global' | 'atlas'
+type Tab = 'sensors' | 'intelligence' | 'actions' | 'global' | 'atlas' | 'console'
 type PipelineStage = 'idle' | 'sense' | 'analyze' | 'act' | 'pay' | 'done'
 const STAGE_IDX: Record<PipelineStage, number> = { idle: 0, sense: 1, analyze: 2, act: 3, pay: 4, done: 5 }
 
@@ -745,7 +746,7 @@ export default function Dashboard() {
               const isActive = node.node_id === activeNode.node_id
               return (
                 <button key={node.node_id} onClick={() => { setActiveNode(node); if (tab === 'global') setTab('sensors') }}
-                  className={`w-full text-left px-4 py-4 border-b border-line transition-all ${isActive && tab !== 'global' ? 'bg-jade-light border-l-2' : 'hover:bg-canvas'}`}
+                  className={`w-full text-left px-4 py-4 border-b transition-all ${isActive && tab !== 'global' ? 'bg-jade-light border-l-2 border-l-jade' : 'hover:bg-canvas/60 border-line'}`}
                   style={isActive && tab !== 'global' ? { borderLeftColor: nc } : {}}>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="font-mono text-[9px] text-muted">{node.ens}</span>
@@ -801,6 +802,7 @@ export default function Dashboard() {
                 ['intelligence', '◈ Intelligence'],
                 ['actions', '▸ Actions'],
                 ['atlas', '○ Atlas'],
+                ['console', '◈ Console'],
               ] as [Tab, string][]).map(([id, label]) => (
                 <button key={id} onClick={() => setTab(id)}
                   className={`font-mono text-[11px] px-4 py-2.5 border-b-2 transition-all ${tab === id ? 'text-jade border-jade' : 'text-muted border-transparent hover:text-ink'}`}>
@@ -820,6 +822,7 @@ export default function Dashboard() {
                 {tab === 'sensors'      && <SensorTab node={activeNode} />}
                 {tab === 'intelligence' && <IntelligenceTab node={activeNode} result={result} onRun={runAgent} loading={loading} />}
                 {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
+                {tab === 'console'     && <TrackingConsole node={activeNode} darkMode={darkMode} />}
                 {tab === 'atlas'        && (
                   <div style={{ height: '60vh', minHeight: '400px' }} className="rounded-xl overflow-hidden border border-line">
                     <MapComponent weatherNodes={[]} fires={[]} />
