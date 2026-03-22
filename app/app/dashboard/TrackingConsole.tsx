@@ -109,7 +109,7 @@ export default function TrackingConsole({ node, darkMode }: { node: NodeData; da
       <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${border}`, background: 'rgba(255,255,255,0.02)' }}>
         <div className="flex items-center gap-3">
           <Pulse color={hc} />
-          <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.90)' }}>{node.name}</span>
+          <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.90)' }}>{node.location}</span>
           <span className="text-xs px-2 py-0.5 rounded-full border" style={{ color: hc, borderColor: `${hc}40`, background: `${hc}15` }}>
             {(node.health_score * 100).toFixed(0)}% HEALTH
           </span>
