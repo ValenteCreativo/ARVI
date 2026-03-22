@@ -968,13 +968,13 @@ export default function Landing() {
       <NavBar dark={dark} onToggleDark={() => setDarkMode(d => !d)} isDarkMode={darkMode} />
       <motion.div className={darkMode ? 'dark-content' : ''} style={{ display: 'flex', width: `${N * 100}vw`, height: '100vh' }}
         animate={{ x: `${-section * 100}vw` }} transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} darkMode={darkMode} \/></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} darkMode={darkMode} \/></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 2} darkMode={darkMode} \/></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><WhatPlane active={section === 3} darkMode={darkMode} \/></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><NetworkPlane active={section === 4} darkMode={darkMode} \/></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 2} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><WhatPlane active={section === 3} darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><NetworkPlane active={section === 4} darkMode={darkMode} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane darkMode={darkMode} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 6} darkMode={darkMode} \/></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 6} darkMode={darkMode} /></div>
       </motion.div>
       <Progress section={section} setSection={setSection} dark={dark} />
       <NavArrows section={section} setSection={setSection} dark={dark} />
