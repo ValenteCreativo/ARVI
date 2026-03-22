@@ -455,13 +455,13 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
               key={card.id}
               drag
               dragMomentum={false}
-              style={{ x: mv.x, y: mv.y, zIndex: 10, borderColor: '#E5E5E5', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', userSelect: 'none' }}
+              style={{ x: mv.x, y: mv.y, zIndex: 10, background: darkMode ? 'rgba(255,255,255,0.06)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.12)' : '#E5E5E5', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', userSelect: 'none' }}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: active ? 1 : 0, scale: active ? 1 : 0.9 }}
               transition={{ duration: 0.5, delay: active ? idx * 0.1 : 0 }}
               whileDrag={{ scale: 1.04, zIndex: 50 }}
               whileHover={{ boxShadow: '0 8px 32px rgba(0,0,0,0.09)' }}
-              className="absolute w-56 rounded-2xl border p-4 cursor-grab active:cursor-grabbing" style={{ background: darkMode ? 'rgba(255,255,255,0.06)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.12)' : '#E5E5E5' }}>
+              className="absolute w-56 rounded-2xl border p-4 cursor-grab active:cursor-grabbing">
               {/* Step number */}
               <div className="flex items-center justify-between mb-3">
                 <span className="font-mono text-xs tracking-widest" style={{ color: darkMode ? 'rgba(255,255,255,0.30)' : 'rgba(17,17,17,0.30)' }}>STEP {card.step}</span>
