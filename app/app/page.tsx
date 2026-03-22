@@ -1186,7 +1186,7 @@ function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
         </motion.h2>
         <motion.h2 className="font-serif leading-tight mb-12" style={{ fontSize: 'clamp(38px, 5.5vw, 68px)', color: '#2E7D6B' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.8, duration: 0.7 }}>
-          It&apos;s an intelligence system.
+          It&apos;s an agentic economy — environmental intelligence for prevention and resilience.
         </motion.h2>
         <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-3"
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 8 }}
