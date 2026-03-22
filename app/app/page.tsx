@@ -156,7 +156,15 @@ function NavBar({ dark, onToggleDark, isDarkMode }: { dark: boolean; onToggleDar
           style={{ borderColor: dark ? 'rgba(255,255,255,0.10)' : '#DADADA', color: dark ? 'rgba(255,255,255,0.25)' : '#888' }}>v6.1</span>
       </div>
       <div className="flex items-center gap-3">
-        <Link href="/atlas" className="font-mono text-sm transition-colors hidden sm:block" style={{ color: dark ? 'rgba(255,255,255,0.35)' : '#888' }}>Atlas</Link>
+        <Link href="/atlas" className="font-mono text-sm transition-colors hidden sm:block" style={{ color: dark ? 'rgba(255,255,255,0.45)' : '#666' }}>Atlas</Link>
+        {onToggleDark && (
+          <button onClick={onToggleDark}
+            className="font-mono text-base w-9 h-9 flex items-center justify-center rounded-lg border transition-all"
+            style={{ borderColor: dark ? 'rgba(255,255,255,0.2)' : '#DADADA', color: dark ? 'rgba(255,255,255,0.7)' : '#555', background: dark ? 'rgba(255,255,255,0.06)' : 'transparent' }}
+            title="Toggle dark mode">
+            {isDarkMode ? '☀' : '☾'}
+          </button>
+        )}
         <Link href="/dashboard" className="font-mono text-sm px-4 py-1.5 rounded-lg border transition-all"
           style={{ borderColor: 'rgba(46,125,107,0.35)', background: dark ? 'rgba(46,125,107,0.15)' : '#EAF4F1', color: '#2E7D6B' }}>
           Launch App ▸
@@ -289,9 +297,9 @@ function SystemPlane({ active, darkMode }: { active: boolean; darkMode?: boolean
                   {isActive && <motion.circle cx={`${node.x}%`} cy={`${node.y}%`} r="22" fill="none" stroke="#2E7D6B" strokeWidth="0.5"
                     initial={{ r: 22, opacity: 0.6 }} animate={{ r: 38, opacity: 0 }} transition={{ duration: 1.2, repeat: Infinity }} />}
                   <text x={`${node.x}%`} y={`${node.y}%`} textAnchor="middle" dominantBaseline="middle"
-                    fill={isActive ? '#2E7D6B' : '#888'} style={{ fontSize: '13px', fontFamily: 'DM Mono,monospace', pointerEvents: 'none', userSelect: 'none' }}>{node.sym}</text>
-                  <text x={`${node.x}%`} y={`${node.y + 10}%`} textAnchor="middle" fill={isActive ? '#111' : '#888'}
-                    style={{ fontSize: '8px', fontFamily: 'DM Mono,monospace', pointerEvents: 'none', userSelect: 'none', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{node.label}</text>
+                    fill={isActive ? '#2E7D6B' : '#7A7A9A'} style={{ fontSize: '16px', fontFamily: 'DM Mono,monospace', pointerEvents: 'none', userSelect: 'none' }}>{node.sym}</text>
+                  <text x={`${node.x}%`} y={`${node.y + 11}%`} textAnchor="middle" fill={isActive ? '#2E7D6B' : '#444'}
+                    style={{ fontSize: '11px', fontWeight: '600', fontFamily: 'DM Mono,monospace', pointerEvents: 'none', userSelect: 'none', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{node.label}</text>
                 </g>
               )
             })}
@@ -415,7 +423,7 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
           <span style={{ color: '#2E7D6B' }}>No human required.</span>
         </h2>
         <p className="font-mono text-sm mt-4" style={{ color: 'rgba(17,17,17,0.85)' }}>
-          drag cards · arrows follow
+
         </p>
       </div>
 
@@ -761,7 +769,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
       <div className="absolute inset-0 grid-bg opacity-20" />
       <div className="relative z-10 w-full max-w-5xl px-8">
         <div className="text-center mb-8">
-          <p className="font-mono text-sm tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.72)' }}>Business Model</p>
+          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>Business Model</p>
           <h2 className="font-serif text-4xl text-ink">
             Self-funded.<br />
             <span style={{ color: '#2E7D6B' }}>Community-owned.</span>
@@ -771,11 +779,11 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
         <div className="grid grid-cols-2 gap-6">
           {/* Revenue streams */}
           <div>
-            <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.70)' }}>Revenue Streams</p>
+            <p className="font-mono text-xs tracking-widest uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>Revenue Streams</p>
             <div className="space-y-2">
               {BIZ_STREAMS.map(s => (
                 <div key={s.label} className="rounded-xl border bg-white p-4 flex items-center gap-4">
-                  <span className="font-mono text-base shrink-0 w-5 text-center" style={{ color: '#DADADA' }}>{s.sym}</span>
+                  <span className="font-mono text-xl shrink-0 w-6 text-center" style={{ color: '#2E7D6B' }}>{s.sym}</span>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <p className="font-mono text-sm text-ink font-medium">{s.label}</p>
@@ -790,7 +798,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
               <div className="rounded-xl border border-jade/30 bg-[#EAF4F1] p-4">
                 <p className="font-mono text-xs text-jade uppercase tracking-widest mb-1">◈ Carbon Credit Market</p>
                 <p className="font-mono text-sm" style={{ color: 'rgba(17,17,17,0.85)' }}>
-                  ARVI sensor data provides verifiable MRV (Monitoring, Reporting, Verification) evidence for environmental projects — enabling carbon credit issuance and ESG compliance reporting.
+                  MRV evidence for carbon credits & ESG compliance — auto-generated from sensor readings.
                 </p>
               </div>
             </div>
@@ -798,7 +806,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
 
           {/* Job board */}
           <div>
-            <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.70)' }}>Job Board — Live Example</p>
+            <p className="font-mono text-xs tracking-widest uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>Job Board — Live Example</p>
             <div className="space-y-2">
               {JOB_BOARD_EN.map((job, i) => (
                 <div key={i} className="rounded-xl border bg-white p-4">
@@ -815,7 +823,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
                       </span>
                     </div>
                   </div>
-                  <p className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.48)' }}>{job.task}</p>
+                  <p className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.72)' }}>{job.task}</p>
                 </div>
               ))}
             </div>

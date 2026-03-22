@@ -688,9 +688,9 @@ export default function Dashboard() {
   const result = results[activeNode.node_id]
 
   return (
-    <div className="min-h-screen bg-canvas text-ink flex flex-col">
+    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? "bg-[#0A0B14] text-[#E8E8E8]" : "bg-canvas text-ink"}`}>
       {/* Header */}
-      <header className="shrink-0 border-b border-line bg-white z-10">
+      <header className={`shrink-0 border-b z-10 ${darkMode ? "bg-[#0F1020] border-white/10" : "border-line bg-white"}`}>
         <div className="px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="font-mono text-[11px] text-muted hover:text-ink transition-colors">← Back</Link>
@@ -731,7 +731,7 @@ export default function Dashboard() {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-56 shrink-0 border-r border-line bg-white flex flex-col">
+        <aside className={`w-56 shrink-0 border-r flex flex-col ${darkMode ? "bg-[#0F1020] border-white/10" : "border-line bg-white"}`}>
           <div className="px-4 py-3 border-b border-line">
             <div className="flex items-center justify-between mb-2">
               <p className="font-mono text-[9px] text-muted uppercase tracking-widest">Network · CDMX</p>

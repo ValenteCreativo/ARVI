@@ -161,3 +161,17 @@ body {
 .dark-content .bg-white {
   background: rgba(255,255,255,0.04) !important;
 }
+
+/* ─── Dashboard dark mode overrides ──────────────────────────────────────── */
+.bg-\[#0A0B14\] .bg-canvas,
+.bg-\[#0A0B14\] .bg-white {
+  background: rgba(255,255,255,0.04) !important;
+}
+.bg-\[#0A0B14\] .border-line,
+.bg-\[#0A0B14\] .border-\[#DADADA\],
+.bg-\[#0A0B14\] .border-\[#E5E5E5\] {
+  border-color: rgba(255,255,255,0.08) !important;
+}
+.bg-\[#0A0B14\] .text-ink  { color: rgba(240,240,240,0.90) !important; }
+.bg-\[#0A0B14\] .text-muted { color: rgba(255,255,255,0.45) !important; }
+.bg-\[#0A0B14\] .panel      { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; }
