@@ -242,6 +242,22 @@ function IntroPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
           animate={{ opacity: active ? [0.50, 0.75, 0.35] : 0 }} transition={{ duration: 2.5, repeat: Infinity, delay: 2 }}>
           move your cursor · press → to enter
         </motion.p>
+
+        {/* Infra badges */}
+        <motion.div className="flex items-center gap-2 mt-8 justify-center"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 0.55 : 0 }} transition={{ delay: 1.8 }}>
+          <span className="font-mono text-[9px] uppercase tracking-widest" style={{ color: 'rgba(17,17,17,0.40)' }}>Built on</span>
+          {[
+            { label: 'Base', href: 'https://www.base.org/' },
+            { label: 'EVVM', href: 'https://evvm.org', title: 'No validator nodes · no gas fees · invisible infra' },
+          ].map(b => (
+            <a key={b.label} href={b.href} target="_blank" rel="noopener" title={b.title}
+              className="font-mono text-[9px] px-2 py-0.5 rounded-full border transition-all hover:opacity-100"
+              style={{ color: '#2E7D6B', borderColor: '#2E7D6B40' }}>
+              {b.label} ↗
+            </a>
+          ))}
+        </motion.div>
       </div>
     </div>
   )
@@ -354,6 +370,7 @@ const INTEL_STEPS = [
     body: 'Autonomous response chain: public alert issued · field job posted on bounty board · NGO and government agency notified · onchain log created via ERC-8004.',
     tag: 'AUTONOMOUS RESPONSE',
     tagColor: '#B85C00',
+    links: [{ label: 'Base', href: 'https://www.base.org/' }],
   },
   {
     id: 'verify',
@@ -363,7 +380,7 @@ const INTEL_STEPS = [
     body: 'Readings timestamped onchain via ERC-8004 · Base. Locus handles USDC payments to operators and agents. Data becomes verifiable MRV evidence for carbon credits.',
     tag: 'LOCUS · ERC-8004',
     tagColor: '#5e72e4',
-    links: [{ label: 'Locus', href: 'https://paywithlocus.com/' }],
+    links: [{ label: 'Locus', href: 'https://paywithlocus.com/' }, { label: 'Base', href: 'https://www.base.org/' }],
   },
 ]
 
@@ -1195,7 +1212,7 @@ function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
           transition={{ duration: 0.5, delay: 1.3 }} style={{ originY: 0 }} />
         <motion.p className="font-mono text-xs mt-4" style={{ color: 'rgba(17,17,17,0.60)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.5 }}>
-          ERC-8004 · Base Mainnet ·{' '}
+          ERC-8004 · Base Mainnet · EVVM ·{' '}
           <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
             target="_blank" rel="noopener" className="underline hover:text-[#2E7D6B] transition-colors">0xb8623d...cf43a</a>
           {' '}· Pantera Labs 2026
