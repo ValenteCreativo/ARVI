@@ -235,7 +235,7 @@ function IntroPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
 
         <motion.p className="font-mono text-base font-medium" style={{ color: darkMode ? 'rgba(255,255,255,0.80)' : 'rgba(17,17,17,0.85)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.1, duration: 0.8 }}>
-          The first autonomous agent that detects environmental threats and acts — in seconds.
+          The first autonomous agent economy that detects environmental threats and acts — in seconds.
         </motion.p>
 
         <motion.p className="font-mono text-xs mt-12 tracking-widest" style={{ color: 'rgba(17,17,17,0.75)' }}
