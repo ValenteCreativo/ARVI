@@ -14,7 +14,7 @@ const MapComponent = dynamic(() => import('../atlas/MapComponent'), {
   loading: () => <div className="w-full h-full flex items-center justify-center text-muted font-mono text-sm">Loading Atlas…</div>,
 })
 
-type Tab = 'home' | 'global' | 'sensors' | 'intelligence' | 'actions' | 'bounties' | 'world' | 'atlas' | 'console'
+type Tab = 'home' | 'global' | 'sensors' | 'intelligence' | 'actions' | 'bounties' | 'world' | 'console'
 type PipelineStage = 'idle' | 'sense' | 'analyze' | 'act' | 'pay' | 'done'
 const STAGE_IDX: Record<PipelineStage, number> = { idle: 0, sense: 1, analyze: 2, act: 3, pay: 4, done: 5 }
 
@@ -689,7 +689,7 @@ function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, d
         <div className={`rounded-2xl border overflow-hidden flex flex-col ${darkMode ? 'border-white/8' : 'border-line'}`} style={{ height: '260px' }}>
           <div className={`flex items-center justify-between px-4 py-2.5 border-b shrink-0 ${darkMode ? 'bg-[#0a1220] border-white/8' : 'bg-white border-line'}`}>
             <span className="font-mono text-[10px] font-semibold" style={{ color: '#2E7D6B' }}>🌿 Forest Network</span>
-            <button onClick={() => onTab('atlas')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">Agent Hub ↗</button>
+            <button onClick={() => onTab('world')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">Agent Hub ↗</button>
           </div>
           <div className="flex-1 overflow-hidden">
             <ForestWorld darkMode={darkMode} />
@@ -1108,7 +1108,7 @@ export default function Dashboard() {
                     </div>
                   )}
               </div>
-              <button onClick={runAgent} disabled={loading || ['global','home','bounties','atlas','world'].includes(tab)}
+              <button onClick={runAgent} disabled={loading || ['global','home','bounties','world'].includes(tab)}
                 className="btn-jade disabled:opacity-40 flex items-center gap-2">
                 {loading
                   ? <><span className="w-3 h-3 border border-white/40 border-t-white rounded-full animate-spin" />Running</>
@@ -1124,7 +1124,6 @@ export default function Dashboard() {
                 ['actions',      '▸ Actions'],
                 ['bounties',     '● Bounties'],
                 ['world',        '⬡ Network'],
-                ['atlas',        '○ Atlas'],
                 ['console',      '◈ Console'],
               ] as [Tab, string][]).map(([id, label]) => (
                 <button key={id} onClick={() => setTab(id)}
@@ -1149,8 +1148,7 @@ export default function Dashboard() {
                 {tab === 'home'         && <HomeTab nodes={ARVI_NODES} log={log} onRun={runAgent} loading={loading} onTab={setTab} globalFires={globalFires} globalTemp={globalTemp} darkMode={darkMode} />}
                 {tab === 'global'       && <GlobalTab />}
                 {tab === 'bounties'     && <BountiesTab darkMode={darkMode} />}
-                {tab === 'world'        && <AgentWorld darkMode={darkMode} />}
-                {tab === 'atlas'        && <AgentNetworkTab darkMode={darkMode} />}
+                {tab === 'world'        && <AgentNetworkTab darkMode={darkMode} />}
                 {tab === 'sensors'      && <SensorTab node={activeNode} />}
                 {tab === 'intelligence' && <IntelligenceTab node={activeNode} result={result} onRun={runAgent} loading={loading} />}
                 {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
