@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ARVI_NODES, type NodeData } from '@/data/nodes'
@@ -879,6 +879,106 @@ function BountiesTab({ darkMode }: { darkMode?: boolean }) {
 }
 
 // ─── Main Dashboard ────────────────────────────────────────────────────────────
+
+// ── AGENT NETWORK TAB ─────────────────────────────────────────────────────────
+const NET_AGENTS = [
+  { id: 'pantera',  name: 'Pantera',   role: 'Analysis',     emoji: '🐆', color: '#2E7D6B', location: 'Bosque de Chapultepec' },
+  { id: 'sentinel', name: 'Sentinel',  role: 'Monitoring',   emoji: '👁',  color: '#5e72e4', location: 'Xochimilco' },
+  { id: 'nexus',    name: 'Nexus',     role: 'Coordination', emoji: '⬡',  color: '#f5a623', location: 'Tlalpan' },
+  { id: 'orion',    name: 'Orion',     role: 'Field Ops',    emoji: '🌿', color: '#1a6b8a', location: 'Desierto de los Leones' },
+  { id: 'vera',     name: 'Vera',      role: 'Verification', emoji: '◈',  color: '#7B2FFF', location: 'Sierra de Guadalupe' },
+]
+const NET_TASKS = [
+  'Scanning fire signatures…','Correlating soil moisture…','Running pathogen model…',
+  'Issuing field bounty…','Verifying sensor onchain…','Analyzing CO₂ gradient…',
+  'Predicting drought stress…','Broadcasting flood alert…','Reconciling USDC payouts…',
+  'Cross-ref NASA FIRMS…','Detecting PM2.5 drift…','Filing SEMARNAT report…',
+]
+function AgentNetworkTab({ darkMode }: { darkMode?: boolean }) {
+  const [tasks, setTasks] = useState<Record<string,string>>(() =>
+    Object.fromEntries(NET_AGENTS.map(a => [a.id, NET_TASKS[Math.floor(Math.random()*NET_TASKS.length)]]))
+  )
+  const [pulse, setPulse] = useState<Record<string,boolean>>({})
+  const [events, setEvents] = useState<{ id: number; agent: string; color: string; msg: string }[]>([])
+  const evRef = useRef(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const agent = NET_AGENTS[Math.floor(Math.random()*NET_AGENTS.length)]
+      const task  = NET_TASKS[Math.floor(Math.random()*NET_TASKS.length)]
+      setTasks(t => ({ ...t, [agent.id]: task }))
+      setPulse(p => ({ ...p, [agent.id]: true }))
+      setTimeout(() => setPulse(p => ({ ...p, [agent.id]: false })), 600)
+      setEvents(ev => [{ id: evRef.current++, agent: agent.name, color: agent.color, msg: task }, ...ev].slice(0, 7))
+    }, 1800)
+    return () => clearInterval(interval)
+  }, [])
+
+  const border  = darkMode ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'
+  const textMut = darkMode ? 'rgba(255,255,255,0.38)' : 'rgba(0,0,0,0.40)'
+  const cardBg  = darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.90)'
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 400 }}>
+      <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3 content-start">
+        {NET_AGENTS.map(agent => (
+          <motion.div key={agent.id}
+            animate={{ boxShadow: pulse[agent.id] ? `0 0 18px ${agent.color}45` : '0 0 0px transparent' }}
+            transition={{ duration: 0.3 }}
+            className="rounded-xl border p-3 flex flex-col gap-2"
+            style={{ background: cardBg, borderColor: pulse[agent.id] ? agent.color : border }}>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{agent.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-mono text-xs font-bold truncate" style={{ color: agent.color }}>{agent.name}</p>
+                <p className="font-mono text-[8px]" style={{ color: textMut }}>{agent.role}</p>
+              </div>
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: agent.color }} />
+            </div>
+            <div className="rounded-lg px-2 py-1" style={{ background: `${agent.color}10`, border: `1px solid ${agent.color}20` }}>
+              <p className="font-mono text-[8px] leading-snug" style={{ color: agent.color }}>{tasks[agent.id]}</p>
+            </div>
+            <p className="font-mono text-[8px] truncate" style={{ color: textMut }}>📍 {agent.location}</p>
+          </motion.div>
+        ))}
+        <div className="rounded-xl border p-3" style={{ background: cardBg, borderColor: border }}>
+          <p className="font-mono text-[8px] font-bold mb-2" style={{ color: textMut }}>NETWORK STATUS</p>
+          <div className="space-y-1.5">
+            {[
+              { label: 'Agents online', value: '5 / 5',        color: '#2E7D6B' },
+              { label: 'Nodes active',  value: '3 active',     color: '#5e72e4' },
+              { label: 'USDC paid',     value: '$24.50',       color: '#f5a623' },
+              { label: 'Alerts',        value: '2 critical',   color: '#ff4444' },
+              { label: 'Chain',         value: 'Base ERC-8004',color: '#2E7D6B' },
+            ].map(s => (
+              <div key={s.label} className="flex items-center justify-between">
+                <span className="font-mono text-[8px]" style={{ color: textMut }}>{s.label}</span>
+                <span className="font-mono text-[8px] font-bold" style={{ color: s.color }}>{s.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="rounded-xl border p-3 flex flex-col gap-1.5 overflow-hidden" style={{ background: cardBg, borderColor: border }}>
+        <p className="font-mono text-[8px] font-bold mb-1" style={{ color: textMut }}>LIVE AGENT FEED</p>
+        {events.length === 0 && <p className="font-mono text-[8px]" style={{ color: textMut }}>Waiting for activity…</p>}
+        <AnimatePresence initial={false}>
+          {events.map(ev => (
+            <motion.div key={ev.id}
+              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-lg px-2 py-1 border flex-shrink-0"
+              style={{ background: `${ev.color}08`, borderColor: `${ev.color}22` }}>
+              <p className="font-mono text-[8px] font-bold" style={{ color: ev.color }}>{ev.agent}</p>
+              <p className="font-mono text-[7px]" style={{ color: textMut }}>{ev.msg}</p>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const [activeNode, setActiveNode] = useState<NodeData>(ARVI_NODES[0])
   const [tab, setTab] = useState<Tab>('home')
@@ -1049,11 +1149,7 @@ export default function Dashboard() {
                 {tab === 'global'       && <GlobalTab />}
                 {tab === 'bounties'     && <BountiesTab darkMode={darkMode} />}
                 {tab === 'world'        && <AgentWorld darkMode={darkMode} />}
-                {tab === 'atlas'        && (
-                  <div style={{ height: '60vh', minHeight: '400px' }} className="rounded-xl overflow-hidden border border-line bg-[#f8f8f5]">
-                    <MapComponent weatherNodes={[]} fires={[]} />
-                  </div>
-                )}
+                {tab === 'atlas'        && <AgentNetworkTab darkMode={darkMode} />}
                 {tab === 'sensors'      && <SensorTab node={activeNode} />}
                 {tab === 'intelligence' && <IntelligenceTab node={activeNode} result={result} onRun={runAgent} loading={loading} />}
                 {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
