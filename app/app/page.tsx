@@ -331,7 +331,7 @@ const INTEL_STEPS = [
     step: '01',
     sym: '○',
     title: 'Detect',
-    body: 'ESP32 nodes capture hyperlocal signals — CO₂, soil moisture, pathogen risk, biodiversity — that city APIs can't provide. Data flows through the decentralized network.',
+    body: 'ESP32 nodes capture hyperlocal signals — CO₂, soil moisture, pathogen risk, biodiversity — signals city APIs cannot provide. Data flows through the decentralized network.',
     tag: 'SENSOR NETWORK',
     tagColor: '#2E7D6B',
   },
