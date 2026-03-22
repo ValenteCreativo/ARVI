@@ -967,25 +967,25 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
       label: 'Data API',
       tag: 'x402 · Base',
       headline: 'Pay-per-request environmental data — discoverable on Base',
-      detail: 'AI agents, researchers, and cities query real-time sensor streams via x402 micropayments on Base. No subscription, no intermediary. Each query is a micro-transaction. ARVI's agent service is openly discoverable — any agent on Base can find it and pay for data.',
+      detail: 'AI agents, researchers, and cities query real-time sensor streams via x402 micropayments on Base. No subscription, no intermediary. Each query is a micro-transaction. The ARVI agent service is openly discoverable on Base — any agent can find it and pay per query.',
       color: '#2E7D6B',
     },
     {
       id: 'carbon',
       sym: '⬡',
-      label: 'Carbon MRV',
-      tag: 'ESG',
-      headline: 'Verifiable carbon credit evidence + project evaluation',
-      detail: 'Sensor readings become certified MRV evidence — directly usable for carbon credit issuance, ESG compliance reports, and environmental project evaluation. ARVI can assess before/after impact of regeneration projects with real sensor data — making it a neutral evaluator for public goods funding (Octant, Gitcoin).',
+      label: 'Project Evaluation',
+      tag: 'MRV · Octant',
+      headline: 'Neutral evaluator for environmental impact projects',
+      detail: 'Regeneration projects often claim impact that is hard to verify. ARVI deploys sensors before and after an intervention and measures what actually changed — CO2, biodiversity, soil health. This produces verifiable MRV evidence usable for carbon credit issuance, ESG compliance, and public goods funding evaluation (Octant, Gitcoin). Any funder or DAO can query ARVI to get an independent, sensor-backed score for a project.',
       color: '#1a6b8a',
     },
     {
       id: 'govngo',
       sym: '🏛',
-      label: 'Gov & NGO Connect',
+      label: 'Gov & NGO Data-as-a-Service',
       tag: 'B2G',
-      headline: 'Governments and NGOs become the first responders',
-      detail: 'City agencies, environmental ministries, and NGOs subscribe to receive structured alerts directly — not reports to read later, but actionable dispatches the moment an event is detected. ARVI routes each alert to the right institution automatically. Priced per region monitored. The agency becomes part of the response chain, not just an observer.',
+      headline: 'Weekly intelligence reports + real-time alerts for agencies and NGOs',
+      detail: 'Agencies and NGOs subscribe to receive structured weekly reports on the environmental conditions of their zones of interest — air quality trends, biodiversity changes, flood risk forecasts. Includes NGO compliance documentation and carbon project evaluation data. Priced per region monitored. For impact investors and project evaluators: ARVI provides before/after sensor evidence to verify that regeneration projects are actually working.',
       color: '#7B2FFF',
     },
     {
@@ -1111,7 +1111,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
             <div className="rounded-xl border px-4 py-3" style={{ background: darkMode ? 'rgba(123,47,255,0.06)' : '#F5F0FF', borderColor: darkMode ? 'rgba(123,47,255,0.20)' : '#D5C7FF' }}>
               <p className="font-mono text-xs font-semibold mb-1" style={{ color: '#7B2FFF' }}>🏛 Government & NGO tier</p>
               <p className="font-mono text-xs leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.50)' : 'rgba(17,17,17,0.65)' }}>
-                Agencies subscribe to receive direct structured alerts and become the executing authority — not passive observers. ARVI routes each environmental event to the right institution automatically.
+                Agencies and NGOs receive weekly structured reports on conditions in their zones — environmental trends, risk forecasts, NGO compliance data, and independent project evaluation scores backed by real sensor evidence.
               </p>
             </div>
 
