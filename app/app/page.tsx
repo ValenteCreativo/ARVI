@@ -154,7 +154,7 @@ function NavBar({ dark, onToggleDark, isDarkMode }: { dark: boolean; onToggleDar
           style={{ borderColor: dark ? 'rgba(255,255,255,0.10)' : '#DADADA', color: dark ? 'rgba(255,255,255,0.25)' : '#888' }}>v6.1</span>
       </div>
       <div className="flex items-center gap-3">
-        <Link href="/atlas" className="font-mono text-sm transition-colors hidden sm:block" style={{ color: dark ? 'rgba(255,255,255,0.45)' : '#666' }}>Atlas</Link>
+
         {onToggleDark && (
           <button onClick={onToggleDark}
             className="font-mono text-base w-9 h-9 flex items-center justify-center rounded-lg border transition-all"
