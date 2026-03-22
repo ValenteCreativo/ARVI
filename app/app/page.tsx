@@ -967,25 +967,34 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
       label: 'Data API',
       tag: 'x402 · Base',
       headline: 'Pay-per-request environmental data — discoverable on Base',
-      detail: 'AI agents, researchers, and cities query real-time sensor streams via x402 micropayments on Base. No subscription, no intermediary. Each query is a micro-transaction. The ARVI agent service is openly discoverable on Base — any agent can find it and pay per query.',
+      detail: 'AI agents, researchers, and cities query real-time sensor streams via x402 micropayments on Base. No subscription, no intermediary. The ARVI agent service is openly discoverable on Base — any agent can find it and pay per query.',
       color: '#2E7D6B',
     },
     {
-      id: 'carbon',
+      id: 'eval',
       sym: '⬡',
       label: 'Project Evaluation',
       tag: 'MRV · Octant',
       headline: 'Neutral evaluator for environmental impact projects',
-      detail: 'Regeneration projects often claim impact that is hard to verify. ARVI deploys sensors before and after an intervention and measures what actually changed — CO2, biodiversity, soil health. This produces verifiable MRV evidence usable for carbon credit issuance, ESG compliance, and public goods funding evaluation (Octant, Gitcoin). Any funder or DAO can query ARVI to get an independent, sensor-backed score for a project.',
+      detail: 'Regeneration projects often claim impact that is hard to verify. ARVI deploys sensors before and after an intervention and measures what actually changed — CO2, biodiversity, soil health. This produces verifiable MRV evidence usable for carbon credit issuance, public goods funding evaluation (Octant, Gitcoin) and ESG reports. Any funder or DAO can query ARVI to get an independent, sensor-backed score for a project.',
       color: '#1a6b8a',
+    },
+    {
+      id: 'esg',
+      sym: '◇',
+      label: 'ESG Compliance',
+      tag: 'Enterprise',
+      headline: 'Verified environmental data for corporate sustainability reports',
+      detail: 'Enterprises need credible environmental data for their ESG reports, sustainability audits, and regulatory compliance. ARVI provides continuous sensor evidence from their zones of interest — carbon footprint verification, biodiversity impact, air quality baselines. Priced as an annual intelligence subscription per region.',
+      color: '#2E7D6B',
     },
     {
       id: 'govngo',
       sym: '🏛',
-      label: 'Gov & NGO Data-as-a-Service',
+      label: 'Gov & NGO DaaS',
       tag: 'B2G',
-      headline: 'Weekly intelligence reports + real-time alerts for agencies and NGOs',
-      detail: 'Agencies and NGOs subscribe to receive structured weekly reports on the environmental conditions of their zones of interest — air quality trends, biodiversity changes, flood risk forecasts. Includes NGO compliance documentation and carbon project evaluation data. Priced per region monitored. For impact investors and project evaluators: ARVI provides before/after sensor evidence to verify that regeneration projects are actually working.',
+      headline: 'Weekly intelligence reports for agencies and NGOs',
+      detail: 'Agencies and NGOs subscribe to receive structured weekly reports on the environmental conditions of their zones of interest — air quality trends, biodiversity changes, flood risk forecasts, NGO compliance documentation, and independent project evaluation scores backed by real sensor evidence.',
       color: '#7B2FFF',
     },
     {
@@ -999,18 +1008,45 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
     },
   ]
 
-  const HUMAN_JOBS = [
-    { alert: 'FIRE · Chapultepec', bounty: '12 USDC', status: 'OPEN',    color: '#C0392B', who: 'Field verification' },
-    { alert: 'FLOOD · Xochimilco', bounty: '8 USDC',  status: 'OPEN',    color: '#2E7D6B', who: 'Ground survey' },
-    { alert: 'AQI · Tlatelolco',   bounty: '5 USDC',  status: 'CLAIMED', color: '#B85C00', who: 'Sensor check' },
+  const AGENT_TASKS = [
+    { sym: '◈', task: 'Analyze 72h CO₂ drift across 3 nodes', bounty: '6 USDC', status: 'OPEN' },
+    { sym: '⬡', task: 'Cross-reference NASA FIRMS fire data', bounty: '8 USDC', status: 'OPEN' },
+    { sym: '○', task: 'Evaluate reforestation project impact score', bounty: '12 USDC', status: 'CLAIMED' },
+  ]
+
+  const HUMAN_TASKS = [
+    {
+      sym: '🔥',
+      task: 'Verify fire risk in Chapultepec Forest',
+      detail: 'Sensors detected unusual heat signatures. Go to the marked zone, confirm conditions on the ground, and submit a field report.',
+      bounty: '12 USDC',
+      status: 'OPEN',
+      color: '#C0392B',
+    },
+    {
+      sym: '💧',
+      task: 'Survey flood conditions in Xochimilco wetlands',
+      detail: 'Soil saturation at 92%. Walk the marked wetland path, photograph water levels, and confirm if drainage channels are blocked.',
+      bounty: '8 USDC',
+      status: 'OPEN',
+      color: '#2E7D6B',
+    },
+    {
+      sym: '🌫',
+      task: 'Ground-check air quality near Tlatelolco market',
+      detail: 'PM2.5 spike detected by sensor. Visit the market area and confirm whether there is a visible pollution source (traffic, burning, construction).',
+      bounty: '5 USDC',
+      status: 'CLAIMED',
+      color: '#B85C00',
+    },
   ]
 
   const sel = STREAMS.find(s => s.id === active)
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-y-auto" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg opacity-20" />
-      <div className="relative z-10 w-full max-w-5xl px-8">
+      <div className="relative z-10 w-full max-w-5xl px-8 py-16">
 
         {/* Header */}
         <div className="text-center mb-6">
@@ -1033,7 +1069,7 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
                 whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="font-mono text-lg shrink-0" style={{ color: active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.3)' : '#DADADA') }}>{s.sym}</span>
+                    <span className="font-mono text-base shrink-0" style={{ color: active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.3)' : '#DADADA') }}>{s.sym}</span>
                     <span className="font-mono text-sm font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{s.label}</span>
                   </div>
                   <span className="font-mono text-[10px] px-2 py-0.5 rounded-full" style={{ background: active === s.id ? s.color : 'transparent', color: active === s.id ? 'white' : (darkMode ? 'rgba(255,255,255,0.35)' : '#999'), border: `1px solid ${active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.15)' : '#E5E5E5')}` }}>{s.tag}</span>
@@ -1052,67 +1088,54 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {/* Small CTAs */}
-            <div className="flex items-center gap-3 mt-1">
-              <a href="/waitlist" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold px-4 py-2 rounded-lg border transition-all hover:scale-105"
-                style={{ borderColor: '#7d6b2e80', color: '#7d6b2e', background: darkMode ? 'rgba(125,107,46,0.08)' : '#FEFCE8' }}>
-                ○ Buy a Sensor
-              </a>
-              <a href="/waitlist" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold px-4 py-2 rounded-lg border transition-all hover:scale-105"
-                style={{ borderColor: '#5e72e480', color: '#5e72e4', background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF' }}>
-                ⬡ Connect Your Agent
-              </a>
-            </div>
           </div>
 
-          {/* RIGHT: Job boards */}
-          <div className="flex flex-col gap-3">
+          {/* RIGHT: Two bounty boards */}
+          <div className="flex flex-col gap-4">
 
-            {/* Human job board */}
+            {/* Agent task board */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>Field Job Board</p>
-                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#2E7D6B', borderColor: '#2E7D6B40', background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1' }}>For humans</span>
+                <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#5e72e4' }}>⬡ Agent Task Board</p>
+                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#5e72e4', borderColor: '#5e72e440', background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF' }}>For agents</span>
               </div>
-              {HUMAN_JOBS.map((job, i) => (
-                <div key={i} className="rounded-xl border px-4 py-3 mb-2 flex items-center justify-between"
+              {AGENT_TASKS.map((t, i) => (
+                <div key={i} className="rounded-xl border px-4 py-2.5 mb-2 flex items-center justify-between"
                   style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: job.color }} />
-                    <div>
-                      <p className="font-mono text-sm font-semibold leading-none" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{job.alert}</p>
-                      <p className="font-mono text-[9px] mt-0.5" style={{ color: darkMode ? 'rgba(255,255,255,0.35)' : 'rgba(17,17,17,0.45)' }}>{job.who}</p>
-                    </div>
-                  </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-semibold" style={{ color: '#2E7D6B' }}>{job.bounty}</span>
-                    <span className="font-mono text-xs px-2 py-0.5 rounded-full border"
-                      style={{ color: job.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: job.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: job.status === 'OPEN' ? (darkMode ? 'rgba(46,125,107,0.12)' : '#EAF4F1') : 'transparent' }}>
-                      {job.status}
-                    </span>
+                    <span className="font-mono text-sm" style={{ color: '#5e72e4' }}>{t.sym}</span>
+                    <p className="font-mono text-xs" style={{ color: darkMode ? 'rgba(255,255,255,0.75)' : '#111' }}>{t.task}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
+                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full border" style={{ color: t.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: t.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: t.status === 'OPEN' ? (darkMode ? 'rgba(46,125,107,0.10)' : '#EAF4F1') : 'transparent' }}>{t.status}</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Agent job board */}
-            <div className="rounded-xl border px-4 py-3" style={{ background: darkMode ? 'rgba(94,114,228,0.06)' : '#F0F1FF', borderColor: darkMode ? 'rgba(94,114,228,0.20)' : '#C7D0FF' }}>
+            {/* Human field board */}
+            <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="font-mono text-xs font-semibold" style={{ color: '#5e72e4' }}>⬡ Agentic Data Tasks</p>
-                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#5e72e4', borderColor: '#5e72e440', background: 'rgba(94,114,228,0.08)' }}>For agents</span>
+                <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>○ Field Bounty Board</p>
+                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#2E7D6B', borderColor: '#2E7D6B40', background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1' }}>For humans</span>
               </div>
-              <p className="font-mono text-xs leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.50)' : 'rgba(17,17,17,0.65)' }}>
-                Any agent can join the network and earn USDC processing environmental data tasks — analysis, anomaly detection, project evaluation, cross-referencing satellite data. Coordinated via OpenServ. Paid via Locus on Base.
-              </p>
-            </div>
-
-            {/* Gov/NGO highlight */}
-            <div className="rounded-xl border px-4 py-3" style={{ background: darkMode ? 'rgba(123,47,255,0.06)' : '#F5F0FF', borderColor: darkMode ? 'rgba(123,47,255,0.20)' : '#D5C7FF' }}>
-              <p className="font-mono text-xs font-semibold mb-1" style={{ color: '#7B2FFF' }}>🏛 Government & NGO tier</p>
-              <p className="font-mono text-xs leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.50)' : 'rgba(17,17,17,0.65)' }}>
-                Agencies and NGOs receive weekly structured reports on conditions in their zones — environmental trends, risk forecasts, NGO compliance data, and independent project evaluation scores backed by real sensor evidence.
-              </p>
+              {HUMAN_TASKS.map((t, i) => (
+                <div key={i} className="rounded-xl border px-4 py-3 mb-2"
+                  style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{t.sym}</span>
+                      <p className="font-mono text-xs font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{t.task}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
+                      <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full border" style={{ color: t.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: t.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: t.status === 'OPEN' ? (darkMode ? 'rgba(46,125,107,0.10)' : '#EAF4F1') : 'transparent' }}>{t.status}</span>
+                    </div>
+                  </div>
+                  <p className="font-mono text-[10px] leading-snug" style={{ color: darkMode ? 'rgba(255,255,255,0.40)' : 'rgba(17,17,17,0.55)' }}>{t.detail}</p>
+                </div>
+              ))}
             </div>
 
           </div>
