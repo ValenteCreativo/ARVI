@@ -473,7 +473,7 @@ function IntelligenceTab({ node, result, onRun, loading }: {
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <p className="font-mono text-[9px] text-muted/40">{String(analysis.model_used)}</p>
-                {analysis.simulated && <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border border-[#B85C00]/30 text-[#B85C00] bg-[#B85C0010]">Simulation mode</span>}
+                {!!analysis.simulated && <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border border-[#B85C00]/30 text-[#B85C00] bg-[#B85C0010]">Simulation mode</span>}
               </div>
             </div>
           ) : (
