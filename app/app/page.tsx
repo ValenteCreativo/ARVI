@@ -3,22 +3,22 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
 
 const MiniWorldMap = dynamic(() => import('./components/MiniWorldMap'), {
   ssr: false,
-  loading: () => <div className="w-full h-full rounded-xl bg-[#0A0B14]" />,
+  loading: () => <div className="w-full h-full bg-[#0A0B14]" />,
 })
 
 // ─── Section config ────────────────────────────────────────────────────────────
 const SECTIONS = [
-  { id: 'intro',      label: 'Intro',      darkBg: false },
-  { id: 'system',     label: 'System',     darkBg: false },
-  { id: 'what',       label: 'ARVI',       darkBg: false },
-  { id: 'atlas',      label: 'Atlas',      darkBg: false },
-  { id: 'dashboard',  label: 'Dashboard',  darkBg: false },
-  { id: 'economics',  label: 'Economics',  darkBg: false },
-  { id: 'enter',      label: 'Enter',      darkBg: false },
+  { id: 'intro',        label: 'Intro',        darkBg: false },
+  { id: 'system',       label: 'System',       darkBg: false },
+  { id: 'what',         label: 'ARVI',         darkBg: false },
+  { id: 'atlas',        label: 'Atlas',        darkBg: true  },
+  { id: 'intelligence', label: 'Intelligence', darkBg: false },
+  { id: 'economics',    label: 'Economics',    darkBg: false },
+  { id: 'enter',        label: 'Enter',        darkBg: false },
 ]
 const N = SECTIONS.length
 
@@ -67,37 +67,51 @@ function NetworkBg({ active }: { active: boolean }) {
   )
 }
 
-// ─── Progress indicator + traveling node ──────────────────────────────────────
+// ─── Progress indicator (percentage-based, perfectly aligned) ──────────────────
 function Progress({ section, setSection, dark }: { section: number; setSection: (n: number) => void; dark: boolean }) {
-  const nodeX = useSpring(0, { stiffness: 120, damping: 25 })
-  const containerRef = useRef<HTMLDivElement>(null)
+  const pct = useSpring(section / (N - 1) * 100, { stiffness: 120, damping: 25 })
+  const leftPct = useTransform(pct, v => `${v}%`)
 
   useEffect(() => {
-    if (!containerRef.current) return
-    const w = containerRef.current.offsetWidth
-    nodeX.set((section / (N - 1)) * (w - 16) + 8)
-  }, [section, nodeX])
+    pct.set(section / (N - 1) * 100)
+  }, [section, pct])
 
-  const ink = dark ? 'rgba(255,255,255,0.3)' : '#DADADA'
-  const inkText = dark ? 'rgba(255,255,255,0.25)' : '#888'
-  const active = dark ? 'white' : '#2E7D6B'
+  const ink = dark ? 'rgba(255,255,255,0.25)' : '#DADADA'
+  const inkText = dark ? 'rgba(255,255,255,0.25)' : '#999'
+  const active = dark ? 'rgba(255,255,255,0.9)' : '#2E7D6B'
 
   return (
-    <div className="fixed bottom-8 left-0 right-0 z-50 px-12" ref={containerRef}>
-      {/* Line */}
-      <div className="relative h-px mb-3" style={{ background: ink }}>
-        {/* Traveling node */}
-        <motion.div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2"
-          style={{ x: nodeX, marginLeft: '-6px', borderColor: active, background: 'white', boxShadow: `0 0 0 3px ${active}20` }} />
+    <div className="fixed bottom-8 left-0 right-0 z-50 px-14">
+      {/* Track line */}
+      <div className="relative h-px mb-4" style={{ background: ink }}>
+        {/* Traveling node — percentage-aligned to track */}
+        <motion.div
+          className="absolute top-1/2 w-3 h-3 rounded-full border-2"
+          style={{
+            left: leftPct,
+            y: '-50%',
+            x: '-50%',
+            borderColor: active,
+            background: dark ? '#111' : 'white',
+            boxShadow: `0 0 0 3px ${active}25`,
+          }}
+        />
       </div>
-      {/* Section dots + labels */}
-      <div className="flex items-center" style={{ justifyContent: 'space-between' }}>
+
+      {/* Section labels — same percentage positions as track */}
+      <div className="relative h-6">
         {SECTIONS.map((s, i) => (
-          <button key={s.id} onClick={() => setSection(i)}
-            className="flex flex-col items-center gap-1 group">
-            <div className="w-1 h-1 rounded-full transition-all duration-300"
-              style={{ background: i === section ? active : ink, transform: i === section ? 'scale(2)' : 'scale(1)' }} />
-            <span className="font-mono text-[8px] tracking-widest uppercase transition-colors"
+          <button
+            key={s.id}
+            onClick={() => setSection(i)}
+            className="absolute flex flex-col items-center gap-1 group"
+            style={{ left: `${(i / (N - 1)) * 100}%`, transform: 'translateX(-50%)' }}>
+            <div className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+              style={{
+                background: i === section ? active : ink,
+                transform: i === section ? 'scale(1.8)' : 'scale(1)',
+              }} />
+            <span className="font-mono text-[8px] tracking-widest uppercase whitespace-nowrap transition-colors"
               style={{ color: i === section ? active : inkText }}>
               {s.label}
             </span>
@@ -110,14 +124,15 @@ function Progress({ section, setSection, dark }: { section: number; setSection: 
 
 // ─── Arrow nav buttons ─────────────────────────────────────────────────────────
 function NavArrows({ section, setSection, dark }: { section: number; setSection: (n: number) => void; dark: boolean }) {
-  const c = dark ? 'rgba(255,255,255,0.3)' : '#DADADA'
+  const c = dark ? 'rgba(255,255,255,0.25)' : '#DADADA'
   const ch = dark ? 'white' : '#111'
   return (
     <>
       {section > 0 && (
         <button onClick={() => setSection(section - 1)}
           className="fixed left-6 top-1/2 -translate-y-1/2 z-50 w-10 h-10 flex items-center justify-center rounded-full border transition-all"
-          style={{ borderColor: c, color: c }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = ch; (e.currentTarget as HTMLButtonElement).style.color = ch }}
+          style={{ borderColor: c, color: c }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = ch; (e.currentTarget as HTMLButtonElement).style.color = ch }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = c; (e.currentTarget as HTMLButtonElement).style.color = c }}>
           <span className="font-mono text-sm">←</span>
         </button>
@@ -125,7 +140,8 @@ function NavArrows({ section, setSection, dark }: { section: number; setSection:
       {section < N - 1 && (
         <button onClick={() => setSection(section + 1)}
           className="fixed right-6 top-1/2 -translate-y-1/2 z-50 w-10 h-10 flex items-center justify-center rounded-full border transition-all"
-          style={{ borderColor: c, color: c }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = ch; (e.currentTarget as HTMLButtonElement).style.color = ch }}
+          style={{ borderColor: c, color: c }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = ch; (e.currentTarget as HTMLButtonElement).style.color = ch }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = c; (e.currentTarget as HTMLButtonElement).style.color = c }}>
           <span className="font-mono text-sm">→</span>
         </button>
@@ -138,19 +154,19 @@ function NavArrows({ section, setSection, dark }: { section: number; setSection:
 function NavBar({ dark }: { dark: boolean }) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-8"
-      style={{ background: dark ? 'rgba(17,17,17,0.85)' : 'rgba(247,247,247,0.85)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.05)' : '#E5E5E5'}` }}>
+      style={{ background: dark ? 'rgba(10,11,20,0.90)' : 'rgba(247,247,247,0.88)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : '#E5E5E5'}` }}>
       <div className="flex items-center gap-3">
         <div className="w-6 h-6 rounded border flex items-center justify-center font-mono text-[10px]"
-          style={{ borderColor: dark ? 'rgba(46,125,107,0.4)' : 'rgba(46,125,107,0.3)', background: dark ? 'rgba(46,125,107,0.15)' : '#EAF4F1', color: '#2E7D6B' }}>◈</div>
-        <span className="font-mono text-sm" style={{ color: dark ? 'rgba(255,255,255,0.8)' : '#111' }}>ARVI</span>
+          style={{ borderColor: 'rgba(46,125,107,0.4)', background: dark ? 'rgba(46,125,107,0.15)' : '#EAF4F1', color: '#2E7D6B' }}>◈</div>
+        <span className="font-mono text-sm" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#111' }}>ARVI</span>
         <span className="hidden sm:block font-mono text-[9px] border rounded px-2 py-0.5"
-          style={{ borderColor: dark ? 'rgba(255,255,255,0.1)' : '#DADADA', color: dark ? 'rgba(255,255,255,0.2)' : '#888' }}>v5.0</span>
+          style={{ borderColor: dark ? 'rgba(255,255,255,0.10)' : '#DADADA', color: dark ? 'rgba(255,255,255,0.25)' : '#888' }}>v6.0</span>
       </div>
       <div className="flex items-center gap-3">
         <Link href="/atlas" className="font-mono text-[11px] transition-colors hidden sm:block"
-          style={{ color: dark ? 'rgba(255,255,255,0.3)' : '#888' }}>Atlas</Link>
+          style={{ color: dark ? 'rgba(255,255,255,0.35)' : '#888' }}>Atlas</Link>
         <Link href="/dashboard" className="font-mono text-[11px] px-4 py-1.5 rounded-lg border transition-all"
-          style={{ borderColor: 'rgba(46,125,107,0.3)', background: '#EAF4F1', color: '#2E7D6B' }}>
+          style={{ borderColor: 'rgba(46,125,107,0.35)', background: dark ? 'rgba(46,125,107,0.15)' : '#EAF4F1', color: '#2E7D6B' }}>
           Launch App ▸
         </Link>
       </div>
@@ -189,7 +205,6 @@ function IntroPlane({ active }: { active: boolean }) {
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
       <NetworkBg active={active} />
 
-      {/* Cursor-reactive nodes */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {nodes.map((n, i) => (
           <g key={i}>
@@ -216,16 +231,17 @@ function IntroPlane({ active }: { active: boolean }) {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}>
           ARVI
         </motion.h1>
-        <motion.p className="font-mono text-sm text-muted mb-2"
+        <motion.p className="font-mono text-sm text-muted mb-3"
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.9, duration: 0.8 }}>
           in motion.
         </motion.p>
-        <motion.p className="font-mono text-[11px] text-muted/50 tracking-widest"
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.2, duration: 0.8 }}>
+        {/* Fixed: was text-muted/50 (barely visible) → now text-ink/50 */}
+        <motion.p className="font-mono text-[11px] tracking-widest" style={{ color: 'rgba(17,17,17,0.55)' }}
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.1, duration: 0.8 }}>
           A system that listens, learns, and responds.
         </motion.p>
-        <motion.p className="font-mono text-[9px] text-muted/30 mt-12 tracking-widest"
-          animate={{ opacity: active ? [0.3, 0.8, 0.3] : 0 }} transition={{ duration: 2.5, repeat: Infinity, delay: 2 }}>
+        <motion.p className="font-mono text-[9px] mt-12 tracking-widest" style={{ color: 'rgba(17,17,17,0.35)' }}
+          animate={{ opacity: active ? [0.35, 0.75, 0.35] : 0 }} transition={{ duration: 2.5, repeat: Infinity, delay: 2 }}>
           move your cursor · press → to enter
         </motion.p>
       </div>
@@ -309,7 +325,7 @@ function SystemPlane({ active }: { active: boolean }) {
                 {nm[focused]?.micro.replace('\n', ' ')}
               </motion.p>
             ) : (
-              <motion.p key="idle" className="font-mono text-[10px] text-muted/40 tracking-widest"
+              <motion.p key="idle" className="font-mono text-[10px] tracking-widest" style={{ color: 'rgba(17,17,17,0.35)' }}
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 — sensing → understanding → action —
               </motion.p>
@@ -326,22 +342,22 @@ const ARVI_FACTS = [
   {
     sym: '○',
     title: 'Sensor network',
-    body: 'ESP32 nodes deployed in urban forests capture soil moisture, temperature, humidity, and pathogen risk — hyperlocal, not city averages.',
+    body: 'ESP32 nodes capture soil moisture, temperature, humidity, CO₂ and pathogen risk — hyperlocal, not city averages. Operators earn monthly USDC for uptime.',
   },
   {
     sym: '◈',
     title: 'Autonomous agent',
-    body: 'An AI agent (Bankr/Gemini) analyzes each reading in real-time. When it detects an anomaly, it acts — without waiting for a human.',
+    body: 'An onchain AI agent analyzes each reading in real-time. When it detects an anomaly, it acts — publishes alerts, pays operators, and posts field jobs. Without waiting for a human.',
   },
   {
     sym: '▸',
     title: 'Onchain execution',
-    body: 'Every decision is logged permanently via ERC-8004 on Base. Node operators receive USDC payments automatically through Locus when they report quality data.',
+    body: 'Every decision is logged permanently via ERC-8004 on Base. Node operators receive USDC payments automatically. All decisions are auditable, transparent, and verifiable.',
   },
   {
     sym: '⬡',
-    title: 'Self-sustaining economy',
-    body: 'Municipalities and NGOs fund the treasury. The system pays its own AI inference, rewards operators, and generates verifiable public good impact.',
+    title: 'Open ecosystem',
+    body: 'Buy a sensor kit ($80) or build your own with our open hardware. Data feeds are accessible via x402 pay-per-request — for other agents, researchers, or municipalities.',
   },
 ]
 
@@ -389,206 +405,328 @@ function WhatPlane({ active }: { active: boolean }) {
           ))}
         </div>
 
-        <motion.p className="text-center font-mono text-[10px] text-muted/40 tracking-widest mt-8"
+        <motion.p className="text-center font-mono text-[10px] mt-8" style={{ color: 'rgba(17,17,17,0.35)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.7 }}>
-          sense → understand → decide → act → verify → incentivize
+          sense → analyze → act → verify → pay → repeat
         </motion.p>
       </div>
     </div>
   )
 }
 
-// ─── S3: ATLAS ────────────────────────────────────────────────────────────────
+// ─── S3: ATLAS (dark globe + live data overlay) ───────────────────────────────
 function AtlasPlane({ active }: { active: boolean }) {
-  const nodes = [
-    { id: 'n01', label: 'Chapultepec', status: 'CRITICAL',   color: '#C0392B' },
-    { id: 'n02', label: 'Alameda',     status: 'MONITORING', color: '#B85C00' },
-    { id: 'n03', label: 'Tlatelolco',  status: 'MONITORING', color: '#B85C00' },
+  const [liveData, setLiveData] = useState<{
+    fires: number
+    nodes: number
+    temp: string
+    humidity: string
+    wind: string
+    uv: string
+  }>({ fires: 0, nodes: 3, temp: '--', humidity: '--', wind: '--', uv: '--' })
+  const [fetched, setFetched] = useState(false)
+
+  useEffect(() => {
+    if (!active || fetched) return
+    setFetched(true)
+    fetch('/api/weather')
+      .then(r => r.json())
+      .then(data => {
+        const w = data.nodes?.[0]?.weather
+        setLiveData({
+          fires: data.fires?.length ?? 0,
+          nodes: data.nodes?.length ?? 3,
+          temp: w ? `${w.temperature_2m?.toFixed(1)}°C` : '--',
+          humidity: w ? `${w.relative_humidity_2m}%` : '--',
+          wind: w ? `${w.wind_speed_10m} km/h` : '--',
+          uv: w ? String(w.uv_index?.toFixed(1)) : '--',
+        })
+      })
+      .catch(() => {})
+  }, [active, fetched])
+
+  const dataFeeds = [
+    { label: 'Fire hotspots', val: String(liveData.fires), src: 'NASA FIRMS · 24h Mexico', color: '#B85C00' },
+    { label: 'Active nodes', val: String(liveData.nodes), src: 'ARVI Network · live',      color: '#2E7D6B' },
+    { label: 'Air temp',     val: liveData.temp,          src: 'Open-Meteo · CDMX',        color: '#888' },
+    { label: 'Humidity',     val: liveData.humidity,      src: 'Open-Meteo · live',         color: '#888' },
+    { label: 'Wind',         val: liveData.wind,          src: 'Open-Meteo · live',         color: '#888' },
+    { label: 'UV index',     val: liveData.uv,            src: 'Open-Meteo · live',         color: '#888' },
   ]
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
-      <div className="absolute inset-0 grid-bg opacity-25" />
-
-      <div className="relative z-10 w-full max-w-4xl px-8 pt-14">
-        {/* Label + headline */}
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-2">Atlas</p>
-            <h2 className="font-serif text-4xl text-ink">The planet is not static.</h2>
-            <p className="text-muted text-sm mt-1">Neither is its data.</p>
-          </div>
-          <Link href="/atlas"
-            className="font-mono text-[11px] px-5 py-2.5 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all shrink-0 ml-6">
-            Open full Atlas ↗
-          </Link>
+    <div className="relative w-full h-full overflow-hidden" style={{ background: '#0A0B14' }}>
+      {/* Globe fills the full section */}
+      {active && (
+        <div className="absolute inset-0">
+          <MiniWorldMap className="w-full h-full" />
         </div>
+      )}
 
-        {/* Map + nodes row */}
-        <div className="flex items-stretch gap-5">
-          {/* Map — fixed, compact */}
-          <div className="rounded-xl overflow-hidden border border-[#E5E5E5]"
-            style={{ width: '460px', height: '280px', flexShrink: 0, boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}>
-            {active && <MiniWorldMap className="w-full h-full" />}
-          </div>
+      {/* Top-left label */}
+      <div className="absolute top-20 left-10 z-20 pointer-events-none">
+        <p className="font-mono text-[10px] text-white/30 tracking-[0.4em] uppercase mb-2">Atlas · Global Network</p>
+        <h2 className="font-serif text-4xl text-white/90 leading-tight">
+          The planet is not static.
+        </h2>
+        <p className="font-mono text-sm text-white/40 mt-2">
+          Neither is its data.
+        </p>
+      </div>
 
-          {/* Node list */}
-          <div className="flex flex-col justify-center gap-3 flex-1">
-            {nodes.map(n => (
-              <div key={n.id} className="flex items-center justify-between rounded-xl border border-[#E5E5E5] bg-white px-5 py-4">
-                <div>
-                  <p className="font-mono text-[11px] text-ink">{n.label}</p>
-                  <p className="font-mono text-[9px] text-muted mt-0.5">CDMX · Active</p>
-                </div>
-                <span className="font-mono text-[9px] font-bold px-2.5 py-1 rounded-full border"
-                  style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>
-                  {n.status}
-                </span>
+      {/* Live data feeds — right side overlay */}
+      <div className="absolute top-20 right-10 z-20 flex flex-col gap-2 w-56">
+        {dataFeeds.map(item => (
+          <motion.div key={item.label}
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: active ? 1 : 0, x: active ? 0 : 16 }}
+            transition={{ duration: 0.5, delay: active ? dataFeeds.indexOf(item) * 0.08 : 0 }}
+            className="rounded-lg border px-4 py-2.5"
+            style={{ background: 'rgba(6,10,7,0.75)', borderColor: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-mono text-[9px] text-white/30 uppercase tracking-widest leading-none mb-0.5">{item.label}</p>
+                <p className="font-mono text-[8px]" style={{ color: 'rgba(255,255,255,0.18)' }}>{item.src}</p>
               </div>
-            ))}
+              <span className="font-mono text-base font-medium ml-3" style={{ color: item.color }}>{item.val}</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Bottom bar */}
+      <div className="absolute bottom-24 left-10 right-10 z-20 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#C0392B] animate-pulse" />
+            <span className="font-mono text-[10px] text-white/40">CDMX · 3 nodes active</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#2E7D6B]/50" />
+            <span className="font-mono text-[10px] text-white/30">Global expansion coming</span>
           </div>
         </div>
+        <Link href="/atlas"
+          className="font-mono text-[11px] px-5 py-2 rounded-xl border transition-all"
+          style={{ borderColor: 'rgba(46,125,107,0.4)', color: '#2E7D6B', background: 'rgba(46,125,107,0.08)' }}>
+          Full Atlas ↗
+        </Link>
       </div>
     </div>
   )
 }
 
-// ─── S3: DASHBOARD ────────────────────────────────────────────────────────────
-const DASH_NODES = [
-  { id: 'n01', name: 'Chapultepec', health: 0.34, status: 'CRITICAL', color: '#C0392B', alert: 'Probable plague detected. 47 ahuehuete trees.' },
-  { id: 'n02', name: 'Alameda',     health: 0.71, status: 'WARNING',  color: '#B85C00', alert: 'Drought stress developing. Soil moisture low.' },
-  { id: 'n03', name: 'Tlatelolco',  health: 0.52, status: 'WARNING',  color: '#B85C00', alert: 'AQI 112 — unhealthy. Canopy stress rising.' },
+// ─── S4: INTELLIGENCE — draggable agent whiteboard ───────────────────────────
+const INTEL_CARDS = [
+  {
+    id: 'patterns',
+    sym: '◈',
+    title: 'Pattern Detection',
+    body: 'Soil moisture at Chapultepec dropping 2.3%/day for 11 consecutive days. Pathogen spore count 3× baseline. Biodiversity score declining. Pattern confidence: 94%.',
+    tag: 'CRITICAL PATTERN',
+    tagColor: '#C0392B',
+    initX: -260,
+    initY: -80,
+  },
+  {
+    id: 'prediction',
+    sym: '▸',
+    title: 'Predictive Model',
+    body: 'At current trajectory: full plague outbreak in 18–21 days. 47 ahuehuete trees at risk. Estimated ecological loss: 340 tons CO₂/yr. Intervention window: now.',
+    tag: 'FORECAST · 18d',
+    tagColor: '#B85C00',
+    initX: 100,
+    initY: -110,
+  },
+  {
+    id: 'response',
+    sym: '⬡',
+    title: 'Autonomous Response',
+    body: 'Agent executed: operator payment 8.5 USDC → confirmed onchain · alert logged via ERC-8004 · municipal notification queued · job board published.',
+    tag: 'ACTION TAKEN',
+    tagColor: '#2E7D6B',
+    initX: -180,
+    initY: 90,
+  },
+  {
+    id: 'bounty',
+    sym: '○',
+    title: 'Field Job Posted',
+    body: 'Plaga confirmada en Chapultepec [19.4133, -99.1905]. Tarea: inspección visual in-situ y reporte formal ante SEDEMA. Cualquier ciudadano puede reclamar este bounty.',
+    tag: 'JOB BOARD · OPEN',
+    tagColor: '#2E7D6B',
+    initX: 220,
+    initY: 50,
+  },
 ]
 
-function DashboardPlane() {
-  const [active, setActive] = useState(DASH_NODES[0])
+function IntelligencePlane({ active }: { active: boolean }) {
   return (
-    <div className="relative w-full h-full flex items-center justify-center" style={{ background: '#F7F7F7' }}>
-      <div className="absolute inset-0 grid-bg opacity-30" />
-      <div className="relative z-10 w-full max-w-5xl px-8">
-        <div className="mb-10 flex items-end justify-between">
-          <div>
-            <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">Dashboard</p>
-            <h2 className="font-serif text-4xl text-ink">Active systems.</h2>
-          </div>
-          <Link href="/dashboard" className="font-mono text-[11px] px-5 py-2.5 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
-            Full Dashboard ▸
-          </Link>
-        </div>
+    <div className="relative w-full h-full overflow-hidden" style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg opacity-25" />
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {DASH_NODES.map(n => (
-            <motion.button key={n.id} onClick={() => setActive(n)}
-              className="rounded-2xl border p-5 text-left transition-all"
-              style={{ background: active.id === n.id ? 'white' : 'rgba(255,255,255,0.5)', borderColor: active.id === n.id ? n.color + '40' : '#E5E5E5', boxShadow: active.id === n.id ? `0 4px 24px ${n.color}15` : 'none' }}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-[10px] text-muted">{n.name}</span>
-                <span className="font-mono text-[8px] font-bold px-2 py-0.5 rounded-full border"
-                  style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>{n.status}</span>
-              </div>
-              <div className="flex items-end justify-between">
-                <div className="font-serif text-3xl" style={{ color: n.color }}>{(n.health * 100).toFixed(0)}%</div>
-                <span className="font-mono text-[9px] text-muted">health</span>
-              </div>
-              <div className="mt-3 h-1 rounded-full bg-[#E5E5E5] overflow-hidden">
-                <motion.div className="h-full rounded-full" initial={{ width: 0 }}
-                  animate={{ width: `${n.health * 100}%` }} transition={{ duration: 0.8, delay: 0.2 }}
-                  style={{ background: n.color }} />
-              </div>
-            </motion.button>
-          ))}
-        </div>
+      {/* Header */}
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none w-full px-8">
+        <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">Agent Intelligence</p>
+        <h2 className="font-serif text-4xl text-ink leading-tight">
+          Patterns invisible to humans.<br />
+          <span style={{ color: '#2E7D6B' }}>Actions taken in seconds.</span>
+        </h2>
+        <p className="font-mono text-[10px] mt-4" style={{ color: 'rgba(17,17,17,0.35)' }}>
+          drag cards · rearrange the intelligence
+        </p>
+      </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div key={active.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="rounded-2xl border bg-white p-5 flex items-center justify-between"
-            style={{ borderColor: `${active.color}25` }}>
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: active.color }} />
-              <p className="text-sm text-ink/70">{active.alert}</p>
+      {/* Draggable cards */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {INTEL_CARDS.map((card, idx) => (
+          <motion.div
+            key={card.id}
+            drag
+            dragMomentum={false}
+            initial={{ x: card.initX, y: card.initY, opacity: 0, scale: 0.92 }}
+            animate={{ opacity: active ? 1 : 0, scale: active ? 1 : 0.92 }}
+            transition={{ duration: 0.55, delay: active ? idx * 0.1 : 0, ease: [0.16, 1, 0.3, 1] }}
+            whileDrag={{ scale: 1.04, boxShadow: '0 20px 60px rgba(0,0,0,0.14)', zIndex: 100 }}
+            whileHover={{ boxShadow: '0 8px 32px rgba(0,0,0,0.09)' }}
+            className="absolute w-72 rounded-2xl border bg-white p-5 cursor-grab active:cursor-grabbing"
+            style={{ borderColor: '#E5E5E5', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', userSelect: 'none', zIndex: 10 }}>
+            <div className="flex items-start gap-3 mb-3">
+              <span className="font-mono text-lg shrink-0 mt-0.5" style={{ color: card.tagColor }}>{card.sym}</span>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <p className="font-mono text-[10px] font-medium text-ink leading-tight">{card.title}</p>
+                  <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border shrink-0"
+                    style={{ color: card.tagColor, borderColor: `${card.tagColor}30`, background: `${card.tagColor}10` }}>
+                    {card.tag}
+                  </span>
+                </div>
+              </div>
             </div>
-            <span className="font-mono text-[10px] text-muted shrink-0 ml-4">Agent response: active</span>
+            <p className="text-sm leading-relaxed" style={{ color: '#555' }}>{card.body}</p>
           </motion.div>
-        </AnimatePresence>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10">
+        <Link href="/dashboard"
+          className="font-mono text-[12px] px-8 py-3 rounded-xl transition-all"
+          style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 20px rgba(46,125,107,0.25)' }}>
+          Full Dashboard ▸
+        </Link>
       </div>
     </div>
   )
 }
 
-// ─── S4: ECONOMICS ────────────────────────────────────────────────────────────
-const FLOW_STEPS = [
-  { sym: '○', label: 'Signal',    val: '432K/yr',  desc: 'Sensor readings', x: 12 },
-  { sym: '◈', label: 'Verified',  val: '3 nodes',  desc: 'Onchain signed',  x: 38 },
-  { sym: '▸', label: 'Rewarded',  val: '$720K/yr', desc: 'To operators',    x: 64 },
-  { sym: '⬡', label: 'Protected', val: '280K',     desc: 'Trees by Year 3', x: 88 },
+// ─── S5: ECONOMICS — new business model ──────────────────────────────────────
+const BIZ_STREAMS = [
+  { sym: '○', label: 'Hardware',   val: '$80 USD', desc: 'Sensor kit — plug & earn',     note: 'or DIY open source + 3D print' },
+  { sym: '◈', label: 'Data API',   val: 'x402',    desc: 'Pay-per-request data feed',    note: 'AI agents · researchers · cities' },
+  { sym: '▸', label: 'Job Board',  val: '5–20 USDC', desc: 'Field validation bounties', note: 'Humans confirm AI-detected alerts' },
+  { sym: '⬡', label: 'Operators', val: 'Monthly',  desc: 'Sensor uptime rewards',       note: 'Paid in USDC, automatically' },
+]
+
+const JOB_BOARD = [
+  {
+    alert: 'PLAGA · Chapultepec',
+    task: 'Inspección visual in-situ + reporte ante SEDEMA en [19.4133, -99.1905]',
+    bounty: '12 USDC',
+    color: '#C0392B',
+    status: 'OPEN',
+  },
+  {
+    alert: 'SEQUÍA · Alameda',
+    task: 'Toma de muestra de suelo + documentación fotográfica de canopy',
+    bounty: '8 USDC',
+    color: '#B85C00',
+    status: 'OPEN',
+  },
+  {
+    alert: 'CALIDAD DE AIRE · Tlatelolco',
+    task: 'Lectura manual con medidor AQI — validar calibración del sensor',
+    bounty: '5 USDC',
+    color: '#B85C00',
+    status: 'CLAIMED',
+  },
 ]
 
 function EconomicsPlane() {
-  const [step, setStep] = useState(-1)
-  useEffect(() => {
-    const t = setInterval(() => setStep(s => (s + 1) % FLOW_STEPS.length), 1200)
-    return () => clearInterval(t)
-  }, [])
-
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
-      <div className="absolute inset-0 grid-bg opacity-25" />
+      <div className="absolute inset-0 grid-bg opacity-20" />
       <div className="relative z-10 w-full max-w-5xl px-8">
-        <div className="text-center mb-16">
-          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">Economics</p>
-          <h2 className="font-serif text-4xl text-ink">Self-sustaining,<br /><span style={{ color: '#2E7D6B' }}>not grant-dependent.</span></h2>
+        <div className="text-center mb-8">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">Business Model</p>
+          <h2 className="font-serif text-4xl text-ink">
+            Self-funded.<br />
+            <span style={{ color: '#2E7D6B' }}>Community-owned.</span>
+          </h2>
         </div>
 
-        {/* Animated flow */}
-        <div className="relative" style={{ paddingBottom: '22%', marginBottom: '40px' }}>
-          <svg className="absolute inset-0 w-full h-full overflow-visible">
-            {FLOW_STEPS.map((s, i) => {
-              if (i === FLOW_STEPS.length - 1) return null
-              const next = FLOW_STEPS[i + 1]
-              const isActive = step === i || step === i + 1
-              return (
-                <g key={i}>
-                  <motion.line x1={`${s.x + 6}%`} y1="50%" x2={`${next.x - 6}%`} y2="50%"
-                    stroke={isActive ? '#2E7D6B' : '#E5E5E5'} strokeWidth={isActive ? '1.5' : '1'}
-                    strokeDasharray={isActive ? '4 6' : 'none'}
-                    animate={isActive ? { strokeDashoffset: [0, -20] } : {}}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
-                  {isActive && (
-                    <motion.circle r="4" fill="#2E7D6B"
-                      animate={{ cx: [`${s.x + 6}%`, `${next.x - 6}%`] }}
-                      transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }} cy="50%" />
-                  )}
-                </g>
-              )
-            })}
-            {FLOW_STEPS.map((s, i) => {
-              const isActive = step === i
-              return (
-                <g key={s.label}>
-                  <motion.circle cx={`${s.x}%`} cy="50%" r={isActive ? 28 : 20}
-                    fill={isActive ? '#EAF4F1' : 'white'} stroke={isActive ? '#2E7D6B' : '#DADADA'}
-                    strokeWidth={isActive ? '1.5' : '1'}
-                    animate={{ r: isActive ? 28 : 20 }} transition={{ duration: 0.3 }} />
-                  <text x={`${s.x}%`} y="50%" textAnchor="middle" dominantBaseline="middle"
-                    fill={isActive ? '#2E7D6B' : '#888'}
-                    style={{ fontSize: '14px', fontFamily: 'DM Mono,monospace', userSelect: 'none' }}>{s.sym}</text>
-                  <text x={`${s.x}%`} y="76%" textAnchor="middle"
-                    fill={isActive ? '#111' : '#888'}
-                    style={{ fontSize: '9px', fontFamily: 'DM Mono,monospace', userSelect: 'none', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{s.label}</text>
-                </g>
-              )
-            })}
-          </svg>
+        <div className="grid grid-cols-2 gap-6">
+          {/* Revenue streams */}
+          <div>
+            <p className="font-mono text-[9px] text-muted uppercase tracking-widest mb-3">Revenue Streams</p>
+            <div className="space-y-2">
+              {BIZ_STREAMS.map(s => (
+                <div key={s.label} className="rounded-xl border bg-white p-4 flex items-center gap-4">
+                  <span className="font-mono text-base shrink-0 w-5 text-center" style={{ color: '#DADADA' }}>{s.sym}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-mono text-[10px] text-ink font-medium">{s.label}</p>
+                      <span className="font-mono text-xs text-jade">{s.val}</span>
+                    </div>
+                    <p className="font-mono text-[9px] text-muted mt-0.5">{s.desc}</p>
+                    <p className="font-mono text-[8px]" style={{ color: 'rgba(17,17,17,0.30)' }}>{s.note}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Job board */}
+          <div>
+            <p className="font-mono text-[9px] text-muted uppercase tracking-widest mb-3">Job Board — Live Example</p>
+            <div className="space-y-2">
+              {JOB_BOARD.map((job, i) => (
+                <div key={i} className="rounded-xl border bg-white p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: job.color }} />
+                      <span className="font-mono text-[10px] font-medium" style={{ color: job.color }}>{job.alert}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] text-jade">{job.bounty}</span>
+                      <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border"
+                        style={{
+                          color: job.status === 'OPEN' ? '#2E7D6B' : '#999',
+                          borderColor: job.status === 'OPEN' ? '#2E7D6B40' : '#DADADA',
+                          background: job.status === 'OPEN' ? '#EAF4F1' : 'transparent',
+                        }}>
+                        {job.status}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="font-mono text-[9px]" style={{ color: 'rgba(17,17,17,0.50)' }}>{job.task}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
-          {FLOW_STEPS.map((s, i) => (
-            <motion.div key={s.label} className="rounded-xl border bg-white p-4 text-center transition-all"
-              animate={{ borderColor: step === i ? '#2E7D6B40' : '#E5E5E5', boxShadow: step === i ? '0 4px 20px rgba(46,125,107,0.12)' : 'none' }}>
-              <div className="font-serif text-2xl mb-1" style={{ color: step === i ? '#2E7D6B' : '#111' }}>{s.val}</div>
-              <div className="font-mono text-[9px] text-muted uppercase tracking-widest mb-0.5">{s.label}</div>
-              <div className="font-mono text-[9px] text-muted/60">{s.desc}</div>
-            </motion.div>
+        {/* Footer stats */}
+        <div className="mt-5 flex items-center justify-center gap-10 border-t border-[#E5E5E5] pt-4">
+          {[
+            { label: 'Sensor kit', val: '$80 or DIY' },
+            { label: 'Data access', val: 'x402 compatible' },
+            { label: 'Open hardware', val: 'GitHub + 3D print' },
+          ].map(item => (
+            <div key={item.label} className="text-center">
+              <p className="font-mono text-[9px] text-muted uppercase tracking-widest">{item.label}</p>
+              <p className="font-mono text-sm text-jade mt-1">{item.val}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -604,7 +742,6 @@ function EnterPlane({ active }: { active: boolean }) {
       <div className="absolute inset-0 grid-bg opacity-40" />
 
       <div className="relative z-10 text-center px-8 max-w-3xl mx-auto">
-        {/* Divider top */}
         <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mb-12"
           initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
           transition={{ duration: 0.5, delay: 0.2 }} style={{ originY: 0 }} />
@@ -645,12 +782,11 @@ function EnterPlane({ active }: { active: boolean }) {
           </Link>
         </motion.div>
 
-        {/* Divider bottom */}
         <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mt-12"
           initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
           transition={{ duration: 0.5, delay: 1.3 }} style={{ originY: 0 }} />
 
-        <motion.p className="font-mono text-[9px] text-muted/40 mt-4"
+        <motion.p className="font-mono text-[9px] mt-4" style={{ color: 'rgba(17,17,17,0.30)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.5 }}>
           ERC-8004 · Base Mainnet ·{' '}
           <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
@@ -673,18 +809,15 @@ export default function Landing() {
   const advance = useCallback((dir: 1 | -1) => {
     if (scrollLocked.current) return
     scrollLocked.current = true
-    // 1300ms covers full trackpad gesture deceleration tail
     setTimeout(() => { scrollLocked.current = false }, 1300)
     setSection(s => Math.max(0, Math.min(N - 1, s + dir)))
   }, [])
 
-  // Wheel → horizontal (one section at a time, no skipping)
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       if (scrollLocked.current) return
       const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-      // Require meaningful intent — ignores micro scroll events
       if (Math.abs(delta) < 20) return
       advance(delta > 0 ? 1 : -1)
     }
@@ -692,7 +825,6 @@ export default function Landing() {
     return () => window.removeEventListener('wheel', onWheel)
   }, [advance])
 
-  // Arrow keys
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') advance(1)
@@ -702,7 +834,6 @@ export default function Landing() {
     return () => window.removeEventListener('keydown', onKey)
   }, [advance])
 
-  // Touch swipe
   useEffect(() => {
     let startX = 0
     const onTouchStart = (e: TouchEvent) => { startX = e.touches[0].clientX }
@@ -712,13 +843,16 @@ export default function Landing() {
     }
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
-    return () => { window.removeEventListener('touchstart', onTouchStart); window.removeEventListener('touchend', onTouchEnd) }
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend', onTouchEnd)
+    }
   }, [advance])
 
   const dark = SECTIONS[section].darkBg
 
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: dark ? '#111111' : '#F7F7F7' }}>
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: dark ? '#0A0B14' : '#F7F7F7' }}>
       <NavBar dark={dark} />
 
       {/* Horizontal strip */}
@@ -730,7 +864,7 @@ export default function Landing() {
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><WhatPlane active={section === 2} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><AtlasPlane active={section === 3} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><DashboardPlane /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 4} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 6} /></div>
       </motion.div>
