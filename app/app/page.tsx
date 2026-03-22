@@ -14,10 +14,11 @@ const MiniWorldMap = dynamic(() => import('./components/MiniWorldMap'), {
 const SECTIONS = [
   { id: 'intro',      label: 'Intro',      darkBg: false },
   { id: 'system',     label: 'System',     darkBg: false },
+  { id: 'what',       label: 'ARVI',       darkBg: false },
   { id: 'atlas',      label: 'Atlas',      darkBg: false },
   { id: 'dashboard',  label: 'Dashboard',  darkBg: false },
   { id: 'economics',  label: 'Economics',  darkBg: false },
-  { id: 'enter',      label: 'Enter',      darkBg: true  },
+  { id: 'enter',      label: 'Enter',      darkBg: false },
 ]
 const N = SECTIONS.length
 
@@ -320,69 +321,128 @@ function SystemPlane({ active }: { active: boolean }) {
   )
 }
 
-// ─── S2: ATLAS ────────────────────────────────────────────────────────────────
+// ─── S2: WHAT IS ARVI ─────────────────────────────────────────────────────────
+const ARVI_FACTS = [
+  {
+    sym: '○',
+    title: 'Sensor network',
+    body: 'ESP32 nodes deployed in urban forests capture soil moisture, temperature, humidity, and pathogen risk — hyperlocal, not city averages.',
+  },
+  {
+    sym: '◈',
+    title: 'Autonomous agent',
+    body: 'An AI agent (Bankr/Gemini) analyzes each reading in real-time. When it detects an anomaly, it acts — without waiting for a human.',
+  },
+  {
+    sym: '▸',
+    title: 'Onchain execution',
+    body: 'Every decision is logged permanently via ERC-8004 on Base. Node operators receive USDC payments automatically through Locus when they report quality data.',
+  },
+  {
+    sym: '⬡',
+    title: 'Self-sustaining economy',
+    body: 'Municipalities and NGOs fund the treasury. The system pays its own AI inference, rewards operators, and generates verifiable public good impact.',
+  },
+]
+
+function WhatPlane({ active }: { active: boolean }) {
+  const [hovered, setHovered] = useState<number | null>(null)
+
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg-sm opacity-20" />
+      <div className="relative z-10 w-full max-w-5xl px-8">
+        <motion.div className="text-center mb-12"
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 16 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-3">What is ARVI</p>
+          <h2 className="font-serif text-4xl text-ink leading-tight">
+            Cities should not only <em>measure</em><br />environmental problems.{' '}
+            <span style={{ color: '#2E7D6B' }}>They should respond.</span>
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {ARVI_FACTS.map((f, i) => (
+            <motion.div key={f.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: active ? 1 : 0, y: active ? 0 : 20 }}
+              transition={{ duration: 0.6, delay: active ? 0.15 + i * 0.1 : 0, ease: [0.16, 1, 0.3, 1] }}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              className="rounded-2xl border bg-white p-6 cursor-default transition-all"
+              style={{
+                borderColor: hovered === i ? 'rgba(46,125,107,0.35)' : '#E5E5E5',
+                boxShadow: hovered === i ? '0 4px 24px rgba(46,125,107,0.10)' : 'none',
+              }}>
+              <div className="flex items-start gap-4">
+                <span className="font-mono text-xl shrink-0 mt-0.5" style={{ color: hovered === i ? '#2E7D6B' : '#DADADA' }}>
+                  {f.sym}
+                </span>
+                <div>
+                  <p className="font-mono text-[11px] tracking-widest uppercase mb-2"
+                    style={{ color: hovered === i ? '#2E7D6B' : '#888' }}>{f.title}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: '#555' }}>{f.body}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.p className="text-center font-mono text-[10px] text-muted/40 tracking-widest mt-8"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.7 }}>
+          sense → understand → decide → act → verify → incentivize
+        </motion.p>
+      </div>
+    </div>
+  )
+}
+
+// ─── S3: ATLAS ────────────────────────────────────────────────────────────────
 function AtlasPlane({ active }: { active: boolean }) {
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null)
   const nodes = [
-    { id: 'n01', label: 'Chapultepec', status: 'CRITICAL', color: '#C0392B', x: '38%', y: '42%' },
-    { id: 'n02', label: 'Alameda',     status: 'WARNING',  color: '#B85C00', x: '50%', y: '45%' },
-    { id: 'n03', label: 'Tlatelolco',  status: 'WARNING',  color: '#B85C00', x: '55%', y: '40%' },
+    { id: 'n01', label: 'Chapultepec', status: 'CRITICAL', color: '#C0392B' },
+    { id: 'n02', label: 'Alameda',     status: 'MONITORING', color: '#B85C00' },
+    { id: 'n03', label: 'Tlatelolco',  status: 'MONITORING', color: '#B85C00' },
   ]
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
-      <div className="absolute inset-0 grid-bg opacity-40" />
+      <div className="absolute inset-0 grid-bg opacity-30" />
 
-      <div className="relative z-10 w-full max-w-5xl px-8 flex items-center gap-12">
-        {/* Map container */}
-        <div className="flex-1 relative" style={{ height: '65vh' }}>
-          <div className="absolute inset-0 rounded-2xl overflow-hidden border border-[#E5E5E5]" style={{ boxShadow: '0 4px 40px rgba(0,0,0,0.08)' }}>
-            {active && <MiniWorldMap className="w-full h-full" />}
-          </div>
-          {/* Node overlays */}
-          {nodes.map(n => (
-            <div key={n.id} className="absolute cursor-pointer z-10"
-              style={{ left: n.x, top: n.y, transform: 'translate(-50%,-50%)' }}
-              onMouseEnter={() => setHoveredNode(n.id)}
-              onMouseLeave={() => setHoveredNode(null)}>
-              <motion.div className="relative" animate={{ scale: hoveredNode === n.id ? 1.2 : 1 }}>
-                <span className="relative flex w-3 h-3">
-                  <span className="absolute inline-flex h-full w-full rounded-full animate-ping opacity-50" style={{ background: n.color }} />
-                  <span className="relative inline-flex rounded-full w-3 h-3" style={{ background: n.color }} />
-                </span>
-                <AnimatePresence>
-                  {hoveredNode === n.id && (
-                    <motion.div className="absolute left-4 top-0 whitespace-nowrap rounded-lg px-3 py-2 pointer-events-none"
-                      initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-                      style={{ background: 'white', border: '1px solid #E5E5E5', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                      <p className="font-mono text-[10px] text-ink">{n.label}</p>
-                      <p className="font-mono text-[9px]" style={{ color: n.color }}>{n.status}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </div>
-          ))}
+      <div className="relative z-10 w-full max-w-5xl px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-2">Atlas</p>
+          <h2 className="font-serif text-4xl text-ink">The planet<br />is not static.</h2>
         </div>
 
-        {/* Right panel */}
-        <div className="w-72 shrink-0">
-          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-4">Atlas</p>
-          <h2 className="font-serif text-4xl text-ink mb-4">The planet<br />is not static.</h2>
-          <p className="text-muted text-sm mb-6">Neither is its data. 3 active nodes in CDMX. Real signals, continuously updated.</p>
-          <div className="space-y-2 mb-8">
-            {nodes.map(n => (
-              <div key={n.id} className="flex items-center justify-between rounded-lg border border-[#E5E5E5] bg-white px-4 py-2.5">
-                <span className="font-mono text-[11px] text-ink">{n.label}</span>
-                <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border"
-                  style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>{n.status}</span>
-              </div>
-            ))}
+        <div className="flex items-start gap-8">
+          {/* Map container — constrained height */}
+          <div className="flex-1 rounded-2xl overflow-hidden border border-[#E5E5E5]"
+            style={{ height: '44vh', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', minWidth: 0 }}>
+            {active && <MiniWorldMap className="w-full h-full" />}
           </div>
-          <Link href="/atlas"
-            className="block w-full text-center font-mono text-[11px] py-3 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
-            Open full Atlas ↗
-          </Link>
+
+          {/* Right panel */}
+          <div className="w-64 shrink-0 pt-1">
+            <p className="text-muted text-sm mb-5 leading-relaxed">
+              3 active nodes in CDMX. Real environmental signals, continuously updated.
+            </p>
+            <div className="space-y-2 mb-6">
+              {nodes.map(n => (
+                <div key={n.id} className="flex items-center justify-between rounded-xl border border-[#E5E5E5] bg-white px-4 py-3">
+                  <span className="font-mono text-[11px] text-ink">{n.label}</span>
+                  <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border"
+                    style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>{n.status}</span>
+                </div>
+              ))}
+            </div>
+            <Link href="/atlas"
+              className="block w-full text-center font-mono text-[11px] py-3 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
+              Open full Atlas ↗
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -532,46 +592,46 @@ function EconomicsPlane() {
   )
 }
 
-// ─── S5: ENTER ────────────────────────────────────────────────────────────────
+// ─── S6: ENTER ────────────────────────────────────────────────────────────────
 function EnterPlane({ active }: { active: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: '#111111' }}>
-      {/* Background network */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-10">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <motion.line key={i}
-            x1={`${Math.random() * 100}%`} y1={`${Math.random() * 100}%`}
-            x2={`${Math.random() * 100}%`} y2={`${Math.random() * 100}%`}
-            stroke="#2E7D6B" strokeWidth="0.5" strokeDasharray="3 6"
-            animate={{ strokeDashoffset: [0, -18] }}
-            transition={{ duration: 4 + Math.random() * 3, repeat: Infinity, ease: 'linear', delay: Math.random() * 3 }} />
-        ))}
-      </svg>
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg-sm opacity-20" />
+      {/* Subtle radial glow */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(46,125,107,0.07) 0%, transparent 70%)'
+      }} />
 
       <div className="relative z-10 text-center px-8 max-w-2xl mx-auto">
-        <motion.p className="font-mono text-[10px] tracking-[0.5em] uppercase mb-10"
-          style={{ color: 'rgba(255,255,255,0.2)' }}
+        <motion.p className="font-mono text-[10px] text-muted/50 tracking-[0.5em] uppercase mb-10"
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.3 }}>
           ARVI — Agentic Regeneration Via Intelligence
         </motion.p>
-        <motion.h2 className="font-serif leading-tight mb-4" style={{ fontSize: 'clamp(40px, 6vw, 72px)', color: 'white' }}
+
+        <motion.h2 className="font-serif leading-tight mb-3 text-ink"
+          style={{ fontSize: 'clamp(36px, 5.5vw, 64px)' }}
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 20 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}>
           ARVI is not a dashboard.
         </motion.h2>
-        <motion.h2 className="font-serif leading-tight mb-12" style={{ fontSize: 'clamp(40px, 6vw, 72px)', color: '#2E7D6B' }}
+        <motion.h2 className="font-serif leading-tight mb-12"
+          style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: '#2E7D6B' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.7, duration: 0.8 }}>
           It&apos;s an intelligence system.
         </motion.h2>
+
         <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-3"
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1, duration: 0.6 }}>
           <Link href="/dashboard" className="btn-jade">Launch App ▸</Link>
-          <Link href="/atlas" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border transition-all"
-            style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>○ View Atlas</Link>
-          <Link href="/register" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border transition-all"
-            style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.3)' }}>Register Node</Link>
+          <Link href="/atlas" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
+            ○ View Atlas
+          </Link>
+          <Link href="/register" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
+            Register Node
+          </Link>
         </motion.div>
-        <motion.p className="font-mono text-[9px] mt-10" style={{ color: 'rgba(255,255,255,0.12)' }}
+
+        <motion.p className="font-mono text-[9px] text-muted/30 mt-10"
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.4 }}>
           ERC-8004 · Base Mainnet ·{' '}
           <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
@@ -588,9 +648,12 @@ function EnterPlane({ active }: { active: boolean }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function Landing() {
   const [section, setSection] = useState(0)
-  const lastWheel = useRef(0)
+  const scrollLocked = useRef(false)
 
   const advance = useCallback((dir: 1 | -1) => {
+    if (scrollLocked.current) return
+    scrollLocked.current = true
+    setTimeout(() => { scrollLocked.current = false }, 950)
     setSection(s => Math.max(0, Math.min(N - 1, s + dir)))
   }, [])
 
@@ -598,10 +661,9 @@ export default function Landing() {
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const now = Date.now()
-      if (now - lastWheel.current < 700) return
-      lastWheel.current = now
+      if (scrollLocked.current) return
       const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+      if (Math.abs(delta) < 10) return
       advance(delta > 0 ? 1 : -1)
     }
     window.addEventListener('wheel', onWheel, { passive: false })
@@ -644,10 +706,11 @@ export default function Landing() {
         transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><AtlasPlane active={section === 2} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><WhatPlane active={section === 2} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><AtlasPlane active={section === 3} /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><DashboardPlane /></div>
         <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 5} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 6} /></div>
       </motion.div>
 
       {/* Navigation */}

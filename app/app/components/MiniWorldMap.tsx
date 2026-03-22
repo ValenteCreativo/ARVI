@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface Props {
   className?: string
@@ -9,7 +9,6 @@ interface Props {
 export default function MiniWorldMap({ className = '' }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<unknown>(null)
-  const [hovered, setHovered] = useState(false)
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
@@ -33,7 +32,7 @@ export default function MiniWorldMap({ className = '' }: Props) {
 
       mapInstanceRef.current = map
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 6,
       }).addTo(map)
 
@@ -78,17 +77,10 @@ export default function MiniWorldMap({ className = '' }: Props) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/10 cursor-crosshair ${className}`}
-      style={{ transition: 'transform 0.4s ease', transform: hovered ? 'scale(1.8)' : 'scale(1)', zIndex: hovered ? 20 : 1 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={`relative overflow-hidden rounded-2xl border border-[#E5E5E5] cursor-crosshair ${className}`}
+      style={{ zIndex: 1 }}
     >
-      <div ref={mapRef} style={{ width: '100%', height: '100%', background: '#0A0B14' }} />
-      {!hovered && (
-        <div className="absolute bottom-2 left-0 right-0 text-center pointer-events-none">
-          <span className="font-mono text-[9px] text-white/25">hover to zoom</span>
-        </div>
-      )}
+      <div ref={mapRef} style={{ width: '100%', height: '100%', background: '#F0EDE8' }} />
     </div>
   )
 }
