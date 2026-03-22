@@ -684,14 +684,24 @@ function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, d
 
       {/* ── Row 2: Map + Agent Log ── */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Mini map */}
-        <div className={`rounded-2xl border overflow-hidden ${darkMode ? 'border-white/8' : 'border-line'}`} style={{ height: '260px' }}>
-          <div className={`flex items-center justify-between px-4 py-2.5 border-b ${darkMode ? 'bg-[#0F1020] border-white/8' : 'bg-white border-line'}`}>
-            <span className="font-mono text-[10px] font-semibold" style={{ color: '#2E7D6B' }}>○ Node Map — CDMX</span>
-            <button onClick={() => onTab('atlas')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">Full Atlas ↗</button>
+        {/* Agent Network (replaces mini map) */}
+        <div className={`rounded-2xl border overflow-hidden flex flex-col ${darkMode ? 'border-white/8' : 'border-line'}`} style={{ height: '260px' }}>
+          <div className={`flex items-center justify-between px-4 py-2.5 border-b shrink-0 ${darkMode ? 'bg-[#0F1020] border-white/8' : 'bg-white border-line'}`}>
+            <span className="font-mono text-[10px] font-semibold" style={{ color: '#2E7D6B' }}>⬡ Agent Network</span>
+            <button onClick={() => onTab('atlas')} className="font-mono text-[9px] text-muted hover:text-jade transition-colors">Full Network ↗</button>
           </div>
-          <div className="h-full" style={{ background: '#f8f8f5' }}>
-            <MapDynamic weatherNodes={[]} fires={[]} />
+          <div className="flex-1 overflow-y-auto p-3 grid grid-cols-1 gap-2">
+            {NET_AGENTS.map(agent => (
+              <div key={agent.id} className="flex items-center gap-2.5 rounded-xl px-3 py-1.5"
+                style={{ background: darkMode ? `${agent.color}12` : `${agent.color}08`, border: `1px solid ${agent.color}22` }}>
+                <span className="text-sm shrink-0">{agent.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-mono text-[9px] font-bold truncate" style={{ color: agent.color }}>{agent.name}</p>
+                  <p className="font-mono text-[8px] truncate" style={{ color: darkMode ? 'rgba(255,255,255,0.38)' : 'rgba(17,17,17,0.45)' }}>{agent.role} · {agent.location}</p>
+                </div>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ background: agent.color }} />
+              </div>
+            ))}
           </div>
         </div>
 
