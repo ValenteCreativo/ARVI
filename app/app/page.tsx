@@ -89,7 +89,7 @@ function Progress({ section, setSection, dark }: { section: number; setSection: 
   useEffect(() => { pct.set(section / (N - 1) * 100) }, [section, pct])
 
   const ink = dark ? 'rgba(255,255,255,0.25)' : '#DADADA'
-  const inkText = dark ? 'rgba(255,255,255,0.30)' : 'rgba(17,17,17,0.45)'
+  const inkText = dark ? 'rgba(255,255,255,0.30)' : 'rgba(17,17,17,0.72)'
   const active = dark ? 'rgba(255,255,255,0.9)' : '#2E7D6B'
 
   return (
@@ -106,7 +106,7 @@ function Progress({ section, setSection, dark }: { section: number; setSection: 
             style={{ left: `${(i / (N - 1)) * 100}%`, transform: 'translateX(-50%)' }}>
             <div className="w-1.5 h-1.5 rounded-full transition-all duration-300"
               style={{ background: i === section ? active : ink, transform: i === section ? 'scale(1.8)' : 'scale(1)' }} />
-            <span className="font-mono text-[8px] tracking-widest uppercase whitespace-nowrap transition-colors"
+            <span className="font-mono text-xs tracking-widest uppercase whitespace-nowrap transition-colors"
               style={{ color: i === section ? active : inkText }}>{s.label}</span>
           </button>
         ))}
@@ -144,20 +144,20 @@ function NavArrows({ section, setSection, dark }: { section: number; setSection:
 }
 
 // ─── Nav bar ──────────────────────────────────────────────────────────────────
-function NavBar({ dark }: { dark: boolean }) {
+function NavBar({ dark, onToggleDark, isDarkMode }: { dark: boolean; onToggleDark?: () => void; isDarkMode?: boolean }) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-8"
       style={{ background: dark ? 'rgba(10,11,20,0.90)' : 'rgba(247,247,247,0.88)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : '#E5E5E5'}` }}>
       <div className="flex items-center gap-3">
-        <div className="w-6 h-6 rounded border flex items-center justify-center font-mono text-[10px]"
+        <div className="w-6 h-6 rounded border flex items-center justify-center font-mono text-sm"
           style={{ borderColor: 'rgba(46,125,107,0.4)', background: dark ? 'rgba(46,125,107,0.15)' : '#EAF4F1', color: '#2E7D6B' }}>◈</div>
         <span className="font-mono text-sm" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#111' }}>ARVI</span>
-        <span className="hidden sm:block font-mono text-[9px] border rounded px-2 py-0.5"
+        <span className="hidden sm:block font-mono text-xs border rounded px-2 py-0.5"
           style={{ borderColor: dark ? 'rgba(255,255,255,0.10)' : '#DADADA', color: dark ? 'rgba(255,255,255,0.25)' : '#888' }}>v6.1</span>
       </div>
       <div className="flex items-center gap-3">
-        <Link href="/atlas" className="font-mono text-[11px] transition-colors hidden sm:block" style={{ color: dark ? 'rgba(255,255,255,0.35)' : '#888' }}>Atlas</Link>
-        <Link href="/dashboard" className="font-mono text-[11px] px-4 py-1.5 rounded-lg border transition-all"
+        <Link href="/atlas" className="font-mono text-sm transition-colors hidden sm:block" style={{ color: dark ? 'rgba(255,255,255,0.35)' : '#888' }}>Atlas</Link>
+        <Link href="/dashboard" className="font-mono text-sm px-4 py-1.5 rounded-lg border transition-all"
           style={{ borderColor: 'rgba(46,125,107,0.35)', background: dark ? 'rgba(46,125,107,0.15)' : '#EAF4F1', color: '#2E7D6B' }}>
           Launch App ▸
         </Link>
@@ -169,7 +169,7 @@ function NavBar({ dark }: { dark: boolean }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // S0: INTRO
 // ═══════════════════════════════════════════════════════════════════════════════
-function IntroPlane({ active }: { active: boolean }) {
+function IntroPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
   const { rx, ry } = useCursor()
   const [nodes, setNodes] = useState<{ x: number; y: number; lit: boolean }[]>([])
 
@@ -191,7 +191,7 @@ function IntroPlane({ active }: { active: boolean }) {
   }, [active, rx, ry])
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <NetworkBg active={active} />
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {nodes.map((n, i) => (
@@ -206,8 +206,8 @@ function IntroPlane({ active }: { active: boolean }) {
       </svg>
 
       <div className="relative z-10 text-center px-8 max-w-3xl mx-auto">
-        <motion.p className="font-mono text-[10px] tracking-[0.5em] uppercase mb-10"
-          style={{ color: 'rgba(17,17,17,0.55)' }}
+        <motion.p className="font-mono text-sm tracking-[0.5em] uppercase mb-10"
+          style={{ color: '#2E7D6B' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
           Agentic Regeneration Via Intelligence
         </motion.p>
@@ -219,20 +219,20 @@ function IntroPlane({ active }: { active: boolean }) {
         </motion.h1>
 
         {/* Cycling text */}
-        <motion.div className="font-mono text-base mb-4" style={{ color: 'rgba(17,17,17,0.65)' }}
+        <motion.div className="font-mono text-base mb-4" style={{ color: 'rgba(17,17,17,0.85)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.9, duration: 0.8 }}>
           The intelligence layer for{' '}
-          <span className="inline-block min-w-[220px] text-left">
+          <span className="inline-block min-w-[240px] text-left font-semibold text-xl">
             {active && <CyclingDomain />}
           </span>
         </motion.div>
 
-        <motion.p className="font-mono text-[12px]" style={{ color: 'rgba(17,17,17,0.55)' }}
+        <motion.p className="font-mono text-base font-medium" style={{ color: 'rgba(17,17,17,0.85)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.1, duration: 0.8 }}>
           The first autonomous agent that detects environmental threats and acts — in seconds.
         </motion.p>
 
-        <motion.p className="font-mono text-[9px] mt-12 tracking-widest" style={{ color: 'rgba(17,17,17,0.50)' }}
+        <motion.p className="font-mono text-xs mt-12 tracking-widest" style={{ color: 'rgba(17,17,17,0.75)' }}
           animate={{ opacity: active ? [0.50, 0.75, 0.35] : 0 }} transition={{ duration: 2.5, repeat: Infinity, delay: 2 }}>
           move your cursor · press → to enter
         </motion.p>
@@ -253,18 +253,18 @@ const SYS_NODES = [
 ]
 const SYS_EDGES = [['sensor','data'],['sensor','agent'],['data','agent'],['agent','network'],['agent','action'],['network','action']]
 
-function SystemPlane({ active }: { active: boolean }) {
+function SystemPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
   const [focused, setFocused] = useState<string | null>(null)
   const nm = Object.fromEntries(SYS_NODES.map(n => [n.id, n]))
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
+    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg-sm opacity-30" />
       <div className="relative z-10 w-full max-w-4xl px-8">
         <div className="text-center mb-10">
-          <p className="font-mono text-[10px] tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.45)' }}>The System</p>
+          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>The System</p>
           <h2 className="font-serif text-3xl text-ink">
-            {focused ? nm[focused]?.label : <span style={{ color: 'rgba(17,17,17,0.35)' }}>click any node</span>}
+            {focused ? nm[focused]?.label : <span style={{ color: 'rgba(17,17,17,0.85)' }}>click any node</span>}
           </h2>
         </div>
         <div className="relative w-full" style={{ paddingBottom: '36%' }}>
@@ -305,7 +305,7 @@ function SystemPlane({ active }: { active: boolean }) {
                 {nm[focused]?.micro.replace('\n', ' ')}
               </motion.p>
             ) : (
-              <motion.p key="idle" className="font-mono text-[10px] tracking-widest" style={{ color: 'rgba(17,17,17,0.35)' }}
+              <motion.p key="idle" className="font-mono text-sm tracking-widest" style={{ color: 'rgba(17,17,17,0.85)' }}
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 — sense → analyze → act → reward → verify —
               </motion.p>
@@ -359,7 +359,7 @@ const INTEL_STEPS = [
   },
 ]
 
-function IntelligencePlane({ active }: { active: boolean }) {
+function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Individual motion values for each card (rules of hooks: no loops)
@@ -404,17 +404,17 @@ function IntelligencePlane({ active }: { active: boolean }) {
   ]
 
   return (
-    <div className="relative w-full h-full overflow-hidden" style={{ background: '#F7F7F7' }}>
+    <div className="relative w-full h-full overflow-hidden" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7' }}>
       <div className="absolute inset-0 grid-bg opacity-20" />
 
       {/* Header */}
       <div className="absolute top-20 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none w-full px-8">
-        <p className="font-mono text-[10px] tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.45)' }}>Agent Intelligence</p>
+        <p className="font-mono text-sm tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.72)' }}>Agent Intelligence</p>
         <h2 className="font-serif text-4xl text-ink leading-tight">
           Four steps. Fully autonomous.<br />
           <span style={{ color: '#2E7D6B' }}>No human required.</span>
         </h2>
-        <p className="font-mono text-[10px] mt-4" style={{ color: 'rgba(17,17,17,0.35)' }}>
+        <p className="font-mono text-sm mt-4" style={{ color: 'rgba(17,17,17,0.85)' }}>
           drag cards · arrows follow
         </p>
       </div>
@@ -459,24 +459,24 @@ function IntelligencePlane({ active }: { active: boolean }) {
               className="absolute w-56 rounded-2xl border bg-white p-4 cursor-grab active:cursor-grabbing">
               {/* Step number */}
               <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-[9px] tracking-widest" style={{ color: 'rgba(17,17,17,0.30)' }}>STEP {card.step}</span>
-                <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border"
+                <span className="font-mono text-xs tracking-widest" style={{ color: 'rgba(17,17,17,0.30)' }}>STEP {card.step}</span>
+                <span className="font-mono text-xs px-2 py-0.5 rounded-full border"
                   style={{ color: card.tagColor, borderColor: `${card.tagColor}30`, background: `${card.tagColor}10` }}>
                   {card.tag}
                 </span>
               </div>
               <div className="flex items-start gap-2 mb-2">
                 <span className="font-mono text-base shrink-0" style={{ color: card.tagColor }}>{card.sym}</span>
-                <p className="font-mono text-[11px] font-medium text-ink">{card.title}</p>
+                <p className="font-mono text-sm font-medium text-ink">{card.title}</p>
               </div>
-              <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(17,17,17,0.60)' }}>{card.body}</p>
+              <p className="text-sm leading-relaxed" style={{ color: 'rgba(17,17,17,0.60)' }}>{card.body}</p>
             </motion.div>
           )
         })}
       </div>
 
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10">
-        <Link href="/dashboard" className="font-mono text-[12px] px-8 py-3 rounded-xl transition-all"
+        <Link href="/dashboard" className="font-mono text-sm px-8 py-3 rounded-xl transition-all"
           style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 20px rgba(46,125,107,0.25)' }}>
           See it live ▸
         </Link>
@@ -520,18 +520,18 @@ const ARVI_FACTS = [
   },
 ]
 
-function WhatPlane({ active }: { active: boolean }) {
+function WhatPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
   const [hovered, setHovered] = useState<number | null>(null)
   const [agentHovered, setAgentHovered] = useState<number | null>(null)
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
+    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg-sm opacity-20" />
       <div className="relative z-10 w-full max-w-5xl px-8">
         <motion.div className="text-center mb-8"
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 16 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
-          <p className="font-mono text-[10px] tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.45)' }}>What is ARVI</p>
+          <p className="font-mono text-sm tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.72)' }}>What is ARVI</p>
           <h2 className="font-serif text-4xl text-ink leading-tight">
             Not just monitoring.<br />
             <span style={{ color: '#2E7D6B' }}>Autonomous action.</span>
@@ -550,8 +550,8 @@ function WhatPlane({ active }: { active: boolean }) {
               <div className="flex items-start gap-3">
                 <span className="font-mono text-lg shrink-0 mt-0.5" style={{ color: hovered === i ? '#2E7D6B' : '#DADADA' }}>{f.sym}</span>
                 <div>
-                  <p className="font-mono text-[10px] tracking-widest uppercase mb-1.5" style={{ color: hovered === i ? '#2E7D6B' : '#888' }}>{f.title}</p>
-                  <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(17,17,17,0.60)' }}>{f.body}</p>
+                  <p className="font-mono text-sm tracking-widest uppercase mb-1.5" style={{ color: hovered === i ? '#2E7D6B' : '#888' }}>{f.title}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(17,17,17,0.60)' }}>{f.body}</p>
                 </div>
               </div>
             </motion.div>
@@ -560,7 +560,7 @@ function WhatPlane({ active }: { active: boolean }) {
 
         {/* Agent actions row */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.6 }}>
-          <p className="font-mono text-[9px] tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.35)' }}>
+          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.85)' }}>
             What the agent can do autonomously
           </p>
           <div className="flex flex-wrap gap-2">
@@ -569,13 +569,13 @@ function WhatPlane({ active }: { active: boolean }) {
                 onMouseEnter={() => setAgentHovered(i)} onMouseLeave={() => setAgentHovered(null)}
                 className="relative rounded-lg border px-3 py-1.5 cursor-default transition-all"
                 style={{ borderColor: agentHovered === i ? '#2E7D6B40' : '#DADADA', background: agentHovered === i ? '#EAF4F1' : 'white' }}>
-                <span className="font-mono text-[10px]" style={{ color: agentHovered === i ? '#2E7D6B' : '#888' }}>
+                <span className="font-mono text-sm" style={{ color: agentHovered === i ? '#2E7D6B' : '#888' }}>
                   {a.sym} {a.label}
                 </span>
                 {agentHovered === i && (
                   <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
                     className="absolute bottom-full left-0 mb-2 w-56 rounded-xl border border-[#E5E5E5] bg-white p-3 shadow-lg z-30">
-                    <p className="font-mono text-[10px]" style={{ color: 'rgba(17,17,17,0.65)' }}>{a.desc}</p>
+                    <p className="font-mono text-sm" style={{ color: 'rgba(17,17,17,0.85)' }}>{a.desc}</p>
                   </motion.div>
                 )}
               </div>
@@ -602,7 +602,7 @@ const NET_NODES = [
   { id: 'ap',  x: 88, y: 90, label: 'Operator Reward', role: 'output', color: '#888' },
 ]
 
-function NetworkPlane({ active }: { active: boolean }) {
+function NetworkPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
   const [pulse, setPulse] = useState(0)
   const [focused, setFocused] = useState<string | null>(null)
 
@@ -631,11 +631,11 @@ function NetworkPlane({ active }: { active: boolean }) {
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
+    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg-sm opacity-25" />
       <div className="relative z-10 w-full max-w-5xl px-8">
         <div className="text-center mb-8">
-          <p className="font-mono text-[10px] tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.45)' }}>The Network</p>
+          <p className="font-mono text-sm tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: '#2E7D6B' }}>The Network</p>
           <h2 className="font-serif text-4xl text-ink leading-tight">
             Decentralized. Autonomous.<br />
             <span style={{ color: '#2E7D6B' }}>Always watching.</span>
@@ -708,13 +708,13 @@ function NetworkPlane({ active }: { active: boolean }) {
         <div className="h-14 flex items-center justify-center">
           <AnimatePresence mode="wait">
             {focused ? (
-              <motion.p key={focused} className="font-mono text-[11px] text-center max-w-lg"
-                style={{ color: 'rgba(17,17,17,0.65)' }}
+              <motion.p key={focused} className="font-mono text-sm text-center max-w-lg"
+                style={{ color: 'rgba(17,17,17,0.85)' }}
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 {INFO[focused]}
               </motion.p>
             ) : (
-              <motion.p key="idle" className="font-mono text-[10px] tracking-widest"
+              <motion.p key="idle" className="font-mono text-sm tracking-widest"
                 style={{ color: 'rgba(17,17,17,0.30)' }}
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 operators → agent → outputs · click any node
@@ -755,13 +755,13 @@ const JOB_BOARD_EN = [
   },
 ]
 
-function EconomicsPlane() {
+function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: '#F7F7F7' }}>
+    <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg opacity-20" />
       <div className="relative z-10 w-full max-w-5xl px-8">
         <div className="text-center mb-8">
-          <p className="font-mono text-[10px] tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.45)' }}>Business Model</p>
+          <p className="font-mono text-sm tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.72)' }}>Business Model</p>
           <h2 className="font-serif text-4xl text-ink">
             Self-funded.<br />
             <span style={{ color: '#2E7D6B' }}>Community-owned.</span>
@@ -771,25 +771,25 @@ function EconomicsPlane() {
         <div className="grid grid-cols-2 gap-6">
           {/* Revenue streams */}
           <div>
-            <p className="font-mono text-[9px] tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.40)' }}>Revenue Streams</p>
+            <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.70)' }}>Revenue Streams</p>
             <div className="space-y-2">
               {BIZ_STREAMS.map(s => (
                 <div key={s.label} className="rounded-xl border bg-white p-4 flex items-center gap-4">
                   <span className="font-mono text-base shrink-0 w-5 text-center" style={{ color: '#DADADA' }}>{s.sym}</span>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="font-mono text-[10px] text-ink font-medium">{s.label}</p>
+                      <p className="font-mono text-sm text-ink font-medium">{s.label}</p>
                       <span className="font-mono text-xs text-jade">{s.val}</span>
                     </div>
-                    <p className="font-mono text-[9px] text-muted mt-0.5">{s.desc}</p>
-                    <p className="font-mono text-[8px]" style={{ color: 'rgba(17,17,17,0.28)' }}>{s.note}</p>
+                    <p className="font-mono text-xs text-muted mt-0.5">{s.desc}</p>
+                    <p className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.60)' }}>{s.note}</p>
                   </div>
                 </div>
               ))}
               {/* Carbon credits highlight */}
               <div className="rounded-xl border border-jade/30 bg-[#EAF4F1] p-4">
-                <p className="font-mono text-[9px] text-jade uppercase tracking-widest mb-1">◈ Carbon Credit Market</p>
-                <p className="font-mono text-[10px]" style={{ color: 'rgba(17,17,17,0.65)' }}>
+                <p className="font-mono text-xs text-jade uppercase tracking-widest mb-1">◈ Carbon Credit Market</p>
+                <p className="font-mono text-sm" style={{ color: 'rgba(17,17,17,0.85)' }}>
                   ARVI sensor data provides verifiable MRV (Monitoring, Reporting, Verification) evidence for environmental projects — enabling carbon credit issuance and ESG compliance reporting.
                 </p>
               </div>
@@ -798,30 +798,30 @@ function EconomicsPlane() {
 
           {/* Job board */}
           <div>
-            <p className="font-mono text-[9px] tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.40)' }}>Job Board — Live Example</p>
+            <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(17,17,17,0.70)' }}>Job Board — Live Example</p>
             <div className="space-y-2">
               {JOB_BOARD_EN.map((job, i) => (
                 <div key={i} className="rounded-xl border bg-white p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: job.color }} />
-                      <span className="font-mono text-[10px] font-medium" style={{ color: job.color }}>{job.alert}</span>
+                      <span className="font-mono text-sm font-medium" style={{ color: job.color }}>{job.alert}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-jade">{job.bounty}</span>
-                      <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border"
+                      <span className="font-mono text-sm text-jade">{job.bounty}</span>
+                      <span className="font-mono text-xs px-2 py-0.5 rounded-full border"
                         style={{ color: job.status === 'OPEN' ? '#2E7D6B' : '#999', borderColor: job.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: job.status === 'OPEN' ? '#EAF4F1' : 'transparent' }}>
                         {job.status}
                       </span>
                     </div>
                   </div>
-                  <p className="font-mono text-[9px]" style={{ color: 'rgba(17,17,17,0.48)' }}>{job.task}</p>
+                  <p className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.48)' }}>{job.task}</p>
                 </div>
               ))}
             </div>
             {/* Operator model */}
             <div className="mt-3 rounded-xl border border-[#DADADA] bg-canvas p-4">
-              <p className="font-mono text-[9px] tracking-widest uppercase mb-2" style={{ color: 'rgba(17,17,17,0.40)' }}>Operator Model</p>
+              <p className="font-mono text-xs tracking-widest uppercase mb-2" style={{ color: 'rgba(17,17,17,0.70)' }}>Operator Model</p>
               <div className="space-y-1">
                 {[
                   { label: 'Buy sensor kit', val: '$80 USD + branded case' },
@@ -829,8 +829,8 @@ function EconomicsPlane() {
                   { label: 'Monthly reward', val: 'USDC · auto-paid by agent' },
                 ].map(r => (
                   <div key={r.label} className="flex items-center justify-between">
-                    <span className="font-mono text-[9px]" style={{ color: 'rgba(17,17,17,0.45)' }}>{r.label}</span>
-                    <span className="font-mono text-[9px] text-jade">{r.val}</span>
+                    <span className="font-mono text-xs" style={{ color: 'rgba(17,17,17,0.72)' }}>{r.label}</span>
+                    <span className="font-mono text-xs text-jade">{r.val}</span>
                   </div>
                 ))}
               </div>
@@ -848,8 +848,8 @@ function EconomicsPlane() {
             <div key={item.label} className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white px-4 py-3">
               <span className="font-mono text-base shrink-0" style={{ color: '#2E7D6B' }}>{item.icon}</span>
               <div>
-                <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: 'rgba(17,17,17,0.40)' }}>{item.label}</p>
-                <p className="font-mono text-[11px] font-medium text-ink mt-0.5">{item.val}</p>
+                <p className="font-mono text-xs uppercase tracking-widest" style={{ color: 'rgba(17,17,17,0.70)' }}>{item.label}</p>
+                <p className="font-mono text-sm font-medium text-ink mt-0.5">{item.val}</p>
               </div>
             </div>
           ))}
@@ -862,16 +862,16 @@ function EconomicsPlane() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // S6: ENTER
 // ═══════════════════════════════════════════════════════════════════════════════
-function EnterPlane({ active }: { active: boolean }) {
+function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg opacity-40" />
       <div className="relative z-10 text-center px-8 max-w-3xl mx-auto">
         <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mb-12"
           initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
           transition={{ duration: 0.5, delay: 0.2 }} style={{ originY: 0 }} />
-        <motion.p className="font-mono text-[10px] tracking-[0.5em] uppercase mb-8"
-          style={{ color: 'rgba(17,17,17,0.45)' }}
+        <motion.p className="font-mono text-sm tracking-[0.5em] uppercase mb-8"
+          style={{ color: 'rgba(17,17,17,0.72)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.4 }}>
           ARVI — Agentic Regeneration Via Intelligence
         </motion.p>
@@ -887,21 +887,21 @@ function EnterPlane({ active }: { active: boolean }) {
         <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-3"
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 8 }}
           transition={{ delay: 1.1, duration: 0.5 }}>
-          <Link href="/dashboard" className="font-mono text-[12px] font-bold px-8 py-3 rounded-xl transition-all"
+          <Link href="/dashboard" className="font-mono text-sm font-bold px-8 py-3 rounded-xl transition-all"
             style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 20px rgba(46,125,107,0.25)' }}>
             Launch App ▸
           </Link>
-          <Link href="/atlas" className="font-mono text-[11px] px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
+          <Link href="/atlas" className="font-mono text-sm px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
             ○ View Atlas
           </Link>
-          <Link href="/register" className="font-mono text-[11px] px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
+          <Link href="/register" className="font-mono text-sm px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
             Register Node
           </Link>
         </motion.div>
         <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mt-12"
           initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
           transition={{ duration: 0.5, delay: 1.3 }} style={{ originY: 0 }} />
-        <motion.p className="font-mono text-[9px] mt-4" style={{ color: 'rgba(17,17,17,0.28)' }}
+        <motion.p className="font-mono text-xs mt-4" style={{ color: 'rgba(17,17,17,0.60)' }}
           initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.5 }}>
           ERC-8004 · Base Mainnet ·{' '}
           <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
@@ -918,6 +918,7 @@ function EnterPlane({ active }: { active: boolean }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function Landing() {
   const [section, setSection] = useState(0)
+  const [darkMode, setDarkMode] = useState(false)
   const scrollLocked = useRef(false)
 
   const advance = useCallback((dir: 1 | -1) => {
@@ -960,20 +961,20 @@ export default function Landing() {
     return () => { window.removeEventListener('touchstart', onTouchStart); window.removeEventListener('touchend', onTouchEnd) }
   }, [advance])
 
-  const dark = SECTIONS[section].darkBg
+  const dark = SECTIONS[section].darkBg || darkMode
 
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#F7F7F7' }}>
-      <NavBar dark={dark} />
-      <motion.div style={{ display: 'flex', width: `${N * 100}vw`, height: '100vh' }}
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
+      <NavBar dark={dark} onToggleDark={() => setDarkMode(d => !d)} isDarkMode={darkMode} />
+      <motion.div className={darkMode ? 'dark-content' : ''} style={{ display: 'flex', width: `${N * 100}vw`, height: '100vh' }}
         animate={{ x: `${-section * 100}vw` }} transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 2} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><WhatPlane active={section === 3} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><NetworkPlane active={section === 4} /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane /></div>
-        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 6} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntroPlane active={section === 0} darkMode={darkMode} \/></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><SystemPlane active={section === 1} darkMode={darkMode} \/></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><IntelligencePlane active={section === 2} darkMode={darkMode} \/></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><WhatPlane active={section === 3} darkMode={darkMode} \/></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><NetworkPlane active={section === 4} darkMode={darkMode} \/></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EconomicsPlane darkMode={darkMode} /></div>
+        <div style={{ width: '100vw', height: '100vh', flexShrink: 0 }}><EnterPlane active={section === 6} darkMode={darkMode} \/></div>
       </motion.div>
       <Progress section={section} setSection={setSection} dark={dark} />
       <NavArrows section={section} setSection={setSection} dark={dark} />

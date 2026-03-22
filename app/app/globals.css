@@ -138,3 +138,26 @@ body {
 
 /* ─── Cursor glow (interactive areas) ────────────────────────────────────── */
 .cursor-zone { cursor: crosshair; }
+
+/* ─── Landing dark mode ─────────────────────────────────────────────────── */
+.dark-content .text-ink,
+.dark-content h1,
+.dark-content h2,
+.dark-content h3 {
+  color: rgba(240, 240, 240, 0.92) !important;
+}
+.dark-content .text-muted,
+.dark-content .font-mono {
+  color: rgba(255,255,255,0.55);
+}
+.dark-content svg line,
+.dark-content svg circle {
+  stroke-opacity: 0.2;
+}
+.dark-content .border-\[#E5E5E5\],
+.dark-content .border-\[#DADADA\] {
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.dark-content .bg-white {
+  background: rgba(255,255,255,0.04) !important;
+}
