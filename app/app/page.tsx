@@ -401,47 +401,51 @@ function WhatPlane({ active }: { active: boolean }) {
 // ─── S3: ATLAS ────────────────────────────────────────────────────────────────
 function AtlasPlane({ active }: { active: boolean }) {
   const nodes = [
-    { id: 'n01', label: 'Chapultepec', status: 'CRITICAL', color: '#C0392B' },
+    { id: 'n01', label: 'Chapultepec', status: 'CRITICAL',   color: '#C0392B' },
     { id: 'n02', label: 'Alameda',     status: 'MONITORING', color: '#B85C00' },
     { id: 'n03', label: 'Tlatelolco',  status: 'MONITORING', color: '#B85C00' },
   ]
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
-      <div className="absolute inset-0 grid-bg opacity-30" />
+      <div className="absolute inset-0 grid-bg opacity-25" />
 
-      <div className="relative z-10 w-full max-w-5xl px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-2">Atlas</p>
-          <h2 className="font-serif text-4xl text-ink">The planet<br />is not static.</h2>
+      <div className="relative z-10 w-full max-w-4xl px-8 pt-14">
+        {/* Label + headline */}
+        <div className="flex items-end justify-between mb-6">
+          <div>
+            <p className="font-mono text-[10px] text-muted tracking-[0.4em] uppercase mb-2">Atlas</p>
+            <h2 className="font-serif text-4xl text-ink">The planet is not static.</h2>
+            <p className="text-muted text-sm mt-1">Neither is its data.</p>
+          </div>
+          <Link href="/atlas"
+            className="font-mono text-[11px] px-5 py-2.5 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all shrink-0 ml-6">
+            Open full Atlas ↗
+          </Link>
         </div>
 
-        <div className="flex items-start gap-8">
-          {/* Map container — constrained height */}
-          <div className="flex-1 rounded-2xl overflow-hidden border border-[#E5E5E5]"
-            style={{ height: '44vh', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', minWidth: 0 }}>
+        {/* Map + nodes row */}
+        <div className="flex items-stretch gap-5">
+          {/* Map — fixed, compact */}
+          <div className="rounded-xl overflow-hidden border border-[#E5E5E5]"
+            style={{ width: '460px', height: '280px', flexShrink: 0, boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}>
             {active && <MiniWorldMap className="w-full h-full" />}
           </div>
 
-          {/* Right panel */}
-          <div className="w-64 shrink-0 pt-1">
-            <p className="text-muted text-sm mb-5 leading-relaxed">
-              3 active nodes in CDMX. Real environmental signals, continuously updated.
-            </p>
-            <div className="space-y-2 mb-6">
-              {nodes.map(n => (
-                <div key={n.id} className="flex items-center justify-between rounded-xl border border-[#E5E5E5] bg-white px-4 py-3">
-                  <span className="font-mono text-[11px] text-ink">{n.label}</span>
-                  <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border"
-                    style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>{n.status}</span>
+          {/* Node list */}
+          <div className="flex flex-col justify-center gap-3 flex-1">
+            {nodes.map(n => (
+              <div key={n.id} className="flex items-center justify-between rounded-xl border border-[#E5E5E5] bg-white px-5 py-4">
+                <div>
+                  <p className="font-mono text-[11px] text-ink">{n.label}</p>
+                  <p className="font-mono text-[9px] text-muted mt-0.5">CDMX · Active</p>
                 </div>
-              ))}
-            </div>
-            <Link href="/atlas"
-              className="block w-full text-center font-mono text-[11px] py-3 rounded-xl border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
-              Open full Atlas ↗
-            </Link>
+                <span className="font-mono text-[9px] font-bold px-2.5 py-1 rounded-full border"
+                  style={{ color: n.color, borderColor: `${n.color}30`, background: `${n.color}10` }}>
+                  {n.status}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -595,47 +599,63 @@ function EconomicsPlane() {
 // ─── S6: ENTER ────────────────────────────────────────────────────────────────
 function EnterPlane({ active }: { active: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ background: '#F7F7F7' }}>
-      <div className="absolute inset-0 grid-bg-sm opacity-20" />
-      {/* Subtle radial glow */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(46,125,107,0.07) 0%, transparent 70%)'
-      }} />
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden"
+      style={{ background: '#F7F7F7' }}>
+      <div className="absolute inset-0 grid-bg opacity-40" />
 
-      <div className="relative z-10 text-center px-8 max-w-2xl mx-auto">
-        <motion.p className="font-mono text-[10px] text-muted/50 tracking-[0.5em] uppercase mb-10"
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.3 }}>
+      <div className="relative z-10 text-center px-8 max-w-3xl mx-auto">
+        {/* Divider top */}
+        <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mb-12"
+          initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }} style={{ originY: 0 }} />
+
+        <motion.p className="font-mono text-[10px] text-muted tracking-[0.5em] uppercase mb-8"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.4 }}>
           ARVI — Agentic Regeneration Via Intelligence
         </motion.p>
 
-        <motion.h2 className="font-serif leading-tight mb-3 text-ink"
-          style={{ fontSize: 'clamp(36px, 5.5vw, 64px)' }}
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 20 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}>
+        <motion.h2 className="font-serif text-ink leading-tight mb-2"
+          style={{ fontSize: 'clamp(38px, 5.5vw, 68px)' }}
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 16 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}>
           ARVI is not a dashboard.
         </motion.h2>
+
         <motion.h2 className="font-serif leading-tight mb-12"
-          style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: '#2E7D6B' }}
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.7, duration: 0.8 }}>
+          style={{ fontSize: 'clamp(38px, 5.5vw, 68px)', color: '#2E7D6B' }}
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.8, duration: 0.7 }}>
           It&apos;s an intelligence system.
         </motion.h2>
 
         <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-3"
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1, duration: 0.6 }}>
-          <Link href="/dashboard" className="btn-jade">Launch App ▸</Link>
-          <Link href="/atlas" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: active ? 1 : 0, y: active ? 0 : 8 }}
+          transition={{ delay: 1.1, duration: 0.5 }}>
+          <Link href="/dashboard"
+            className="font-mono text-[12px] font-bold px-8 py-3 rounded-xl transition-all"
+            style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 20px rgba(46,125,107,0.25)' }}>
+            Launch App ▸
+          </Link>
+          <Link href="/atlas"
+            className="font-mono text-[11px] px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
             ○ View Atlas
           </Link>
-          <Link href="/register" className="font-mono text-[11px] px-6 py-2.5 rounded-lg border border-[#DADADA] text-muted hover:border-jade hover:text-jade transition-all">
+          <Link href="/register"
+            className="font-mono text-[11px] px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
             Register Node
           </Link>
         </motion.div>
 
-        <motion.p className="font-mono text-[9px] text-muted/30 mt-10"
-          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.4 }}>
+        {/* Divider bottom */}
+        <motion.div className="w-px h-16 bg-[#DADADA] mx-auto mt-12"
+          initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
+          transition={{ duration: 0.5, delay: 1.3 }} style={{ originY: 0 }} />
+
+        <motion.p className="font-mono text-[9px] text-muted/40 mt-4"
+          initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.5 }}>
           ERC-8004 · Base Mainnet ·{' '}
           <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
-            target="_blank" rel="noopener" className="underline hover:text-jade transition-colors">0xb8623d...cf43a</a>
+            target="_blank" rel="noopener"
+            className="underline hover:text-[#2E7D6B] transition-colors">0xb8623d...cf43a</a>
           {' '}· Pantera Labs 2026
         </motion.p>
       </div>
@@ -653,17 +673,19 @@ export default function Landing() {
   const advance = useCallback((dir: 1 | -1) => {
     if (scrollLocked.current) return
     scrollLocked.current = true
-    setTimeout(() => { scrollLocked.current = false }, 950)
+    // 1300ms covers full trackpad gesture deceleration tail
+    setTimeout(() => { scrollLocked.current = false }, 1300)
     setSection(s => Math.max(0, Math.min(N - 1, s + dir)))
   }, [])
 
-  // Wheel → horizontal
+  // Wheel → horizontal (one section at a time, no skipping)
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       if (scrollLocked.current) return
       const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-      if (Math.abs(delta) < 10) return
+      // Require meaningful intent — ignores micro scroll events
+      if (Math.abs(delta) < 20) return
       advance(delta > 0 ? 1 : -1)
     }
     window.addEventListener('wheel', onWheel, { passive: false })
