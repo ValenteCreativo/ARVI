@@ -60,8 +60,8 @@ Right now, detecting a plague in Chapultepec requires a field visit. ARVI makes 
 | Maps | Leaflet + CartoDB dark tiles (free, no key) |
 | Weather | Open-Meteo API (free, no key) |
 | Fire data | NASA FIRMS MODIS NRT (free key) |
-| LLM | Bankr Gateway → gemini-2.5-flash (+ simulation fallback) |
-| Payments | Locus USDC (+ simulation fallback) |
+| LLM | Bankr Gateway → gemini-2.5-flash |
+| Payments | Locus USDC (Base) |
 | Contracts | EVVM (6 contracts: Core, Staking, Estimator, NameService, Treasury, P2PSwap) |
 | Identity | ERC-8004 — agent.json registered on Base Mainnet |
 | Deploy | Vercel (CI/CD from GitHub main) |
@@ -84,8 +84,8 @@ ARVI/
 │   │       └── weather/    ← GET: Open-Meteo + NASA FIRMS
 │   ├── data/nodes.ts       ← 3 CDMX nodes (expanded sensor schema)
 │   └── lib/
-│       ├── bankr.ts        ← LLM gateway + simulation fallback
-│       ├── locus.ts        ← USDC payment + simulation fallback
+│       ├── bankr.ts        ← LLM gateway (Bankr / gemini-2.5-flash)
+│       ├── locus.ts        ← USDC payment automation (Locus)
 │       └── agent-log.ts    ← Onchain log writer
 ├── agent.json              ← ERC-8004 agent identity
 ├── agent_log.json          ← Execution log (onchain evidence)
@@ -155,7 +155,7 @@ Every reading is operator-signed and logged onchain.
     "tx_hash": "0x...",
     "amount_usdc": 8.5,
     "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-    "chain": "Base"
+    "chain": "Base (via Locus)"
   }
 }
 ```
@@ -239,14 +239,6 @@ export PATH="$HOME/.foundry/bin:$PATH"
 cd ../evvm && anvil &
 forge script Deploy.s.sol --broadcast --rpc-url http://localhost:8545
 ```
-
----
-
-## Simulation mode
-
-Both `lib/bankr.ts` and `lib/locus.ts` fall back to deterministic simulation if API keys are absent or endpoints unreachable. The demo always works.
-
-Simulated responses are clearly marked with `"model_used": "bankr-llm-simulated"` and `"simulated": true`.
 
 ---
 
