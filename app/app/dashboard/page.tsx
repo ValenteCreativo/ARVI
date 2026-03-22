@@ -4,8 +4,14 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ARVI_NODES, type NodeData } from '@/data/nodes'
+import dynamic from 'next/dynamic'
 
-type Tab = 'sensors' | 'intelligence' | 'actions' | 'global'
+const MapComponent = dynamic(() => import('../atlas/MapComponent'), {
+  ssr: false,
+  loading: () => <div className="w-full h-full flex items-center justify-center text-muted font-mono text-sm">Loading Atlas…</div>,
+})
+
+type Tab = 'sensors' | 'intelligence' | 'actions' | 'global' | 'atlas'
 type PipelineStage = 'idle' | 'sense' | 'analyze' | 'act' | 'pay' | 'done'
 const STAGE_IDX: Record<PipelineStage, number> = { idle: 0, sense: 1, analyze: 2, act: 3, pay: 4, done: 5 }
 
@@ -614,6 +620,7 @@ function ActionsTab({ stage, log, result, onRun, loading }: {
 export default function Dashboard() {
   const [activeNode, setActiveNode] = useState<NodeData>(ARVI_NODES[0])
   const [tab, setTab] = useState<Tab>('global')
+  const [darkMode, setDarkMode] = useState(false)
   const [results, setResults] = useState<Record<string, Record<string, unknown>>>({})
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<PipelineStage>('idle')
@@ -711,6 +718,13 @@ export default function Dashboard() {
             </div>
             <span className="font-mono text-[10px] text-muted/40">{now} UTC</span>
             <Link href="/atlas" className="font-mono text-[11px] text-muted hover:text-jade transition-colors">Atlas ○</Link>
+            <button
+              onClick={() => setDarkMode(d => !d)}
+              className="font-mono text-[11px] px-3 py-1.5 rounded-lg border border-line text-muted hover:text-jade hover:border-jade transition-all ml-2"
+              title="Toggle dark/light mode"
+            >
+              {darkMode ? '☀ Light' : '☾ Dark'}
+            </button>
           </div>
         </div>
       </header>
@@ -786,6 +800,7 @@ export default function Dashboard() {
                 ['sensors', '○ Sensors'],
                 ['intelligence', '◈ Intelligence'],
                 ['actions', '▸ Actions'],
+                ['atlas', '○ Atlas'],
               ] as [Tab, string][]).map(([id, label]) => (
                 <button key={id} onClick={() => setTab(id)}
                   className={`font-mono text-[11px] px-4 py-2.5 border-b-2 transition-all ${tab === id ? 'text-jade border-jade' : 'text-muted border-transparent hover:text-ink'}`}>
@@ -805,6 +820,11 @@ export default function Dashboard() {
                 {tab === 'sensors'      && <SensorTab node={activeNode} />}
                 {tab === 'intelligence' && <IntelligenceTab node={activeNode} result={result} onRun={runAgent} loading={loading} />}
                 {tab === 'actions'      && <ActionsTab stage={stage} log={log} result={result} onRun={runAgent} loading={loading} />}
+                {tab === 'atlas'        && (
+                  <div style={{ height: '60vh', minHeight: '400px' }} className="rounded-xl overflow-hidden border border-line">
+                    <MapComponent weatherNodes={weatherNodes} fires={fires} />
+                  </div>
+                )}
               </motion.div>
             </AnimatePresence>
           </div>

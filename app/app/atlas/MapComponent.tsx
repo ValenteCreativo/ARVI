@@ -62,8 +62,8 @@ export default function MapComponent({ weatherNodes, fires }: Props) {
 
       mapInstanceRef.current = map
 
-      // Dark OSM tile layer
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // Light OSM tile layer
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap contributors © CARTO',
         maxZoom: 19,
       }).addTo(map)

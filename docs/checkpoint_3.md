@@ -17,8 +17,8 @@
 | ERC-8004 Identity | ✅ Base Mainnet — 0xb8623d...cf43a |
 | EVVM Contracts | ✅ Anvil local (chain 31337) |
 | Base Sepolia | ❌ Pendiente |
-| Bankr API (gemini-2.5-flash) | ✅ Configurado en Vercel |
-| Locus API (USDC — Base) | ✅ Configurado en Vercel |
+| Bankr API real | ⚠️ Simulado (bloqueado desde AWS) |
+| Locus API real | ⚠️ Simulado (bloqueado desde AWS) |
 
 ---
 
@@ -139,11 +139,11 @@ POST /api/analyze { node_id: "node-01" }
 → lib/bankr.ts → analyzeNodeData(node)
   ├── Si BANKR_API_KEY presente: fetch api.bankr.ai/v1/chat/completions
   │   └── model: gemini-2.5-flash, prompt con todos los campos del sensor
-  └── Si timeout: respuesta determinista coherente
+  └── Si no / timeout: simulateAnalysis(node) [deterministic, coherent]
 
 → lib/locus.ts → triggerPayment(analysis)
   ├── Si LOCUS_API_KEY presente: fetch api.locus.finance
-  └── Si no: fallback deterministic
+  └── Si no: simulated USDC transfer
 
 → lib/agent-log.ts → appendLog(entry)
   └── Escribe en agent_log.json
@@ -178,8 +178,8 @@ POST /api/analyze { node_id: "node-01" }
 | `/api/weather` | GET | ✅ Funcional — 3 nodos |
 | Open-Meteo | External | ✅ Live (no key needed) |
 | NASA FIRMS | External | ✅ Live (key en env) |
-| Bankr API | External | ✅ Funcional (gemini-2.5-flash) |
-| Locus API | External | ✅ Funcional (USDC — Base) |
+| Bankr API | External | ⚠️ Simulated (AWS bloqueado, OK en Vercel) |
+| Locus API | External | ⚠️ Simulated (AWS bloqueado, OK en Vercel) |
 
 ---
 
