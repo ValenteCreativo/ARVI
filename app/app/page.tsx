@@ -838,15 +838,19 @@ function EconomicsPlane() {
           </div>
         </div>
 
-        <div className="mt-4 flex items-center justify-center gap-10 border-t border-[#E5E5E5] pt-4">
+        {/* Standards strip — visible above the navbar */}
+        <div className="mt-5 grid grid-cols-3 gap-3">
           {[
-            { label: 'Data standard', val: 'x402 compatible' },
-            { label: 'Compliance', val: 'ESG · Carbon MRV' },
-            { label: 'Hardware', val: 'Open source + DIY' },
+            { icon: '◈', label: 'Data standard', val: 'x402 compatible' },
+            { icon: '⬡', label: 'Compliance',    val: 'ESG · Carbon MRV' },
+            { icon: '○', label: 'Hardware',       val: 'Open source + DIY' },
           ].map(item => (
-            <div key={item.label} className="text-center">
-              <p className="font-mono text-[9px] tracking-widest uppercase" style={{ color: 'rgba(17,17,17,0.40)' }}>{item.label}</p>
-              <p className="font-mono text-sm text-jade mt-1">{item.val}</p>
+            <div key={item.label} className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white px-4 py-3">
+              <span className="font-mono text-base shrink-0" style={{ color: '#2E7D6B' }}>{item.icon}</span>
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: 'rgba(17,17,17,0.40)' }}>{item.label}</p>
+                <p className="font-mono text-[11px] font-medium text-ink mt-0.5">{item.val}</p>
+              </div>
             </div>
           ))}
         </div>
