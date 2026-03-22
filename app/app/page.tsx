@@ -433,7 +433,7 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
       <div className="absolute inset-0 grid-bg opacity-20" />
 
       {/* Header */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none w-full px-8">
+      <div className="absolute top-28 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none w-full px-8">
         <p className="font-mono text-sm tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.72)' }}>Agent Intelligence</p>
         <h2 className="font-serif text-4xl text-ink leading-tight">
           Four steps. Fully autonomous.<br />
