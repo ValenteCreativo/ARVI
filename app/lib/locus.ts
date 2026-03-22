@@ -27,12 +27,12 @@ const LOCUS_API_KEY = process.env.LOCUS_API_KEY || ''
 function simulatePayment(req: PaymentRequest): PaymentResult {
   return {
     success: true,
-    tx_hash: `0x${Array.from({length:64},(_,i)=>((Date.now()*31+req.node_id.charCodeAt(i%req.node_id.length)*17+i*7)%16).toString(16)).join('')}`,
+    tx_hash: undefined,
     amount_usdc: req.amount_usdc,
     recipient: req.operator_wallet,
     chain: 'Base',
     timestamp: new Date().toISOString(),
-
+    simulated: true,
   }
 }
 
@@ -70,6 +70,7 @@ export async function triggerNodePayment(req: PaymentRequest): Promise<PaymentRe
       recipient: req.operator_wallet,
       chain: 'Base',
       timestamp: new Date().toISOString(),
+      simulated: false,
     }
   } catch (err) {
     console.warn('[LOCUS] API unreachable, falling back to simulation:', err)

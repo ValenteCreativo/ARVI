@@ -3,9 +3,10 @@
  * ARVI Agent Loop:
  * 1. Receive node_id
  * 2. Analyze with Bankr LLM
- * 3. Log to agent_log.json
- * 4. Trigger Locus payment if warranted
- * 5. Return structured result
+ * 3. Write alert to public/alert-log.json (verifiable artifact)
+ * 4. Log to agent_log.json
+ * 5. Trigger Locus payment if warranted and not simulated
+ * 6. Return structured result
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -13,6 +14,7 @@ import { ARVI_NODES } from '@/data/nodes'
 import { analyzeNodeData } from '@/lib/bankr'
 import { triggerNodePayment } from '@/lib/locus'
 import { appendAgentLog } from '@/lib/agent-log'
+import { writeAlertLog } from '@/lib/alert-action'
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +30,11 @@ export async function POST(req: NextRequest) {
     console.log(`[ARVI] Analyzing node ${node_id} with Bankr...`)
     const analysis = await analyzeNodeData(node)
 
-    // 3. Log to agent_log.json
+    // 3. Write verifiable alert log
+    const alertEntry = writeAlertLog(analysis, node.location)
+    console.log(`[ARVI] Alert logged: ${alertEntry.id}`)
+
+    // 4. Log to agent_log.json
     await appendAgentLog({
       event_type: 'LLM_ANALYSIS',
       node_id: node.node_id,
@@ -37,7 +43,7 @@ export async function POST(req: NextRequest) {
       analysis,
     })
 
-    // 4. If anomaly detected and payment warranted → trigger Locus
+    // 5. If payment warranted → trigger Locus
     let payment_result = null
     if (analysis.payment_warranted) {
       console.log(`[ARVI] Triggering Locus payment to ${node.operator_wallet}...`)
@@ -65,6 +71,7 @@ export async function POST(req: NextRequest) {
       },
       analysis,
       payment: payment_result,
+      alert: alertEntry,
     })
 
   } catch (error) {

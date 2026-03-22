@@ -471,7 +471,10 @@ function IntelligenceTab({ node, result, onRun, loading }: {
                   Alert detected at [{node.lat ?? '19.41'}, {node.lon ?? '-99.19'}]. Task: in-situ inspection + SEDEMA report. Bounty: 12 USDC
                 </p>
               </div>
-              <p className="font-mono text-[9px] text-muted/40 mt-3">{String(analysis.model_used)}</p>
+              <div className="flex items-center gap-2 mt-3">
+                <p className="font-mono text-[9px] text-muted/40">{String(analysis.model_used)}</p>
+                {analysis.simulated && <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border border-[#B85C00]/30 text-[#B85C00] bg-[#B85C0010]">Simulation mode</span>}
+              </div>
             </div>
           ) : (
             <div className="text-center py-8">
@@ -568,14 +571,20 @@ function ActionsTab({ stage, log, result, onRun, loading }: {
           <div className="p-5 space-y-3">
             {/* Payment */}
             {payment && (
-              <div className="rounded-xl border border-jade/30 bg-[#EAF4F1] p-4">
-                <p className="font-mono text-[9px] text-jade uppercase tracking-widest mb-2">— Operator Payment Executed</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div><p className="font-mono text-[9px] text-muted mb-1">Amount</p><p className="font-serif text-xl text-jade">{String(payment.amount_usdc)} USDC</p></div>
-                  <div><p className="font-mono text-[9px] text-muted mb-1">Recipient</p><p className="font-mono text-[10px] text-ink/60">{String(payment.recipient ?? '').slice(0, 16)}...</p></div>
-                  <div><p className="font-mono text-[9px] text-muted mb-1">Chain</p><p className="font-mono text-[10px] text-ink/60">Base</p></div>
-                  <div><p className="font-mono text-[9px] text-muted mb-1">Status</p><p className="font-mono text-[10px] text-jade">✓ Confirmed</p></div>
-                </div>
+              <div className={`rounded-xl border p-4 ${payment.simulated ? 'border-[#B85C00]/30 bg-[#B85C0008]' : 'border-jade/30 bg-[#EAF4F1]'}`}>
+                <p className={`font-mono text-[9px] uppercase tracking-widest mb-2 ${payment.simulated ? 'text-[#B85C00]' : 'text-jade'}`}>
+                  {payment.simulated ? '— Payment Simulation (no real tx)' : '— Operator Payment Executed'}
+                </p>
+                {!payment.simulated ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div><p className="font-mono text-[9px] text-muted mb-1">Amount</p><p className="font-serif text-xl text-jade">{String(payment.amount_usdc)} USDC</p></div>
+                    <div><p className="font-mono text-[9px] text-muted mb-1">Recipient</p><p className="font-mono text-[10px] text-ink/60">{String(payment.recipient ?? '').slice(0, 16)}...</p></div>
+                    <div><p className="font-mono text-[9px] text-muted mb-1">Chain</p><p className="font-mono text-[10px] text-ink/60">Base</p></div>
+                    <div><p className="font-mono text-[9px] text-muted mb-1">Status</p><p className="font-mono text-[10px] text-jade">✓ Confirmed</p></div>
+                  </div>
+                ) : (
+                  <p className="font-mono text-[10px] text-[#B85C00]/70">Payment infrastructure ready — awaiting Locus public API. No real USDC was sent.</p>
+                )}
               </div>
             )}
             {/* Job board */}
@@ -668,8 +677,8 @@ function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, d
         {[
           { label: 'Nodes Online', val: `${nodes.length}/3`, sub: 'CDMX network', color: '#2E7D6B', sym: '○', click: () => onTab('sensors') },
           { label: 'Network Health', val: `${(netHealth*100).toFixed(0)}%`, sub: alertCount > 0 ? `${alertCount} alert${alertCount>1?'s':''}` : 'all nominal', color: nc, sym: '◈', click: () => onTab('sensors') },
-          { label: 'Fire Hotspots', val: globalFires > 0 ? String(globalFires) : '…', sub: 'Mexico · NASA FIRMS · 24h', color: globalFires > 20 ? '#C0392B' : globalFires > 5 ? '#B85C00' : '#2E7D6B', sym: '▸', click: () => onTab('global') },
-          { label: 'Avg Temperature', val: globalTemp !== '--' ? `${globalTemp}°C` : '…', sub: 'Open-Meteo live', color: '#888', sym: '⬡', click: () => onTab('global') },
+          { label: 'Fire Hotspots', val: globalFires > 0 ? String(globalFires) : '-', sub: 'Mexico · NASA FIRMS · 24h', color: globalFires > 20 ? '#C0392B' : globalFires > 5 ? '#B85C00' : '#2E7D6B', sym: '▸', click: () => onTab('global') },
+          { label: 'Avg Temperature', val: globalTemp !== '--' ? `${globalTemp}°C` : '-', sub: 'Open-Meteo live', color: '#888', sym: '⬡', click: () => onTab('global') },
         ].map(item => (
           <motion.button key={item.label} onClick={item.click} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
             className={`rounded-2xl border text-left p-4 transition-all ${darkMode ? 'bg-white/3 border-white/8 hover:border-white/20' : 'bg-white border-line hover:border-jade/40'}`}>
@@ -988,11 +997,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<PipelineStage>('idle')
   const [log, setLog] = useState<LogEntry[]>([
-    { ts: '06:47:00', type: 'INIT',     msg: 'ARVI network online — ERC-8004 Base Mainnet',          color: '#2E7D6B' },
-    { ts: '07:04:00', type: 'IDENTITY', msg: 'Agent Pantera registered — 0xb8623d...cf43a',          color: '#888' },
-    { ts: '07:24:00', type: 'ANALYSIS', msg: 'Chapultepec plague detected — 94% confidence',         color: '#C0392B' },
-    { ts: '07:24:01', type: 'PAYMENT',  msg: '8.5 USDC → 0x7099...79C8 via Locus',                   color: '#2E7D6B' },
-    { ts: '07:24:02', type: 'JOB',      msg: 'Field bounty published — 12 USDC · OPEN',              color: '#2E7D6B' },
+    { ts: new Date().toISOString().slice(11, 19), type: 'READY', msg: 'Agent ready — run analysis to begin', color: '#888' },
   ])
   const [now, setNow] = useState('')
   const [globalFires, setGlobalFires] = useState(0)
@@ -1038,9 +1043,15 @@ export default function Dashboard() {
       addLog('ACT', `${String(a?.severity).toUpperCase()} · ${String(a?.alert_type).replace(/_/g, ' ')} · ${((a?.confidence as number ?? 0)*100).toFixed(0)}% conf`, a?.severity === 'critical' ? '#C0392B' : '#B85C00')
       await new Promise(r => setTimeout(r, 500)); setStage('pay')
       const p = data.payment as Record<string, unknown>
-      if (p) addLog('PAY', `${String(p.amount_usdc)} USDC → ${String(p.recipient ?? '').slice(0, 16)}...`, '#2E7D6B')
+      if (p && !p.simulated) {
+        addLog('PAY', `${String(p.amount_usdc)} USDC → ${String(p.recipient ?? '').slice(0, 16)}...`, '#2E7D6B')
+      } else if (p) {
+        addLog('PAY', 'Payment simulated — no real tx', '#B85C00')
+      }
       await new Promise(r => setTimeout(r, 300))
-      addLog('JOB', `Field bounty published — 12 USDC · coordinates logged onchain`, '#2E7D6B')
+      if (data.alert) {
+        addLog('ALERT', `Alert logged → /alert-log.json · ${String((data.alert as Record<string, unknown>).id ?? '').slice(0, 8)}`, '#2E7D6B')
+      }
       setStage('done')
     } catch (e) { addLog('ERROR', String(e), '#C0392B') }
     finally { setLoading(false); setTimeout(() => setStage('idle'), 2000) }

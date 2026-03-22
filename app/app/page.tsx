@@ -367,7 +367,7 @@ const INTEL_STEPS = [
     step: '03',
     sym: '▸',
     title: 'Act',
-    body: 'Example: Chapultepec sensor shows CO₂ spike + 94% pathogen confidence. Within seconds — a 12 USDC field bounty is posted for human verification, the local NGO receives a structured alert with GPS coordinates, and the agent logs the event onchain. Zero human trigger required.',
+    body: 'Example: Chapultepec sensor shows CO₂ spike + 94% pathogen confidence. Within seconds — a structured alert is logged with GPS coordinates, the local NGO is notified, and the event is recorded at /alert-log.json. Zero human trigger required.',
     tag: 'AUTONOMOUS RESPONSE',
     tagColor: '#B85C00',
     links: [{ label: 'Base', href: 'https://www.base.org/' }],
@@ -377,7 +377,7 @@ const INTEL_STEPS = [
     step: '04',
     sym: '⬡',
     title: 'Verify & Pay',
-    body: 'Every reading is timestamped onchain via ERC-8004 on Base — making it tamper-proof evidence. Locus automatically pays node operators in USDC for uptime and data quality. The same evidence feeds carbon MRV reports, Octant evaluations, and ESG audits for enterprises.',
+    body: 'Every reading is timestamped onchain via ERC-8004 on Base — making it tamper-proof evidence. Locus payment infrastructure is integrated for automatic USDC operator payments (awaiting public API). Alert evidence feeds carbon MRV reports and ESG audits.',
     tag: 'LOCUS · ERC-8004',
     tagColor: '#5e72e4',
     links: [{ label: 'Locus', href: 'https://paywithlocus.com/' }, { label: 'Base', href: 'https://www.base.org/' }],
@@ -436,8 +436,8 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
       <div className="absolute top-28 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none w-full px-8">
         <p className="font-mono text-sm tracking-[0.4em] uppercase mb-3" style={{ color: 'rgba(17,17,17,0.72)' }}>Agent Intelligence</p>
         <h2 className="font-serif text-4xl text-ink leading-tight">
-          Four steps. Fully autonomous.<br />
-          <span style={{ color: '#2E7D6B' }}>No human required.</span>
+          Four steps. One real loop.<br />
+          <span style={{ color: '#2E7D6B' }}>Real data in. Real decision out.</span>
         </h2>
         <p className="font-mono text-sm mt-4" style={{ color: 'rgba(17,17,17,0.85)' }}>
 

@@ -17,6 +17,7 @@ export interface AnalysisResult {
   payment_amount_usdc: number
   timestamp: string
   model_used: string
+  simulated: boolean
 }
 
 const BANKR_API_URL = process.env.BANKR_API_URL || 'https://api.bankr.ai/v1'
@@ -83,7 +84,8 @@ function simulateAnalysis(node: NodeData): AnalysisResult {
     payment_warranted: true,
     payment_amount_usdc: isCritical ? 8.5 : isHigh ? 5.0 : isMedium ? 3.0 : 2.0,
     timestamp: new Date().toISOString(),
-    model_used: 'gemini-2.5-flash',
+    model_used: 'simulation',
+    simulated: true,
   }
 }
 
@@ -168,7 +170,8 @@ Return a JSON object with these exact fields:
     // Strip markdown code blocks if present (Gemini sometimes wraps JSON)
     const clean = content.replace(/^```json\n?/,'').replace(/^```\n?/,'').replace(/\n?```$/,'').trim()
     const result = JSON.parse(clean) as AnalysisResult
-    result.model_used = data.model || 'gemini-2.0-flash'
+    result.model_used = data.model || 'gemini-2.5-flash'
+    result.simulated = false
     return result
 
   } catch (err) {
