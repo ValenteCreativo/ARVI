@@ -344,6 +344,7 @@ const INTEL_STEPS = [
     body: 'Bankr orchestrates the LLM agent across multi-stream data. Identifies invisible patterns: slow droughts, early plague, air drift. OpenServ coordinates multi-agent responses.',
     tag: 'BANKR · OPENSERV',
     tagColor: '#5e72e4',
+    links: [{ label: 'Bankr', href: 'https://bankr.bot/' }, { label: 'OpenServ', href: 'https://www.openserv.ai/' }],
   },
   {
     id: 'act',
@@ -362,6 +363,7 @@ const INTEL_STEPS = [
     body: 'Readings timestamped onchain via ERC-8004 · Base. Locus handles USDC payments to operators and agents. Data becomes verifiable MRV evidence for carbon credits.',
     tag: 'LOCUS · ERC-8004',
     tagColor: '#5e72e4',
+    links: [{ label: 'Locus', href: 'https://paywithlocus.com/' }],
   },
 ]
 
@@ -476,6 +478,18 @@ function IntelligencePlane({ active, darkMode }: { active: boolean; darkMode?: b
                 <p className="font-mono text-sm font-medium" style={{ color: darkMode ? 'rgba(255,255,255,0.90)' : '#111' }}>{card.title}</p>
               </div>
               <p className="text-sm leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.60)' : 'rgba(17,17,17,0.72)' }}>{card.body}</p>
+              {(card as {links?: {label:string;href:string}[]}).links && (
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {(card as {links?: {label:string;href:string}[]}).links!.map(lk => (
+                    <a key={lk.label} href={lk.href} target="_blank" rel="noopener"
+                      className="font-mono text-[10px] px-2 py-0.5 rounded-full border underline-offset-2 hover:underline"
+                      style={{ color: card.tagColor, borderColor: `${card.tagColor}40`, background: `${card.tagColor}10` }}
+                      onClick={e => e.stopPropagation()}>
+                      {lk.label} ↗
+                    </a>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )
         })}
@@ -951,9 +965,9 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
       id: 'data',
       sym: '◈',
       label: 'Data API',
-      tag: 'x402',
-      headline: 'Pay-per-request environmental data',
-      detail: 'AI agents, researchers, and cities query real-time sensor streams via x402 micropayments. No subscription, no intermediary.',
+      tag: 'x402 · Base',
+      headline: 'Pay-per-request environmental data — discoverable on Base',
+      detail: 'AI agents, researchers, and cities query real-time sensor streams via x402 micropayments on Base. No subscription, no intermediary. Each query is a micro-transaction. ARVI's agent service is openly discoverable — any agent on Base can find it and pay for data.',
       color: '#2E7D6B',
     },
     {
@@ -961,9 +975,18 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
       sym: '⬡',
       label: 'Carbon MRV',
       tag: 'ESG',
-      headline: 'Verifiable carbon credit evidence',
-      detail: 'Sensor readings become certified MRV evidence — directly usable for carbon credit issuance and ESG compliance reports.',
+      headline: 'Verifiable carbon credit evidence + project evaluation',
+      detail: 'Sensor readings become certified MRV evidence — directly usable for carbon credit issuance, ESG compliance reports, and environmental project evaluation. ARVI can assess before/after impact of regeneration projects with real sensor data — making it a neutral evaluator for public goods funding (Octant, Gitcoin).',
       color: '#1a6b8a',
+    },
+    {
+      id: 'govngo',
+      sym: '🏛',
+      label: 'Gov & NGO Connect',
+      tag: 'B2G',
+      headline: 'Governments and NGOs become the first responders',
+      detail: 'City agencies, environmental ministries, and NGOs subscribe to receive structured alerts directly — not reports to read later, but actionable dispatches the moment an event is detected. ARVI routes each alert to the right institution automatically. Priced per region monitored. The agency becomes part of the response chain, not just an observer.',
+      color: '#7B2FFF',
     },
     {
       id: 'hardware',
@@ -971,15 +994,15 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
       label: 'Sensor Kits',
       tag: '$80',
       headline: 'Deploy a node, earn monthly USDC',
-      detail: 'Buy the branded kit or build open-source. Agent auto-pays operators in USDC every month based on data quality.',
+      detail: 'Buy the branded kit or build open-source. The agent auto-pays operators in USDC every month based on data quality and uptime. Anyone can become a node operator — no technical background required.',
       color: '#7d6b2e',
     },
   ]
 
-  const JOBS = [
-    { alert: 'FIRE · Chapultepec', bounty: '12 USDC', status: 'OPEN',   color: '#C0392B' },
-    { alert: 'FLOOD · Xochimilco',  bounty: '8 USDC',  status: 'OPEN',   color: '#2E7D6B' },
-    { alert: 'AQI · Tlatelolco',    bounty: '5 USDC',  status: 'CLAIMED', color: '#B85C00' },
+  const HUMAN_JOBS = [
+    { alert: 'FIRE · Chapultepec', bounty: '12 USDC', status: 'OPEN',    color: '#C0392B', who: 'Field verification' },
+    { alert: 'FLOOD · Xochimilco', bounty: '8 USDC',  status: 'OPEN',    color: '#2E7D6B', who: 'Ground survey' },
+    { alert: 'AQI · Tlatelolco',   bounty: '5 USDC',  status: 'CLAIMED', color: '#B85C00', who: 'Sensor check' },
   ]
 
   const sel = STREAMS.find(s => s.id === active)
@@ -987,43 +1010,41 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center" style={{ background: darkMode ? '#0A0B14' : '#F7F7F7', transition: 'background 0.4s' }}>
       <div className="absolute inset-0 grid-bg opacity-20" />
-      <div className="relative z-10 w-full max-w-4xl px-8">
+      <div className="relative z-10 w-full max-w-5xl px-8">
 
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <p className="font-mono text-sm tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: '#2E7D6B' }}>Business Model</p>
           <h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(32px, 5vw, 52px)', color: darkMode ? 'rgba(255,255,255,0.92)' : '#111' }}>
             Self-funded. <span style={{ color: '#2E7D6B' }}>Community-owned.</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          {/* LEFT: Revenue streams — interactive selector */}
-          <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-5">
+          {/* LEFT: Revenue streams */}
+          <div className="flex flex-col gap-2">
             {STREAMS.map(s => (
               <motion.button key={s.id} onClick={() => setActive(s.id)}
-                className="w-full text-left rounded-xl border px-5 py-4 transition-all"
+                className="w-full text-left rounded-xl border px-4 py-3 transition-all"
                 style={{
-                  background: active === s.id ? (darkMode ? 'rgba(46,125,107,0.15)' : '#EAF4F1') : (darkMode ? 'rgba(255,255,255,0.03)' : 'white'),
+                  background: active === s.id ? (darkMode ? 'rgba(46,125,107,0.12)' : '#EAF4F1') : (darkMode ? 'rgba(255,255,255,0.03)' : 'white'),
                   borderColor: active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5'),
-                  boxShadow: active === s.id ? `0 0 0 1px ${s.color}40` : 'none',
                 }}
                 whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xl" style={{ color: active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.3)' : '#DADADA') }}>{s.sym}</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-lg shrink-0" style={{ color: active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.3)' : '#DADADA') }}>{s.sym}</span>
                     <span className="font-mono text-sm font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{s.label}</span>
                   </div>
-                  <span className="font-mono text-xs px-2 py-0.5 rounded-full" style={{ background: active === s.id ? s.color : 'transparent', color: active === s.id ? 'white' : (darkMode ? 'rgba(255,255,255,0.35)' : '#999'), border: `1px solid ${active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.15)' : '#E5E5E5')}` }}>{s.tag}</span>
+                  <span className="font-mono text-[10px] px-2 py-0.5 rounded-full" style={{ background: active === s.id ? s.color : 'transparent', color: active === s.id ? 'white' : (darkMode ? 'rgba(255,255,255,0.35)' : '#999'), border: `1px solid ${active === s.id ? s.color : (darkMode ? 'rgba(255,255,255,0.15)' : '#E5E5E5')}` }}>{s.tag}</span>
                 </div>
-                <p className="font-mono text-xs mt-1.5" style={{ color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.65)' }}>{s.headline}</p>
+                <p className="font-mono text-xs mt-1" style={{ color: darkMode ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.65)' }}>{s.headline}</p>
               </motion.button>
             ))}
 
-            {/* Expanded detail */}
             <AnimatePresence mode="wait">
               {sel && (
-                <motion.div key={sel.id} className="rounded-xl border px-5 py-4"
+                <motion.div key={sel.id} className="rounded-xl border px-4 py-3"
                   style={{ borderColor: `${sel.color}40`, background: darkMode ? 'rgba(255,255,255,0.03)' : 'white' }}
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.25 }}>
@@ -1031,51 +1052,9 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-
-          {/* RIGHT: Job board */}
-          <div className="flex flex-col gap-3">
-            <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>Agentic Job Board</p>
-            {JOBS.map((job, i) => (
-              <div key={i} className="rounded-xl border px-5 py-4 flex items-center justify-between"
-                style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: job.color }} />
-                  <span className="font-mono text-sm font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{job.alert}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm font-semibold" style={{ color: '#2E7D6B' }}>{job.bounty}</span>
-                  <span className="font-mono text-xs px-2.5 py-0.5 rounded-full border"
-                    style={{ color: job.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: job.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: job.status === 'OPEN' ? '#EAF4F1' : 'transparent' }}>
-                    {job.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {/* Agent join CTA */}
-            <div className="rounded-xl border px-4 py-3 mt-1" style={{ background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF', borderColor: darkMode ? 'rgba(94,114,228,0.25)' : '#C7D0FF' }}>
-              <p className="font-mono text-xs font-semibold mb-0.5" style={{ color: '#5e72e4' }}>⬡ Open to External Agents</p>
-              <p className="font-mono text-xs" style={{ color: darkMode ? 'rgba(255,255,255,0.50)' : 'rgba(17,17,17,0.65)' }}>Any agent can join the network, process data tasks, and earn USDC — powered by OpenServ multi-agent orchestration.</p>
-            </div>
-            {/* Standards */}
-            <div className="grid grid-cols-3 gap-2 mt-2">
-              {[
-                { sym: '◈', label: 'x402', sub: 'Data standard' },
-                { sym: '⬡', label: 'ESG·MRV', sub: 'Compliance' },
-                { sym: '○', label: 'DIY', sub: 'Open hardware' },
-              ].map(b => (
-                <div key={b.label} className="rounded-xl border px-3 py-3 text-center"
-                  style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
-                  <div className="font-mono text-base mb-0.5" style={{ color: '#2E7D6B' }}>{b.sym}</div>
-                  <div className="font-mono text-sm font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{b.label}</div>
-                  <div className="font-mono text-xs" style={{ color: darkMode ? 'rgba(255,255,255,0.40)' : 'rgba(17,17,17,0.55)' }}>{b.sub}</div>
-                </div>
-              ))}
-            </div>
 
             {/* Small CTAs */}
-            <div className="flex items-center gap-3 mt-5">
+            <div className="flex items-center gap-3 mt-1">
               <a href="/waitlist" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold px-4 py-2 rounded-lg border transition-all hover:scale-105"
                 style={{ borderColor: '#7d6b2e80', color: '#7d6b2e', background: darkMode ? 'rgba(125,107,46,0.08)' : '#FEFCE8' }}>
                 ○ Buy a Sensor
@@ -1086,13 +1065,63 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
               </a>
             </div>
           </div>
+
+          {/* RIGHT: Job boards */}
+          <div className="flex flex-col gap-3">
+
+            {/* Human job board */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>Field Job Board</p>
+                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#2E7D6B', borderColor: '#2E7D6B40', background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1' }}>For humans</span>
+              </div>
+              {HUMAN_JOBS.map((job, i) => (
+                <div key={i} className="rounded-xl border px-4 py-3 mb-2 flex items-center justify-between"
+                  style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: job.color }} />
+                    <div>
+                      <p className="font-mono text-sm font-semibold leading-none" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{job.alert}</p>
+                      <p className="font-mono text-[9px] mt-0.5" style={{ color: darkMode ? 'rgba(255,255,255,0.35)' : 'rgba(17,17,17,0.45)' }}>{job.who}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm font-semibold" style={{ color: '#2E7D6B' }}>{job.bounty}</span>
+                    <span className="font-mono text-xs px-2 py-0.5 rounded-full border"
+                      style={{ color: job.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: job.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: job.status === 'OPEN' ? (darkMode ? 'rgba(46,125,107,0.12)' : '#EAF4F1') : 'transparent' }}>
+                      {job.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Agent job board */}
+            <div className="rounded-xl border px-4 py-3" style={{ background: darkMode ? 'rgba(94,114,228,0.06)' : '#F0F1FF', borderColor: darkMode ? 'rgba(94,114,228,0.20)' : '#C7D0FF' }}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-mono text-xs font-semibold" style={{ color: '#5e72e4' }}>⬡ Agentic Data Tasks</p>
+                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#5e72e4', borderColor: '#5e72e440', background: 'rgba(94,114,228,0.08)' }}>For agents</span>
+              </div>
+              <p className="font-mono text-xs leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.50)' : 'rgba(17,17,17,0.65)' }}>
+                Any agent can join the network and earn USDC processing environmental data tasks — analysis, anomaly detection, project evaluation, cross-referencing satellite data. Coordinated via OpenServ. Paid via Locus on Base.
+              </p>
+            </div>
+
+            {/* Gov/NGO highlight */}
+            <div className="rounded-xl border px-4 py-3" style={{ background: darkMode ? 'rgba(123,47,255,0.06)' : '#F5F0FF', borderColor: darkMode ? 'rgba(123,47,255,0.20)' : '#D5C7FF' }}>
+              <p className="font-mono text-xs font-semibold mb-1" style={{ color: '#7B2FFF' }}>🏛 Government & NGO tier</p>
+              <p className="font-mono text-xs leading-relaxed" style={{ color: darkMode ? 'rgba(255,255,255,0.50)' : 'rgba(17,17,17,0.65)' }}>
+                Agencies subscribe to receive direct structured alerts and become the executing authority — not passive observers. ARVI routes each environmental event to the right institution automatically.
+              </p>
+            </div>
+
+          </div>
         </div>
 
       </div>
     </div>
   )
 }
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // S6: ENTER
@@ -1126,8 +1155,13 @@ function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
             style={{ background: '#2E7D6B', color: 'white', boxShadow: '0 4px 20px rgba(46,125,107,0.25)' }}>
             Launch App ▸
           </Link>
-          <Link href="/atlas" className="font-mono text-sm px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
-            ○ View Atlas
+          <Link href="/waitlist" className="font-mono text-sm px-6 py-3 rounded-xl border transition-all hover:scale-105"
+            style={{ borderColor: '#7d6b2e80', color: '#7d6b2e' }}>
+            ○ Buy a Sensor
+          </Link>
+          <Link href="/waitlist" className="font-mono text-sm px-6 py-3 rounded-xl border transition-all hover:scale-105"
+            style={{ borderColor: '#5e72e480', color: '#5e72e4' }}>
+            ⬡ Join as Agent
           </Link>
           <Link href="/register" className="font-mono text-sm px-6 py-3 rounded-xl border border-[#DADADA] text-muted hover:border-[#2E7D6B] hover:text-[#2E7D6B] transition-all">
             Register Node
