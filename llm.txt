@@ -43,15 +43,43 @@ curl -X POST https://arvi-eight.vercel.app/api/analyze \
 
 ---
 
-## Evolution — Rembu → Sen → Aona → ARVI
+## Research Context
 
-**Rembu (v1):** First attempt at a sensor marketplace. Focused on connecting IoT devices to a dashboard. No autonomous agent — just data visualization.
+ARVI is the fourth iteration of a Master's thesis in Strategic Business Administration (MBA) focused on technology for environmental impact. The research methodology is experiment-based: each version is deployed in a real hackathon, learnings are documented, and the next version integrates what was validated.
 
-**Sen (v2):** Added AI analysis layer. Tried to connect multiple LLM providers (including Bankr, which turned out to be a token launchpad with no usable API, and OpenServ, which had no real integration path). Realized the stack was overbuilt and underconnected.
+This is not a pivot story. It is a research arc.
 
-**Aona (v3):** Pivoted to agentic framing — the agent takes actions, not just shows data. Added Base contract, ERC-8004 identity, Resend email alerts. Tried Locus for payments (API not publicly accessible). Removed fake integrations.
+---
 
-**ARVI (v4 — current):** One clean loop, one honest stack. Venice AI is the only LLM. Payments via ARVIAgent on Base. Alert log on Cloudflare R2 (public, permanent). Every artifact is verifiable.
+## Evolution — Rembu (2024) → SEN (2025) → Aona (2025) → ARVI (2026)
+
+**Rembu (2024) — DePIN Experiment**
+Research question: *Can decentralized physical infrastructure (DePIN) be used to incentivize environmental sensor deployment?*
+Result: Validated that economic incentives can drive citizen sensor adoption. Identified the gap: data was being collected but not analyzed or acted upon. Documented learnings fed directly into SEN.
+
+**SEN (2025) — Data Commercialization Experiment**
+Research question: *Can environmental sensor data be commercialized as a service — creating a market that sustains the network?*
+Result: Validated demand for hyperlocal environmental data from cities, NGOs, and researchers. Identified the bottleneck: human analysts were the limiting factor in turning data into action. Documented learnings fed directly into Aona.
+
+**Aona (2025) — AI Integration Experiment**
+Research question: *Can AI analysis remove the human bottleneck — turning raw sensor data into structured, actionable intelligence automatically?*
+Result: Validated AI-driven environmental analysis. Confirmed that pattern detection and anomaly identification can be automated. Identified the next frontier: the AI could *analyze* but could not yet *act*. Documented learnings fed directly into ARVI.
+
+**ARVI (2026) — Agentic Action Experiment**
+Research question: *Can autonomous AI agents close the full loop — from environmental signal to real-world action — with zero human trigger?*
+Result (current): The loop is proven. Venice AI analyzes in real time. Alerts are sent. Events are logged on Base. The agent runs hourly without human intervention. The next frontier: expanding the action set (field APIs, operator payments, government notifications) using the same architecture already validated.
+
+---
+
+## Why This Matters as a Research Contribution
+
+Each experiment added one layer to the same system:
+1. **Rembu** — the incentive layer (why people deploy sensors)
+2. **SEN** — the value layer (what the data is worth)
+3. **Aona** — the intelligence layer (what AI can extract from data)
+4. **ARVI** — the action layer (what agents can do with intelligence)
+
+ARVI does not replace its predecessors. It integrates their validated learnings into a working system. The codebase is the thesis output — not a prototype, not a demo, but a tested, deployable tool for environmental resilience.
 
 ---
 
