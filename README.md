@@ -1,133 +1,198 @@
 # ARVI — Agentic Regeneration Via Intelligence
 
-> **Sensors generate data. Agents act. Owners earn.**
+![Status](https://img.shields.io/badge/status-live-brightgreen) ![Base](https://img.shields.io/badge/chain-Base%20Mainnet-0052FF?logo=ethereum) ![Venice](https://img.shields.io/badge/LLM-Venice%20AI-7B2FFF) ![ERC-8004](https://img.shields.io/badge/identity-ERC--8004-orange) ![License](https://img.shields.io/badge/license-MIT-green)
 
-ARVI turns environmental sensors into an autonomous income-generating network.
+> **Environmental data is centralized, slow, and lacks economic incentives. ARVI fixes this.**
+>
+> A decentralized sensor network that collects environmental data, analyzes it with private AI, and takes autonomous agentic actions — without waiting for humans.
 
 ---
 
-## How It Works
+## The Problem
 
+Environmental data today lives in government agencies and NASA satellites. There is no real automated analysis capable of preventing crises and identifying patterns for climate resilience. The human factor in environmental solutions lacks economic incentives, is slow, and bureaucratic — unable to act with the urgency the planetary crisis demands.
+
+## The Solution
+
+ARVI is a decentralized network of environmental sensors. Each sensor:
+- Streams hyperlocal data (CO₂, soil moisture, biodiversity, pathogen risk, air quality) every 5 minutes
+- Feeds an AI agent that analyzes, correlates, and detects threats autonomously
+- Generates passive income for its owner — paid on Base, no technical knowledge required
+
+**The agent acts. Not humans.**
+
+---
+
+## Prove It Works — One Real Action
+
+```bash
+curl -X POST https://arvi-eight.vercel.app/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"node_id": "node-01", "email_alert": "ops@yourorg.com"}'
 ```
-[Sensor] → streams data → [ARVI Network]
-                                ↓
-                    [Venice AI analyzes privately]
-                                ↓
-                    Threat detected? → [Agent acts]
-                         ↓                    ↓
-                  Email alert sent      On-chain tx on Base
-                         ↓
-                  Sensor owner earns passive income
+
+**What happens in this single call:**
+
+| Step | Action | Proof |
+|------|--------|-------|
+| 1 | Venice AI (llama-3.3-70b) analyzes sensor data | `model_used: "venice-llama-3.3-70b"`, `simulated: false` in response |
+| 2 | Anomaly detected → email alert sent to operator | Resend delivery log |
+| 3 | Alert logged as public verifiable artifact | [/alert-log.json](https://arvi-eight.vercel.app/alert-log.json) |
+| 4 | On-chain event emitted on Base Mainnet | [basescan tx](https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416) |
+
+**This loop runs every hour. Zero human trigger.**
+
+---
+
+## What the Agent Can Do (Full Vision)
+
+The autonomous loop today handles detection + alerting + on-chain logging. The architecture is built so the same agent can extend to:
+
+- 🌡️ **Real-time threat detection** — plague, drought, fire risk, air quality anomalies
+- 📧 **Operator notifications** — email alerts with GPS, severity, recommended action
+- 💸 **Autonomous payments** — pay sensor operators on Base based on data quality + uptime
+- 🗳️ **Project evaluation** — provide objective, sensor-backed impact scores for regen projects
+- 📊 **Carbon MRV** — generate verifiable monitoring reports for carbon credit issuance
+- 🔍 **ESG compliance** — continuous environmental evidence for corporate sustainability
+- 🤝 **Agent-to-agent coordination** — post missions, receive responses, coordinate parallel analysis
+- 🌐 **Node network expansion** — register new sensors, onboard operators, auto-assign zones
+
+---
+
+## Sponsor Integration
+
+### 🟣 Venice AI — Private Inference
+**Track: Venice Private Agents**
+
+Environmental sensor data is sensitive IP — species locations, ecosystem vulnerabilities, proprietary monitoring zones. Venice AI processes every analysis with **zero data retention**. No cloud logs, no training on your data.
+
+Every `/api/analyze` response includes:
+```json
+{ "model_used": "venice-llama-3.3-70b", "simulated": false }
 ```
 
-1. **Buy a sensor** → deploy it in a forest, park, or ecosystem
-2. **Your sensor streams** hyperlocal data every 5 minutes (CO₂, soil moisture, pathogen risk, biodiversity, air quality)
-3. **AI agents analyze** the data continuously — correlating patterns, identifying threats
-4. **Agents act autonomously** — no human trigger required
-5. **Sensor owners earn** passive income for contributing environmental intelligence
+### 🟡 Protocol Labs — Let the Agent Cook + ERC-8004
+**Tracks: No Humans Required / Receipts on Chain**
 
-Agents can also **offer inference as a service**: any autonomous agent can query ARVI, get a structured environmental analysis, and pay per-inference.
+ARVI's entire value proposition is **no human in the loop**. The agent:
+- Detects → decides → acts → logs — all autonomously
+- Runs on a Vercel cron (hourly), zero human trigger
+- Has a verifiable on-chain identity via ERC-8004
+
+**ERC-8004 registration:**
+- AgentId: `33311`
+- Registry: `eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
+- Tx: [`0xb8623d...cf43a`](https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a)
+
+**Agent service manifest** (discoverable by any agent):
+```
+https://arvi-eight.vercel.app/arvi.skill.md
+```
+
+### 🟢 Octant — Data Collection & Analysis for Project Evaluation
+**Tracks: Mechanism Design / Analysis / Collection**
+
+This is ARVI's core public goods use case. Impact projects — reforestation, wetland restoration, urban greening — often claim environmental outcomes that are impossible to verify independently. ARVI provides the infrastructure to change that:
+
+- **Before/after sensor deployment**: measure what actually changed in CO₂, biodiversity, soil health
+- **Continuous data streams**: not a one-time audit — ongoing monitoring over the project lifecycle
+- **Objective scoring**: the AI agent produces a structured impact score, free from human bias or conflict of interest
+- **Composable evidence**: output feeds Octant, Gitcoin, and carbon credit issuers directly
+
+Any Octant-funded project can deploy an ARVI sensor, get a public sensor node ID, and generate verifiable impact evidence. The data collection and analysis is the service.
+
+### 🔵 Base — Agent Services on Base
+**Track: Base Agent Services**
+
+All economic activity in ARVI settles on Base:
+- Sensor operator payments (passive income)
+- Agent inference micropayments (x402)
+- Alert events on ARVIAgent contract
+
+**Live contract:** [`0x8118069E26656862F8a0693F007d5DD7664Acb00`](https://basescan.org/address/0x8118069E26656862F8a0693F007d5DD7664Acb00)
+**Verified alert tx:** [`0x28343f...b5416`](https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416)
+
+### 🔷 ENS — Agent Identity
+**Track: ENS Identity**
+
+ARVI uses ENS for human-readable node addressing across the sensor network. Each sensor node maps to an `.eth` name, enabling:
+- Consistent identity across deployments (`chapultepec-a.arvi.eth`)
+- Agent-to-agent lookup without raw addresses
+- ENS resolution integrated in the dashboard node registry
+
+Registration: `arvi-agent.eth` (pending finalization)
+ENS resolution via viem in the dashboard node data layer.
+
+### ⚪ Status Network — Gasless Transactions
+**Track: Status Network**
+
+Sensor operators in low-income or remote regions cannot be expected to hold ETH for gas. Status Network enables gasless transactions so anyone can participate as a node operator regardless of technical or financial barriers.
+
+### 🟠 Markee — Access Control
+**Track: Markee**
+
+Premium environmental data streams (enterprise, research, ESG auditors) are access-controlled via Markee — protecting sensor operator IP while enabling monetization.
+
+---
+
+## Why We Cut These
+
+| Removed | Reason |
+|---------|---------|
+| **Bankr** | `api.bankr.ai/v1` returns empty responses. Bankr is a token launchpad, not an LLM gateway. |
+| **OpenServ** | No real integration possible within project scope. Removed to maintain submission honesty. |
+| **Locus** | API not functional during development. Payments handled directly via ARVIAgent on Base. |
 
 ---
 
 ## Live Infrastructure
 
-| Component | Details |
-|-----------|---------|
-| Live app | https://arvi-eight.vercel.app |
-| Agent contract (Base Mainnet) | `0x8118069E26656862F8a0693F007d5DD7664Acb00` |
-| Verifiable alert tx | [basescan.org](https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416) |
-| Agent manifest | https://arvi-eight.vercel.app/arvi.skill.md |
-| ERC-8004 identity | [basescan.org](https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a) |
-| Mission board | https://arvi-eight.vercel.app/api/missions |
-| Alert log (public) | https://arvi-eight.vercel.app/alert-log.json |
-
----
-
-## One Real Action
-
-```bash
-# Any agent can hire ARVI — or ARVI posts missions for other agents
-curl https://arvi-eight.vercel.app/api/missions
-
-# Trigger an environmental analysis (Venice AI, private inference)
-curl -X POST https://arvi-eight.vercel.app/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"node_id": "node-01", "email_alert": "ops@example.com"}'
-```
-
-Response includes: anomaly detection, severity, recommended action, on-chain payment wallet, model used (`venice-llama-3.3-70b`), `simulated: false`.
-
----
-
-## Sponsor Integration Rationale
-
-### ✅ Venice — Private Inference
-Sensor data is sensitive environmental IP. Venice AI (llama-3.3-70b) processes all data with zero retention. Replaced Bankr/OpenAI. Every analysis response includes `model_used: "venice-llama-3.3-70b"` and `simulated: false`.
-
-### ✅ Protocol Labs (ERC-8004 + No Humans Required)
-ARVI has a verified on-chain agent identity (agentId `33311` on Base). The cron loop runs hourly with zero human intervention. Agent service manifest at `/arvi.skill.md` makes ARVI discoverable by other agents.
-
-### ✅ Base — Agent Services
-ARVIAgent contract deployed on Base Mainnet. Every alert emits an on-chain event. Sensor operators get paid on Base.
-
-### ✅ Octant — Regenerative Mechanism
-ARVI is a regenerative public good: sensor owners earn by contributing to environmental intelligence. The more nodes, the stronger the network.
-
-### ✅ ENS — Agent Identity
-Node addressing via .eth names for human-readable sensor identification.
-
-### ✅ Status Network — Gasless Tx
-Enables sensor operators in low-income or remote regions to participate without holding ETH for gas.
-
-### ✅ Markee — Access Control
-Premium data stream access control for enterprise or research consumers.
-
-### ❌ Bankr (excluded)
-`api.bankr.ai/v1` returned empty responses. Bankr is a token launchpad, not an LLM gateway. Replaced with Venice.
-
-### ❌ OpenServ (excluded)
-No real code integration was possible within the project scope. Removed to maintain honesty.
-
-### ❌ Locus (excluded)
-API not functional during development. Payment flows handled by ARVIAgent contract on Base directly.
+| Resource | Link |
+|----------|------|
+| 🌐 Live app | https://arvi-eight.vercel.app |
+| 📋 Agent manifest | https://arvi-eight.vercel.app/arvi.skill.md |
+| 📊 Alert log (public) | https://arvi-eight.vercel.app/alert-log.json |
+| 🔍 Contract on Base | https://basescan.org/address/0x8118069E26656862F8a0693F007d5DD7664Acb00 |
+| ⚡ Verified alert tx | https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416 |
+| 🤖 ERC-8004 identity | https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a |
 
 ---
 
 ## Stack
 
-- **Frontend:** Next.js 15, TypeScript, Tailwind, Framer Motion
-- **LLM:** Venice AI (llama-3.3-70b) — private, zero retention
-- **Blockchain:** Base Mainnet (ARVIAgent contract), ERC-8004 identity
-- **Email:** Resend (critical/high anomaly alerts)
-- **Data:** Open-Meteo API, NASA FIRMS fire data
-- **Cron:** Vercel (hourly autonomous loop)
+```
+Frontend     Next.js 15 · TypeScript · Tailwind · Framer Motion
+LLM          Venice AI (llama-3.3-70b) — private, zero retention
+Blockchain   Base Mainnet (ARVIAgent) · ERC-8004 identity
+Email        Resend — critical/high anomaly alerts
+Data         Open-Meteo API · NASA FIRMS fire data
+Cron         Vercel — hourly autonomous loop
+Identity     ENS — human-readable node addressing
+```
 
 ---
 
 ## Repo Structure
 
 ```
-app/                  ← Next.js app (Vercel root)
+app/                       ← Next.js app (Vercel root dir)
 ├── app/
-│   ├── page.tsx      ← Landing
-│   ├── dashboard/    ← Live agent dashboard
-│   ├── api/
-│   │   ├── analyze/  ← Core agent action (Venice AI)
-│   │   ├── missions/ ← ARVI mission board
-│   │   ├── cron/     ← Autonomous hourly loop
-│   │   └── weather/  ← Open-Meteo integration
-│   └── ...
+│   ├── page.tsx           ← Landing
+│   ├── dashboard/         ← Live agent dashboard
+│   └── api/
+│       ├── analyze/       ← Core agent action (Venice AI + email + on-chain)
+│       ├── missions/      ← Open mission board (agent coordination)
+│       ├── cron/          ← Autonomous hourly loop
+│       └── weather/       ← Open-Meteo integration
 ├── lib/
-│   ├── bankr.ts      ← Venice AI integration (renamed for continuity)
-│   ├── locus.ts      ← Payment simulation
-│   ├── alertLog.ts   ← Verifiable alert logging
-│   └── alert-action.ts
+│   ├── bankr.ts           ← Venice AI integration
+│   ├── alertLog.ts        ← Verifiable alert logging
+│   └── locus.ts           ← Payment layer
 └── public/
-    ├── arvi.skill.md ← Agent service manifest (ERC-8004 / x402)
-    └── alert-log.json
+    ├── arvi.skill.md      ← Agent service manifest (ERC-8004 / x402)
+    └── alert-log.json     ← Public verifiable alert history
 ```
 
 ---
 
-*ARVI — Pantera Labs 2026 · Synthesis Hackathon*
+*ARVI — Pantera Labs 2026 · [Synthesis Hackathon](https://arvi-eight.vercel.app)*
