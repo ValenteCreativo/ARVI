@@ -74,7 +74,7 @@ export default function RegisterNode() {
           style={{ color: 'rgba(17,17,17,0.55)' }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
           Deploy a monitoring node in an urban forest area. Every verified environmental anomaly
-          your node detects earns you <span style={{ color: '#2E7D6B', fontWeight: 700 }}>6–12 USDC automatically</span> — paid via Locus on Base, no invoice required.
+          your node detects earns you passive income — paid on Base automatically.
         </motion.p>
 
         {/* How it works — minimal cards */}
@@ -84,7 +84,7 @@ export default function RegisterNode() {
             { n: '01', t: 'Deploy',  b: 'Place your sensor node in an urban forest, park, or green zone.', color: '#2E7D6B' },
             { n: '02', t: 'Stream',  b: 'Node sends temperature, humidity, CO₂, soil moisture, AQI.', color: '#5e72e4' },
             { n: '03', t: 'Detect',  b: 'ARVI agent analyzes data with AI — flags anomalies in minutes.', color: '#1a6b8a' },
-            { n: '04', t: 'Earn',    b: 'Locus pays you USDC onchain for every confirmed threat event.', color: '#f5a623' },
+            { n: '04', t: 'Earn', b: 'Node operators earn on Base for every confirmed threat event.', color: '#f5a623' },
           ].map(s => (
             <div key={s.n} className="rounded-xl border p-4"
               style={{ background: 'white', borderColor: 'rgba(17,17,17,0.08)' }}>
@@ -150,7 +150,7 @@ export default function RegisterNode() {
           </button>
 
           <p className="font-mono text-[10px] text-center" style={{ color: 'rgba(17,17,17,0.35)' }}>
-            Payments via Locus · Base chain · ERC-8004 identity · Pantera Labs 2026
+            Payments on Base · ERC-8004 identity · Pantera Labs 2026
           </p>
         </motion.div>
 

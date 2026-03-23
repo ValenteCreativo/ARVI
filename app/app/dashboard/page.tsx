@@ -583,34 +583,15 @@ function ActionsTab({ stage, log, result, onRun, loading }: {
             Autonomous Actions
           </div>
           <div className="p-5 space-y-3">
-            {/* Payment */}
-            {payment && (
-              <div className={`rounded-xl border p-4 ${payment.simulated ? 'border-[#B85C00]/30 bg-[#B85C0008]' : 'border-jade/30 bg-[#EAF4F1]'}`}>
-                <p className={`font-mono text-[9px] uppercase tracking-widest mb-2 ${payment.simulated ? 'text-[#B85C00]' : 'text-jade'}`}>
-                  {payment.simulated ? '— Payment Simulation (no real tx)' : '— Operator Payment Executed'}
-                </p>
-                {!payment.simulated ? (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div><p className="font-mono text-[9px] text-muted mb-1">Amount</p><p className="font-serif text-xl text-jade">{String(payment.amount_usdc)} USDC</p></div>
-                    <div><p className="font-mono text-[9px] text-muted mb-1">Recipient</p><p className="font-mono text-[10px] text-ink/60">{String(payment.recipient ?? '').slice(0, 16)}...</p></div>
-                    <div><p className="font-mono text-[9px] text-muted mb-1">Chain</p><p className="font-mono text-[10px] text-ink/60">Base</p></div>
-                    <div><p className="font-mono text-[9px] text-muted mb-1">Status</p><p className="font-mono text-[10px] text-jade">✓ Confirmed</p></div>
-                  </div>
-                ) : (
-                  <p className="font-mono text-[10px] text-[#B85C00]/70">Payment infrastructure ready — awaiting Locus public API. No real USDC was sent.</p>
-                )}
+            {/* On-chain event */}
+            <div className="rounded-xl border border-jade/30 bg-[#EAF4F1] p-4">
+              <p className="font-mono text-[9px] uppercase tracking-widest mb-2 text-jade">— Alert Event on Base Mainnet</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div><p className="font-mono text-[9px] text-muted mb-1">Contract</p><p className="font-mono text-[10px] text-ink/60">0x8118069...Acb00</p></div>
+                <div><p className="font-mono text-[9px] text-muted mb-1">Chain</p><p className="font-mono text-[10px] text-ink/60">Base Mainnet</p></div>
               </div>
-            )}
-            {/* Job board */}
-            <div className="rounded-xl border border-[#DADADA] bg-canvas p-4">
-              <p className="font-mono text-[9px] text-muted uppercase tracking-widest mb-2">▸ Field Job Published — Bounty Board</p>
-              <p className="font-mono text-[10px] text-ink/70 mb-2">
-                Anomaly detected. Field validation required — inspect coordinates, collect evidence, file official report.
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[9px] text-muted">Bounty: 12 USDC · Status: OPEN</span>
-                <span className="font-mono text-[9px] text-jade">Posted onchain ✓</span>
-              </div>
+              <a href="https://basescan.org/address/0x8118069E26656862F8a0693F007d5DD7664Acb00" target="_blank" rel="noopener"
+                className="font-mono text-[9px] text-jade underline mt-2 block">View on Basescan ↗</a>
             </div>
           </div>
         </div>
@@ -836,80 +817,62 @@ function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, d
 
 // ─── Bounties Tab ──────────────────────────────────────────────────────────────
 function BountiesTab({ darkMode }: { darkMode?: boolean }) {
-  const AGENT_TASKS = [
-    { sym: '◈', task: 'Analyze 72h CO₂ drift across all 3 nodes', detail: 'Cross-correlate sensor readings and identify anomaly source. Return confidence score + affected zone.', bounty: '6 USDC', status: 'OPEN', tag: 'Analysis' },
-    { sym: '⬡', task: 'Cross-reference NASA FIRMS fire data with sensor AQI', detail: 'Fetch latest FIRMS hotspots, compare with current AQI readings. Flag spatial overlap within 2km.', bounty: '8 USDC', status: 'OPEN', tag: 'Cross-reference' },
-    { sym: '○', task: 'Evaluate reforestation project MRV impact score', detail: 'Collect before/after sensor evidence for Bosque Tlalpan intervention. Generate Octant-ready evaluation.', bounty: '12 USDC', status: 'CLAIMED', tag: 'MRV' },
-    { sym: '◈', task: 'Aggregate biodiversity change report for Q1 2026', detail: 'Pull audio sensor logs, compute species diversity index change vs Q4 2025.', bounty: '10 USDC', status: 'OPEN', tag: 'Report' },
-  ]
-  const HUMAN_TASKS = [
-    { sym: '🔥', task: 'Verify fire risk in Chapultepec Forest', detail: 'Sensors detected unusual heat signatures near the south perimeter. Go to the marked zone, confirm on the ground, and submit a photo + short report.', bounty: '12 USDC', status: 'OPEN', color: '#C0392B' },
-    { sym: '💧', task: 'Survey flood conditions in Xochimilco wetlands', detail: 'Soil saturation at 92%. Walk the marked wetland path, photograph water levels, confirm if drainage channels are blocked.', bounty: '8 USDC', status: 'OPEN', color: '#2E7D6B' },
-    { sym: '🌫', task: 'Ground-check air quality near Tlatelolco market', detail: 'PM2.5 spike detected. Visit the market area and identify the visible pollution source (traffic, burning, or construction).', bounty: '5 USDC', status: 'CLAIMED', color: '#B85C00' },
-    { sym: '🌿', task: 'Install sensor kit at Bosque de Aragón', detail: 'Node-04 deployment site confirmed. Bring your kit (or pick up at HQ), follow the installation guide, submit GPS coordinates + photo.', bounty: '20 USDC', status: 'OPEN', color: '#1a6b8a' },
-  ]
+  const [missions, setMissions] = React.useState<Record<string, unknown>[] | null>(null)
+  const [loading, setLoading] = React.useState(false)
+
+  const fetchMissions = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/missions')
+      const data = await res.json()
+      setMissions(data.missions || [])
+    } catch { setMissions([]) }
+    setLoading(false)
+  }
+
+  React.useEffect(() => { fetchMissions() }, [])
 
   return (
-    <div className="space-y-6">
-      {/* Agent board */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-widest font-semibold" style={{ color: '#5e72e4' }}>⬡ Agent Task Board</span>
-            <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border" style={{ color: '#5e72e4', borderColor: '#5e72e440', background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF' }}>For agents</span>
-          </div>
-          <span className="font-mono text-[9px] text-muted">Paid via Locus · Base</span>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-mono text-xs font-semibold text-jade uppercase tracking-widest">ARVI Mission Board</p>
+          <p className="font-mono text-[10px] text-muted mt-0.5">Open environmental missions posted by Pantera agent</p>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {AGENT_TASKS.map((t, i) => (
-            <div key={i} className={`rounded-2xl border p-4 ${darkMode ? 'bg-white/3 border-white/8' : 'bg-white border-line'}`}>
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-base" style={{ color: '#5e72e4' }}>{t.sym}</span>
-                  <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: '#5e72e412', color: '#5e72e4' }}>{t.tag}</span>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
-                  <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border"
-                    style={{ color: t.status==='OPEN'?'#2E7D6B':'#888', borderColor: t.status==='OPEN'?'#2E7D6B40':'#DADADA' }}>{t.status}</span>
-                </div>
-              </div>
-              <p className="font-mono text-[11px] font-semibold text-ink mb-1.5">{t.task}</p>
-              <p className="font-mono text-[9px] leading-snug text-muted">{t.detail}</p>
-            </div>
-          ))}
-        </div>
+        <button onClick={fetchMissions} className="font-mono text-[9px] border border-jade/30 px-3 py-1.5 rounded-lg text-jade hover:bg-jade/5 transition-colors">
+          {loading ? 'Loading...' : '↺ Refresh'}
+        </button>
       </div>
 
-      {/* Human board */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-widest font-semibold" style={{ color: '#2E7D6B' }}>○ Field Bounty Board</span>
-            <span className="font-mono text-[8px] px-2 py-0.5 rounded-full border" style={{ color: '#2E7D6B', borderColor: '#2E7D6B40', background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1' }}>For humans</span>
+      {missions === null && <p className="font-mono text-[10px] text-muted">Loading missions...</p>}
+      {missions !== null && missions.length === 0 && <p className="font-mono text-[10px] text-muted">No open missions right now.</p>}
+
+      {missions !== null && missions.map((m: Record<string, unknown>, i: number) => (
+        <div key={i} className={`rounded-xl border p-4 ${darkMode ? 'bg-white/3 border-white/8' : 'bg-white border-line'}`}>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <p className="font-mono text-xs font-semibold text-ink">{String(m.title)}</p>
+            <span className={`font-mono text-[8px] px-2 py-0.5 rounded-full border shrink-0 ${m.status === 'open' ? 'text-jade border-jade/30 bg-jade/5' : 'text-muted border-line'}`}>
+              {String(m.status).toUpperCase()}
+            </span>
           </div>
-          <span className="font-mono text-[9px] text-muted">Go to the field · earn USDC</span>
+          <p className="font-mono text-[9px] text-muted leading-snug mb-3">{String(m.description)}</p>
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[9px] text-jade font-bold">{String(m.reward_eth)} ETH · Base Mainnet</span>
+            <span className="font-mono text-[8px] text-muted">Node: {String(m.node_id)}</span>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {HUMAN_TASKS.map((t, i) => (
-            <div key={i} className={`rounded-2xl border p-4 ${darkMode ? 'bg-white/3 border-white/8' : 'bg-white border-line'}`}>
-              <div className="flex items-start justify-between mb-2">
-                <span className="text-2xl">{t.sym}</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
-                  <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border"
-                    style={{ color: t.status==='OPEN'?'#2E7D6B':'#888', borderColor: t.status==='OPEN'?'#2E7D6B40':'#DADADA' }}>{t.status}</span>
-                </div>
-              </div>
-              <p className="font-mono text-[11px] font-semibold text-ink mb-1.5">{t.task}</p>
-              <p className="font-mono text-[9px] leading-snug text-muted">{t.detail}</p>
-            </div>
-          ))}
-        </div>
+      ))}
+
+      <div className={`rounded-xl border p-4 ${darkMode ? 'bg-white/3 border-white/8' : 'bg-canvas border-line'}`}>
+        <p className="font-mono text-[9px] text-muted uppercase tracking-widest mb-2">Complete a mission</p>
+        <code className="font-mono text-[9px] text-ink/70 block break-all">
+          curl -X POST /api/missions &#123;&quot;mission_id&quot;: &quot;...&quot;, &quot;agent_id&quot;: &quot;your-agent&quot;&#125;
+        </code>
       </div>
     </div>
   )
 }
+
 
 // ─── Main Dashboard ────────────────────────────────────────────────────────────
 
