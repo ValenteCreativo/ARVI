@@ -57,6 +57,24 @@ ARVI flips the model: citizens deploy sensors and earn passive income. Venice AI
 
 ---
 
+## The Business Model
+
+**Who pays the rewards?** Not grants. Not speculation. Three real buyers:
+
+| Who pays | What they buy | Price range |
+|----------|---------------|-------------|
+| Cities & municipalities | Hyperlocal environmental data subscriptions | $300–500/month per 10 nodes |
+| Corporations (ESG) | Continuous, auditor-grade environmental evidence | $2,000–10,000/month |
+| Impact projects (Octant, Gitcoin) | MRV cycles for carbon credits & impact funding | Per evaluation |
+
+NGOs and government agencies add periodic intelligence reports ($300–1,500/month). Other AI agents pay per-query micropayments via x402 on Base.
+
+**The flywheel:** more sensors → more coverage → more enterprise contracts → more revenue → more rewards for operators → more sensors deployed.
+
+Sensor operators earn variable passive income based on data quality, uptime, and location scarcity. Early network nodes earn more (scarcity premium). This is infrastructure you own, not a yield farm.
+
+---
+
 ## The Research Behind It
 
 ARVI is not a hackathon idea. It is the fourth iteration of a Master's thesis in Strategic Business Administration — an experiment-based research arc that has been running since 2024.
