@@ -1,6 +1,6 @@
 # ARVI — Agentic Regeneration Via Intelligence
 
-![Status](https://img.shields.io/badge/status-live-brightgreen) ![Base](https://img.shields.io/badge/chain-Base%20Mainnet-0052FF?logo=ethereum) ![Venice](https://img.shields.io/badge/LLM-Venice%20AI-7B2FFF) ![ERC-8004](https://img.shields.io/badge/identity-ERC--8004-orange) ![License](https://img.shields.io/badge/license-MIT-green)
+![Status](https://img.shields.io/badge/status-live-brightgreen) ![Base](https://img.shields.io/badge/chain-Base%20Mainnet-0052FF?logo=ethereum) ![Venice](https://img.shields.io/badge/LLM-Venice%20AI-7B2FFF) ![ERC-8004](https://img.shields.io/badge/identity-ERC--8004-orange) ![License](https://img.shields.io/badge/license-BSD%203--Clause-blue)
 
 > **Environmental data is centralized, slow, and lacks economic incentives. ARVI fixes this.**
 >
