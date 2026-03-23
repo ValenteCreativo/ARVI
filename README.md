@@ -223,3 +223,7 @@ app/                       ← Next.js app (Vercel root dir)
 ---
 
 *ARVI — Pantera Labs 2026 · [Synthesis Hackathon](https://arvi-eight.vercel.app)*
+
+---
+
+From México, with 💚.
