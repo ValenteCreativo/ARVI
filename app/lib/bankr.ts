@@ -20,8 +20,10 @@ export interface AnalysisResult {
   simulated: boolean
 }
 
-const BANKR_API_URL = process.env.BANKR_API_URL || 'https://api.bankr.ai/v1'
-const BANKR_API_KEY = process.env.BANKR_API_KEY || process.env.SYNTHESIS_API_KEY || ''
+// Venice AI — privacy-preserving LLM gateway (no data retention)
+const VENICE_API_URL = 'https://api.venice.ai/api/v1'
+const VENICE_API_KEY = process.env.VENICE_API_KEY || ''
+const VENICE_MODEL = 'llama-3.3-70b'
 
 const SYSTEM_PROMPT = `You are ARVI, an autonomous environmental intelligence agent specialized in urban forest monitoring.
 You analyze sensor data from IoT nodes deployed in city parks and forests.
@@ -134,21 +136,22 @@ Return a JSON object with these exact fields:
 }
 `
 
-  // Fallback to simulation if no API key or API unreachable
-  if (!BANKR_API_KEY) {
-    console.log('[BANKR] No API key — using simulation mode')
+  // Fallback to simulation if no Venice API key
+  if (!VENICE_API_KEY) {
+    console.log('[VENICE] No API key — using simulation mode')
     return simulateAnalysis(node)
   }
 
   try {
-    const response = await fetch(`${BANKR_API_URL}/chat/completions`, {
+    console.log(`[VENICE] Calling Venice AI (${VENICE_MODEL}) — private cognition, no data retention`)
+    const response = await fetch(`${VENICE_API_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${BANKR_API_KEY}`,
+        'Authorization': `Bearer ${VENICE_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gemini-2.5-flash',
+        model: VENICE_MODEL,
         max_tokens: 3000,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
@@ -170,12 +173,12 @@ Return a JSON object with these exact fields:
     // Strip markdown code blocks if present (Gemini sometimes wraps JSON)
     const clean = content.replace(/^```json\n?/,'').replace(/^```\n?/,'').replace(/\n?```$/,'').trim()
     const result = JSON.parse(clean) as AnalysisResult
-    result.model_used = data.model || 'gemini-2.5-flash'
+    result.model_used = `venice-${VENICE_MODEL}`
     result.simulated = false
     return result
 
   } catch (err) {
-    console.warn('[BANKR] API unreachable, falling back to simulation:', err)
+    console.warn('[VENICE] API unreachable, falling back to simulation:', err)
     return simulateAnalysis(node)
   }
 }
