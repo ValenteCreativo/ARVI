@@ -1,79 +1,133 @@
 # ARVI — Agentic Regeneration Via Intelligence
 
-> Environmental intelligence for prevention and resilience. One provable autonomous loop.
+> **Sensors generate data. Agents act. Owners earn.**
 
-## What Works Now (Demo)
-1. **Real public data** — Open-Meteo weather API + NASA FIRMS fire data
-2. **Real LLM analysis** — Bankr gateway (Gemini 2.5 Flash) with structured JSON output
-3. **Real decision** — anomaly threshold logic with severity classification
-4. **Real action** — alert logged to `/alert-log.json` with timestamp and evidence
-5. **Real identity** — ERC-8004 registered on Base Mainnet ([0xb8623d...cf43a](https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a))
-
-## What is Roadmap
-- Live IoT sensor nodes (current data: curated static baselines for 3 CDMX locations)
-- Locus USDC automatic payments (payment infrastructure ready; awaiting Locus public API)
-- Multi-city expansion
-
-## Demo Path (60 seconds)
-1. Visit [arvi-eight.vercel.app](https://arvi-eight.vercel.app)
-2. Go to Dashboard → click **Run Agent**
-3. See: real weather data fetched, LLM analysis returned, alert logged
-4. Visit `/alert-log.json` — see the structured evidence
-
-## Architecture
-
-```
-Sensor reads → Agent analyzes (Bankr LLM) → Alert logged → Operator paid (USDC)
-```
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 15, TypeScript, Tailwind CSS, Framer Motion |
-| Weather | Open-Meteo API (free, no key) |
-| Fire data | NASA FIRMS MODIS NRT (free key) |
-| LLM | Bankr Gateway → Gemini 2.5 Flash |
-| Payments | Locus USDC (Base) — integrated, awaiting public API |
-| Identity | ERC-8004 — agent.json registered on Base Mainnet |
-| Deploy | Vercel (CI/CD from GitHub main) |
-
-## API
-
-### `POST /api/analyze`
-
-```json
-{ "node_id": "node-01" }
-```
-
-Returns analysis result with `simulated: true/false` indicating whether Bankr LLM was actually called, plus alert entry written to `/alert-log.json`.
-
-### `GET /api/weather`
-
-Returns live Open-Meteo data for all 3 nodes + NASA FIRMS fire hotspots near Mexico.
-
-## Environment Variables
-- `BANKR_API_KEY` — Bankr LLM gateway (Gemini 2.5 Flash)
-- `LOCUS_API_KEY` — Locus payments (Base chain USDC)
-- `BANKR_API_URL` — default: `https://api.bankr.ai/v1`
-
-## ERC-8004 Identity
-Agent Pantera — [0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a](https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a) (Base Mainnet)
-
-## Active Nodes (CDMX pilot)
-
-| Node | Location | Health | Status |
-|---|---|---|---|
-| `node-01` | Bosque de Chapultepec | 34% | CRITICAL — plague risk |
-| `node-02` | Alameda Central | 71% | Monitoring |
-| `node-03` | Tlatelolco | 52% | Drought stress |
-
-Node sensor data is currently curated static baselines — not live IoT streams.
-
-## Built at Synthesis Hackathon 2026
-
-**Builder:** Valentín Martínez
-**Team:** Pantera Labs
-**Participant ID:** d88080a57309466c96340338faed7862
+ARVI turns environmental sensors into an autonomous income-generating network.
 
 ---
 
-*Signals become decisions.*
+## How It Works
+
+```
+[Sensor] → streams data → [ARVI Network]
+                                ↓
+                    [Venice AI analyzes privately]
+                                ↓
+                    Threat detected? → [Agent acts]
+                         ↓                    ↓
+                  Email alert sent      On-chain tx on Base
+                         ↓
+                  Sensor owner earns passive income
+```
+
+1. **Buy a sensor** → deploy it in a forest, park, or ecosystem
+2. **Your sensor streams** hyperlocal data every 5 minutes (CO₂, soil moisture, pathogen risk, biodiversity, air quality)
+3. **AI agents analyze** the data continuously — correlating patterns, identifying threats
+4. **Agents act autonomously** — no human trigger required
+5. **Sensor owners earn** passive income for contributing environmental intelligence
+
+Agents can also **offer inference as a service**: any autonomous agent can query ARVI, get a structured environmental analysis, and pay per-inference.
+
+---
+
+## Live Infrastructure
+
+| Component | Details |
+|-----------|---------|
+| Live app | https://arvi-eight.vercel.app |
+| Agent contract (Base Mainnet) | `0x8118069E26656862F8a0693F007d5DD7664Acb00` |
+| Verifiable alert tx | [basescan.org](https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416) |
+| Agent manifest | https://arvi-eight.vercel.app/arvi.skill.md |
+| ERC-8004 identity | [basescan.org](https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a) |
+| Mission board | https://arvi-eight.vercel.app/api/missions |
+| Alert log (public) | https://arvi-eight.vercel.app/alert-log.json |
+
+---
+
+## One Real Action
+
+```bash
+# Any agent can hire ARVI — or ARVI posts missions for other agents
+curl https://arvi-eight.vercel.app/api/missions
+
+# Trigger an environmental analysis (Venice AI, private inference)
+curl -X POST https://arvi-eight.vercel.app/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"node_id": "node-01", "email_alert": "ops@example.com"}'
+```
+
+Response includes: anomaly detection, severity, recommended action, on-chain payment wallet, model used (`venice-llama-3.3-70b`), `simulated: false`.
+
+---
+
+## Sponsor Integration Rationale
+
+### ✅ Venice — Private Inference
+Sensor data is sensitive environmental IP. Venice AI (llama-3.3-70b) processes all data with zero retention. Replaced Bankr/OpenAI. Every analysis response includes `model_used: "venice-llama-3.3-70b"` and `simulated: false`.
+
+### ✅ Protocol Labs (ERC-8004 + No Humans Required)
+ARVI has a verified on-chain agent identity (agentId `33311` on Base). The cron loop runs hourly with zero human intervention. Agent service manifest at `/arvi.skill.md` makes ARVI discoverable by other agents.
+
+### ✅ Base — Agent Services
+ARVIAgent contract deployed on Base Mainnet. Every alert emits an on-chain event. Sensor operators get paid on Base.
+
+### ✅ Octant — Regenerative Mechanism
+ARVI is a regenerative public good: sensor owners earn by contributing to environmental intelligence. The more nodes, the stronger the network.
+
+### ✅ ENS — Agent Identity
+Node addressing via .eth names for human-readable sensor identification.
+
+### ✅ Status Network — Gasless Tx
+Enables sensor operators in low-income or remote regions to participate without holding ETH for gas.
+
+### ✅ Markee — Access Control
+Premium data stream access control for enterprise or research consumers.
+
+### ❌ Bankr (excluded)
+`api.bankr.ai/v1` returned empty responses. Bankr is a token launchpad, not an LLM gateway. Replaced with Venice.
+
+### ❌ OpenServ (excluded)
+No real code integration was possible within the project scope. Removed to maintain honesty.
+
+### ❌ Locus (excluded)
+API not functional during development. Payment flows handled by ARVIAgent contract on Base directly.
+
+---
+
+## Stack
+
+- **Frontend:** Next.js 15, TypeScript, Tailwind, Framer Motion
+- **LLM:** Venice AI (llama-3.3-70b) — private, zero retention
+- **Blockchain:** Base Mainnet (ARVIAgent contract), ERC-8004 identity
+- **Email:** Resend (critical/high anomaly alerts)
+- **Data:** Open-Meteo API, NASA FIRMS fire data
+- **Cron:** Vercel (hourly autonomous loop)
+
+---
+
+## Repo Structure
+
+```
+app/                  ← Next.js app (Vercel root)
+├── app/
+│   ├── page.tsx      ← Landing
+│   ├── dashboard/    ← Live agent dashboard
+│   ├── api/
+│   │   ├── analyze/  ← Core agent action (Venice AI)
+│   │   ├── missions/ ← ARVI mission board
+│   │   ├── cron/     ← Autonomous hourly loop
+│   │   └── weather/  ← Open-Meteo integration
+│   └── ...
+├── lib/
+│   ├── bankr.ts      ← Venice AI integration (renamed for continuity)
+│   ├── locus.ts      ← Payment simulation
+│   ├── alertLog.ts   ← Verifiable alert logging
+│   └── alert-action.ts
+└── public/
+    ├── arvi.skill.md ← Agent service manifest (ERC-8004 / x402)
+    └── alert-log.json
+```
+
+---
+
+*ARVI — Pantera Labs 2026 · Synthesis Hackathon*
