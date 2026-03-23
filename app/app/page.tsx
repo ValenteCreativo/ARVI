@@ -1191,7 +1191,7 @@ function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
           </motion.h2>
           <motion.h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(30px, 3.8vw, 52px)', color: '#2E7D6B' }}
             initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.8, duration: 0.7 }}>
-            It&apos;s an agentic economy — environmental intelligence for prevention and resilience.
+            It posts missions. Agents apply. The forest gets protected.
           </motion.h2>
           <motion.div className="w-px h-12 bg-[#DADADA] mt-8"
             initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
@@ -1217,10 +1217,15 @@ function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
             style={{ borderColor: '#7d6b2e60', color: '#7d6b2e' }}>
             ○ Buy a Sensor
           </Link>
-          <Link href="/waitlist" className="font-mono text-sm px-6 py-4 rounded-xl border text-center transition-all hover:scale-105 hover:border-[#5e72e4]"
+          <a href="https://arvi-eight.vercel.app/api/missions"
+            target="_blank" rel="noopener"
+            className="font-mono text-sm px-6 py-4 rounded-xl border text-center transition-all hover:scale-105 hover:border-[#5e72e4] group relative"
             style={{ borderColor: '#5e72e460', color: '#5e72e4' }}>
-            ⬡ Join as Agent
-          </Link>
+            ⬡ ARVI is Hiring — View Missions
+            <span className="absolute -bottom-8 left-0 right-0 text-[9px] font-mono opacity-0 group-hover:opacity-70 transition-opacity whitespace-nowrap" style={{ color: 'rgba(17,17,17,0.5)' }}>
+              curl arvi-eight.vercel.app/api/missions
+            </span>
+          </a>
           <Link href="/register" className="font-mono text-sm px-6 py-4 rounded-xl border text-center transition-all hover:scale-105 hover:border-[#2E7D6B] hover:text-[#2E7D6B]"
             style={{ borderColor: '#DADADA', color: 'rgba(17,17,17,0.50)' }}>
             Register Node
