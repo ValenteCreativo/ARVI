@@ -86,11 +86,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 6. Append to session alert log
+    // 6. Append to session + persist to R2
     let payment_result = null
     try {
-      const { appendSessionAlert } = await import('@/lib/alertSession')
+      const { appendSessionAlert, sessionAlerts, persistAlertToR2 } = await import('@/lib/alertSession')
       appendSessionAlert(alertEntry)
+      // Persist full log to R2 (async, non-blocking)
+      const allAlerts = [alertEntry, ...sessionAlerts]
+      persistAlertToR2(allAlerts).catch(e => console.warn('[ARVI] R2 persist failed:', e))
     } catch { /* non-critical */ }
 
     const responseHeaders = {
