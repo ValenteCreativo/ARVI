@@ -792,6 +792,7 @@ const JOB_BOARD_EN = [
 // S2: ACTIONS — what the agent does when it detects a threat
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// live: true = working today | live: false = same architecture, next milestone
 const SCENARIOS = [
   {
     id: 'fire',
@@ -800,12 +801,11 @@ const SCENARIOS = [
     color: '#C0392B',
     desc: 'Smoke signatures and heat anomalies detected in Chapultepec',
     actions: [
-      { icon: '📞', label: 'Calls park rangers', time: '< 30s', type: 'call' },
-      { icon: '📧', label: 'Sends email alert to node operator', time: '< 30 sec', type: 'alert' },
-      { icon: '🔗', label: 'Emits event on Base Mainnet via ARVIAgent', time: '< 1 min', type: 'chain' },
-      { icon: '📋', label: 'Logs alert to public R2 artifact (verifiable)', time: '< 1 min', type: 'log' },
-      { icon: '💰', label: 'Posts $50 USDC field verification bounty', time: '< 3 min', type: 'bounty' },
-      { icon: '📢', label: 'Publishes air quality warning to residents via app', time: '< 3 min', type: 'alert' },
+      { icon: '📧', label: 'Sends email alert to node operator', time: '< 30s', type: 'alert', live: true },
+      { icon: '🔗', label: 'Emits event on Base Mainnet via ARVIAgent', time: '< 1 min', type: 'chain', live: true },
+      { icon: '📋', label: 'Logs alert to public R2 artifact (verifiable)', time: '< 1 min', type: 'log', live: true },
+      { icon: '📞', label: 'Calls park rangers via field API', time: 'next', type: 'call', live: false },
+      { icon: '💰', label: 'Posts field verification bounty on Base', time: 'next', type: 'bounty', live: false },
     ],
   },
   {
@@ -815,11 +815,11 @@ const SCENARIOS = [
     color: '#2E7D6B',
     desc: 'Soil saturation at 94% in Xochimilco — 6h flood window predicted',
     actions: [
-      { icon: '🌊', label: 'Alerts CONAGUA drainage authority via API', time: '< 30s', type: 'alert' },
-      { icon: '📱', label: 'Sends SMS to 3,200 downstream residents', time: '< 1 min', type: 'sms' },
-      { icon: '🤝', label: 'Coordinates 8 NGO volunteer teams', time: '< 2 min', type: 'coordinate' },
-      { icon: '📄', label: 'Creates official evacuation radius data pack', time: '< 3 min', type: 'report' },
-      { icon: '📰', label: 'Sends embargoed press alert to 4 journalists', time: '< 4 min', type: 'email' },
+      { icon: '📧', label: 'Sends email alert to node operator', time: '< 30s', type: 'alert', live: true },
+      { icon: '🔗', label: 'Emits event on Base Mainnet via ARVIAgent', time: '< 1 min', type: 'chain', live: true },
+      { icon: '📋', label: 'Logs alert to public R2 artifact (verifiable)', time: '< 1 min', type: 'log', live: true },
+      { icon: '🌊', label: 'Alerts CONAGUA drainage authority via API', time: 'next', type: 'alert', live: false },
+      { icon: '📱', label: 'Sends SMS to downstream residents', time: 'next', type: 'sms', live: false },
     ],
   },
   {
@@ -829,10 +829,11 @@ const SCENARIOS = [
     color: '#B85C00',
     desc: 'Root-zone moisture at critical threshold across 3 nodes',
     actions: [
-      { icon: '🌿', label: 'Alerts Parks Department via official API', time: '< 1 min', type: 'alert' },
-      { icon: '💰', label: 'Issues irrigation verification bounty ($30 USDC)', time: '< 2 min', type: 'bounty' },
-      { icon: '✉️', label: 'Emails agricultural operators in affected zones', time: '< 2 min', type: 'email' },
-      { icon: '📊', label: 'Publishes 72h soil stress forecast to open API', time: '< 3 min', type: 'report' },
+      { icon: '📧', label: 'Sends email alert to node operator', time: '< 30s', type: 'alert', live: true },
+      { icon: '🔗', label: 'Emits event on Base Mainnet via ARVIAgent', time: '< 1 min', type: 'chain', live: true },
+      { icon: '📋', label: 'Logs alert to public R2 artifact (verifiable)', time: '< 1 min', type: 'log', live: true },
+      { icon: '🌿', label: 'Alerts Parks Department via official API', time: 'next', type: 'alert', live: false },
+      { icon: '💰', label: 'Issues irrigation verification bounty on Base', time: 'next', type: 'bounty', live: false },
     ],
   },
   {
@@ -842,11 +843,11 @@ const SCENARIOS = [
     color: '#5e72e4',
     desc: 'PM2.5 spike detected — Tlatelolco node trending above WHO threshold',
     actions: [
-      { icon: '🏛️', label: 'Files formal denuncia with PROFEPA (official channel)', time: '< 1 min', type: 'report' },
-      { icon: '🏫', label: 'Sends air quality alert to 12 nearby schools', time: '< 1 min', type: 'sms' },
-      { icon: '📢', label: 'Posts public pollution warning with pollutant source', time: '< 2 min', type: 'alert' },
-      { icon: '📱', label: 'Pushes notification to ARVI residents app', time: '< 2 min', type: 'alert' },
-      { icon: '📄', label: 'Generates air quality report for press', time: '< 5 min', type: 'email' },
+      { icon: '📧', label: 'Sends email alert to node operator', time: '< 30s', type: 'alert', live: true },
+      { icon: '🔗', label: 'Emits event on Base Mainnet via ARVIAgent', time: '< 1 min', type: 'chain', live: true },
+      { icon: '📋', label: 'Logs alert to public R2 artifact (verifiable)', time: '< 1 min', type: 'log', live: true },
+      { icon: '🏛️', label: 'Files formal report to environmental authority', time: 'next', type: 'report', live: false },
+      { icon: '🏫', label: 'Sends air quality alert to nearby schools', time: 'next', type: 'sms', live: false },
     ],
   },
   {
@@ -856,10 +857,11 @@ const SCENARIOS = [
     color: '#7B2FFF',
     desc: 'Fungal plague signature detected — early containment window open',
     actions: [
-      { icon: '🌲', label: 'Alerts forestry teams via field radio API', time: '< 30s', type: 'alert' },
-      { icon: '🔬', label: 'Issues species identification bounty ($45 USDC)', time: '< 1 min', type: 'bounty' },
-      { icon: '📄', label: 'Files containment protocol with CONAFOR', time: '< 2 min', type: 'report' },
-      { icon: '✉️', label: 'Emails municipal parks and adjacent reserves', time: '< 3 min', type: 'email' },
+      { icon: '📧', label: 'Sends email alert to node operator', time: '< 30s', type: 'alert', live: true },
+      { icon: '🔗', label: 'Emits event on Base Mainnet via ARVIAgent', time: '< 1 min', type: 'chain', live: true },
+      { icon: '📋', label: 'Logs alert to public R2 artifact (verifiable)', time: '< 1 min', type: 'log', live: true },
+      { icon: '🌲', label: 'Alerts forestry teams via field API', time: 'next', type: 'alert', live: false },
+      { icon: '🔬', label: 'Issues species identification bounty on Base', time: 'next', type: 'bounty', live: false },
     ],
   },
 ]
@@ -940,28 +942,37 @@ function ActionsPlane({ active, darkMode }: { active: boolean; darkMode?: boolea
             </div>
 
             {/* Action cascade */}
-            <div className="px-6 py-5 flex flex-col gap-3">
-              {scenario.actions.map((action, i) => (
-                <motion.div key={`${scenario.id}-${i}`}
+            <div className="px-6 py-5 flex flex-col gap-2">
+              {/* LIVE NOW */}
+              <p className="font-mono text-[9px] uppercase tracking-widest font-semibold mb-1" style={{ color: '#2E7D6B' }}>● Live now</p>
+              {scenario.actions.filter((a: {live: boolean}) => a.live).map((action: {icon: string; label: string; time: string; type: string; live: boolean}, i: number) => (
+                <motion.div key={`live-${i}`}
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: i <= revealedIdx ? 1 : 0, x: i <= revealedIdx ? 0 : -12 }}
                   transition={{ duration: 0.35 }}
-                  className="flex items-center gap-4">
-                  {/* Step number */}
-                  <span className="font-mono text-xs w-5 shrink-0 text-right" style={{ color: sub }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  {/* Icon */}
+                  className="flex items-center gap-4 rounded-lg px-3 py-2"
+                  style={{ background: '#2E7D6B0A', border: '1px solid #2E7D6B20' }}>
                   <span className="text-base shrink-0">{action.icon}</span>
-                  {/* Label */}
-                  <p className="font-mono text-sm flex-1" style={{ color: i <= revealedIdx ? ink : sub }}>{action.label}</p>
-                  {/* Type badge + time */}
+                  <p className="font-mono text-sm flex-1" style={{ color: ink }}>{action.label}</p>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="font-mono text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: `${TYPE_COLOR[action.type]}20`, color: TYPE_COLOR[action.type] }}>
-                      {action.type}
-                    </span>
+                    <span className="font-mono text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: '#2E7D6B20', color: '#2E7D6B' }}>live</span>
                     <span className="font-mono text-[10px]" style={{ color: sub }}>{action.time}</span>
                   </div>
+                </motion.div>
+              ))}
+
+              {/* SAME ARCHITECTURE — NEXT */}
+              <p className="font-mono text-[9px] uppercase tracking-widest font-semibold mt-3 mb-1" style={{ color: sub }}>○ Unlocked by the same architecture</p>
+              {scenario.actions.filter((a: {live: boolean}) => !a.live).map((action: {icon: string; label: string; time: string; type: string; live: boolean}, i: number) => (
+                <motion.div key={`next-${i}`}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: i + scenario.actions.filter((a: {live: boolean}) => a.live).length <= revealedIdx ? 0.6 : 0, x: i + scenario.actions.filter((a: {live: boolean}) => a.live).length <= revealedIdx ? 0 : -12 }}
+                  transition={{ duration: 0.35, delay: 0.2 }}
+                  className="flex items-center gap-4 rounded-lg px-3 py-2"
+                  style={{ border: `1px dashed ${border}` }}>
+                  <span className="text-base shrink-0 opacity-50">{action.icon}</span>
+                  <p className="font-mono text-sm flex-1 opacity-60" style={{ color: ink }}>{action.label}</p>
+                  <span className="font-mono text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ background: `${border}`, color: sub }}>next</span>
                 </motion.div>
               ))}
             </div>
