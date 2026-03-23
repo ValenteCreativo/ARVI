@@ -6,11 +6,15 @@
 
 ## What ARVI Is
 
-ARVI (Agentic Regeneration Via Intelligence) is an autonomous environmental monitoring agent for urban forests in Mexico City.
+ARVI (Agentic Regeneration Via Intelligence) is a decentralized network of autonomous environmental agents — deployable anywhere on the planet.
 
-Users deploy physical sensors in parks and forests. Each sensor streams hyperlocal data — CO₂, soil moisture, biodiversity signals, air quality — that satellites and city APIs cannot capture. Venice AI analyzes these streams continuously and acts on anomalies: alerting operators, logging events on Base, and posting open missions for other agents.
+Citizens deploy physical sensors in forests, wetlands, rivers, coastlines, urban parks, or any ecosystem. Each sensor generates hyperlocal environmental intelligence — CO₂, soil moisture, biodiversity signals, air quality, pathogen risk — that satellites and government APIs cannot capture at this resolution or speed. Venice AI analyzes these streams continuously, detects threats, and acts: alerting operators, logging immutable events on Base, and posting open missions for other agents to coordinate.
 
-The core value: **passive income for citizens who deploy sensors + real-time environmental intelligence for cities and NGOs — fully autonomous, no human trigger required.**
+The network is self-sustaining: sensor operators earn passive income for their contribution. The more sensors, the more intelligence. The more intelligence, the more value to cities, NGOs, impact projects, and other agents.
+
+The current deployment is in Mexico City — Chapultepec, Xochimilco, Alameda Central — as proof of concept. The architecture is global by design.
+
+The core thesis: **environmental data should be decentralized, incentivized, and acted upon autonomously — not locked in government databases waiting for a human to notice.**
 
 ---
 
