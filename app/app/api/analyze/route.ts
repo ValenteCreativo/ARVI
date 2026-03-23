@@ -16,22 +16,6 @@ import { triggerNodePayment } from '@/lib/locus'
 import { appendAgentLog } from '@/lib/agent-log'
 import { writeAlertLog } from '@/lib/alert-action'
 
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Use POST with {"node_id": "node-01"}' },
-    { 
-      status: 405,
-      headers: {
-        'X-SERVICE': 'ARVI Environmental Intelligence',
-        'X-PAYMENT-REQUIRED': '1000000',
-        'X-PAYMENT-ASSET': 'USDC',
-        'X-PAYMENT-CHAIN': 'base',
-        'X-AGENT-MANIFEST': 'https://arvi-eight.vercel.app/arvi.skill.md',
-      }
-    }
-  )
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
