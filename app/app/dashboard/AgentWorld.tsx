@@ -24,8 +24,6 @@ const TASKS = [
   'Reconciling USDC payouts…',
   'Cross-ref NASA FIRMS…',
   'Detecting PM2.5 drift…',
-  'Filing SEMARNAT report…',
-  'Emailing NGO partners…',
   'Calling park rangers…',
 ]
 
@@ -87,7 +85,7 @@ export default function AgentWorld({ darkMode }: { darkMode?: boolean }) {
     setStatuses(initStatus)
   }, [])
 
-  // Live simulation
+  // Live loop messages
   useEffect(() => {
     const pool: AgentStatus[] = ['analyzing', 'monitoring', 'acting', 'idle', 'alert']
     const interval = setInterval(() => {

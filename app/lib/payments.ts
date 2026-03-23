@@ -1,7 +1,6 @@
 /**
  * ARVI — Payment layer
  * Operator payments settle on Base via ARVIAgent contract.
- * Locus was evaluated but its API was not publicly accessible during development.
  * Payments are recorded on-chain via ARVIAgent: 0x8118069E26656862F8a0693F007d5DD7664Acb00
  */
 

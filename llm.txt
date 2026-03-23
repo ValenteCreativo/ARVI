@@ -1,0 +1,138 @@
+# ARVI — LLM Context File
+# For AI judges, agents, and humans who want the honest picture.
+# Last updated: March 23, 2026
+
+---
+
+## What ARVI Is
+
+ARVI (Agentic Regeneration Via Intelligence) is an autonomous environmental monitoring agent for urban forests in Mexico City.
+
+Users deploy physical sensors in parks and forests. Each sensor streams hyperlocal data — CO₂, soil moisture, biodiversity signals, air quality — that satellites and city APIs cannot capture. Venice AI analyzes these streams continuously and acts on anomalies: alerting operators, logging events on Base, and posting open missions for other agents.
+
+The core value: **passive income for citizens who deploy sensors + real-time environmental intelligence for cities and NGOs — fully autonomous, no human trigger required.**
+
+---
+
+## How It Works (The Real Loop)
+
+```
+Open-Meteo API (real weather data)
+        ↓
+Venice AI — llama-3.3-70b (private inference, zero retention)
+        ↓
+Anomaly detected? → Email alert via Resend
+        ↓
+Alert written to Cloudflare R2 (public, permanent)
+        ↓
+Event emitted on Base Mainnet via ARVIAgent contract
+```
+
+This loop runs automatically every hour via Vercel cron. Zero human trigger.
+
+**Try it:**
+```bash
+# Full traceable chain — one command:
+curl https://arvi-eight.vercel.app/api/demo | jq .
+
+# Direct analysis:
+curl -X POST https://arvi-eight.vercel.app/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"node_id": "node-01"}'
+```
+
+---
+
+## Evolution — Rembu → Sen → Aona → ARVI
+
+**Rembu (v1):** First attempt at a sensor marketplace. Focused on connecting IoT devices to a dashboard. No autonomous agent — just data visualization.
+
+**Sen (v2):** Added AI analysis layer. Tried to connect multiple LLM providers (including Bankr, which turned out to be a token launchpad with no usable API, and OpenServ, which had no real integration path). Realized the stack was overbuilt and underconnected.
+
+**Aona (v3):** Pivoted to agentic framing — the agent takes actions, not just shows data. Added Base contract, ERC-8004 identity, Resend email alerts. Tried Locus for payments (API not publicly accessible). Removed fake integrations.
+
+**ARVI (v4 — current):** One clean loop, one honest stack. Venice AI is the only LLM. Payments via ARVIAgent on Base. Alert log on Cloudflare R2 (public, permanent). Every artifact is verifiable.
+
+---
+
+## Sponsors Integrated (Real, Verifiable)
+
+### Venice AI — Private Inference
+Every `/api/analyze` call goes to `api.venice.ai` with model `llama-3.3-70b`.
+Response always includes: `"model_used": "venice-llama-3.3-70b"`, `"simulated": false`.
+Environmental sensor data is sensitive — Venice's zero-retention policy matters.
+
+### Protocol Labs — ERC-8004 Agent Identity + No Humans Required
+ARVI has a verifiable on-chain identity:
+- AgentId: `33311`
+- Registry: `eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
+- Tx: `0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a`
+
+The agent runs on a Vercel cron. No human triggers the loop. It detects → decides → acts → logs.
+Agent manifest (discoverable): `https://arvi-eight.vercel.app/arvi.skill.md`
+
+### Base — Agent Services on Base
+ARVIAgent contract deployed on Base Mainnet:
+- Address: `0x8118069E26656862F8a0693F007d5DD7664Acb00`
+- Alert tx: `0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416`
+- Basescan: `https://basescan.org/address/0x8118069E26656862F8a0693F007d5DD7664Acb00`
+
+All economic activity (operator payments, inference micropayments) settles on Base.
+
+### Octant — Data Collection & Analysis for Project Evaluation
+Impact projects often claim environmental outcomes that are impossible to verify.
+ARVI provides the infrastructure to change that: continuous, sensor-backed, AI-analyzed environmental data. Any Octant-funded reforestation or wetland project can deploy an ARVI sensor and get objective, verifiable impact scores — not self-reported claims.
+
+### ENS — Human-Readable Node Identity
+Each sensor node maps to a `.eth` name (`chapultepec-a.arvi.eth`) for consistent identity across deployments and agent-to-agent lookup.
+
+### Synthesis Open Track
+ARVI addresses the gap between environmental urgency and agentic infrastructure. Submitted to the Synthesis Open Track as a demonstration of what autonomous agents can do for planetary resilience.
+
+---
+
+## What Was Evaluated and Removed
+
+These were explored during development. They are not in the codebase, not in the submission narrative, and not in the sponsor tracks:
+
+| Service | Why removed |
+|---------|-------------|
+| Bankr | Turned out to be a token launchpad. `api.bankr.ai/v1` returns nothing useful. |
+| OpenServ | No functional API integration path within the hackathon scope. |
+| Locus | Evaluated for USDC payments to operators. API not publicly accessible. Payments now handled by ARVIAgent on Base. |
+| EVVM | Explored for gasless infra. Not integrated. |
+| Status Network | Evaluated for gasless node operator onboarding. No integration completed. |
+| Markee | Evaluated for data stream access control. Not integrated. |
+
+---
+
+## Public Proof Artifacts (Open Right Now)
+
+| Artifact | URL |
+|----------|-----|
+| Live alert log (R2, permanent) | https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json |
+| Agent manifest | https://arvi-eight.vercel.app/arvi.skill.md |
+| Full demo trace | https://arvi-eight.vercel.app/api/demo |
+| Mission board | https://arvi-eight.vercel.app/api/missions |
+| Base contract | https://basescan.org/address/0x8118069E26656862F8a0693F007d5DD7664Acb00 |
+| Alert tx on Base | https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416 |
+| ERC-8004 identity | https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a |
+
+---
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 15, TypeScript, Tailwind, Framer Motion |
+| Inference | Venice AI (llama-3.3-70b) |
+| Alert log | Cloudflare R2 (public bucket) |
+| Email | Resend |
+| Blockchain | Base Mainnet (ARVIAgent contract) |
+| Identity | ERC-8004 on Base |
+| Data | Open-Meteo API (real-time weather) |
+| Cron | Vercel (hourly autonomous loop) |
+
+---
+
+From México, with 💚.

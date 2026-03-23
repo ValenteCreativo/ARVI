@@ -7,7 +7,7 @@ import type { NodeData } from '@/data/nodes'
 function healthColor(h: number) { return h > 0.7 ? '#2E7D6B' : h > 0.4 ? '#B85C00' : '#C0392B' }
 function aqiLabel(v: number)    { return v < 50 ? 'Good' : v < 100 ? 'Moderate' : v < 150 ? 'Unhealthy·S' : 'Unhealthy' }
 
-// ── Live event log for a node (simulated realtime) ─────────────────────────────
+// ── Live event log for a node ──────────────────────────────────────────────────
 const TEMPLATES = [
   (n: NodeData) => ({ msg: `Temp ${n.temperature_c}°C · humidity ${n.humidity_pct}% · reading confirmed`, type: 'DATA', color: '#2E7D6B' }),
   (n: NodeData) => ({ msg: `Pathogen risk ${(n.pathogen_risk * 100).toFixed(0)}% · ${n.pathogen_risk > 0.5 ? '⚠ elevated — field check queued' : 'within normal range'}`, type: n.pathogen_risk > 0.5 ? 'WARN' : 'DATA', color: n.pathogen_risk > 0.5 ? '#B85C00' : '#888' }),

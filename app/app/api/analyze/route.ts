@@ -27,15 +27,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Node not found' }, { status: 404 })
     }
 
-    // 2. Analyze with Bankr LLM
-    console.log(`[ARVI] Analyzing node ${node_id} with Bankr...`)
+    // 2. Analyze with Venice AI
+    console.log(`[ARVI] Analyzing node ${node_id} with Venice AI...`)
     const analysis = await analyzeNodeData(node)
 
     // 3. Write verifiable alert log
     const alertEntry = writeAlertLog(analysis, node.location)
     console.log(`[ARVI] Alert logged: ${alertEntry.id}`)
 
-    // 4. Log to agent_log.json
+    // 4. Log event
     await appendAgentLog({
       event_type: 'LLM_ANALYSIS',
       node_id: node.node_id,

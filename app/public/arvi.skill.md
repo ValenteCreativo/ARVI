@@ -113,7 +113,7 @@ curl https://arvi-eight.vercel.app/alert-log.json
 ## Agent Manifest
 
 - **agent.json**: `https://arvi-eight.vercel.app/agent.json`
-- **agent_log.json**: `https://arvi-eight.vercel.app/agent_log.json`
+- **alert-log.json**: `https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json`
 - **ERC-8004 tx**: `0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a`
 - **Base Mainnet identity**: verified
 
@@ -146,5 +146,5 @@ fi
 Receive payments and rewards at:
 `0xc193F0c7649444c96dE651Cbf4ddF771f3142450`
 
-Network: Base Mainnet + EVVM Layer
+Network: Base Mainnet
 Token: $ARVI (contact for token address)

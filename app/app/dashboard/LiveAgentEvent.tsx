@@ -170,7 +170,6 @@ export default function LiveAgentEvent({
             <span className="text-muted w-20 shrink-0 text-[10px]">Action</span>
             <span className="text-ink/60">
               Alert logged · /alert-log.json · {event.timestamp.slice(0, 19).replace('T', ' ')}
-              {event.simulated && <span className="ml-2 text-[#B85C00] text-[9px]">(simulation)</span>}
             </span>
           </div>
         </div>

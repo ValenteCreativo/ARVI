@@ -168,14 +168,6 @@ ENS resolution via viem in the dashboard node data layer.
 
 ---
 
-## Why We Cut These
-
-| Removed | Reason |
-|---------|---------|
-| **Bankr** | `api.bankr.ai/v1` returns empty responses. Bankr is a token launchpad, not an LLM gateway. |
-| **OpenServ** | No real integration possible within project scope. Removed to maintain submission honesty. |
-| **Locus** | API not functional during development. Payments handled directly via ARVIAgent on Base. |
-
 ---
 
 ## Live Infrastructure
@@ -220,9 +212,9 @@ app/                       ← Next.js app (Vercel root dir)
 │       ├── cron/          ← Autonomous hourly loop
 │       └── weather/       ← Open-Meteo integration
 ├── lib/
-│   ├── bankr.ts           ← Venice AI integration
+│   ├── venice.ts          ← Venice AI integration
 │   ├── alertLog.ts        ← Verifiable alert logging
-│   └── locus.ts           ← Payment layer
+│   └── payments.ts        ← Payment layer (Base ARVIAgent)
 └── public/
     ├── arvi.skill.md      ← Agent service manifest (ERC-8004 / x402)
     └── alert-log.json     ← Public verifiable alert history

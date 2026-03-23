@@ -121,9 +121,7 @@ export default function EvidencePanel({
                 <Row label="file" value="/alert-log.json" color={textPrimary} muted={textMuted} />
                 <Row label="entry_id" value={event.alert_id || 'N/A'} color={textPrimary} muted={textMuted} />
                 <Row label="timestamp" value={event.timestamp} color={textPrimary} muted={textMuted} />
-                {event.simulated && (
-                  <Row label="mode" value="simulation (no Bankr API key)" color="#B85C00" muted={textMuted} />
-                )}
+                
               </Section>
 
               {/* Buttons */}

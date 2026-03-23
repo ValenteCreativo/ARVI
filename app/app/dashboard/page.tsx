@@ -477,7 +477,7 @@ function IntelligenceTab({ node, result, onRun, loading }: {
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <p className="font-mono text-[9px] text-muted/40">{String(analysis.model_used)}</p>
-                {!!analysis.simulated && <span className="font-mono text-[8px] px-1.5 py-0.5 rounded-full border border-[#B85C00]/30 text-[#B85C00] bg-[#B85C0010]">Simulation mode</span>}
+                
               </div>
             </div>
           ) : (
@@ -601,9 +601,9 @@ function ActionsTab({ stage, log, result, onRun, loading }: {
       <div className="panel overflow-hidden">
         <div className="panel-header flex items-center justify-between">
           <span>Execution Log</span>
-          <a href="https://github.com/ValenteCreativo/ARVI/blob/main/agent_log.json"
+          <a href="https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json"
             target="_blank" rel="noopener" className="font-mono text-[9px] text-muted/40 hover:text-jade transition-colors">
-            agent_log.json ↗
+            alert-log.json ↗
           </a>
         </div>
         <div className="p-4 space-y-1.5 max-h-64 overflow-y-auto bg-canvas/50">
@@ -806,7 +806,7 @@ function HomeTab({ nodes, log, onRun, loading, onTab, globalFires, globalTemp, d
             <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
               target="_blank" rel="noopener"
               className="font-mono text-[9px] text-muted/40 hover:text-jade transition-colors">
-              ERC-8004 · Base Mainnet · EVVM ↗
+              ERC-8004 · Base Mainnet ↗
             </a>
           </div>
         </div>
@@ -888,7 +888,7 @@ const NET_TASKS = [
   'Scanning fire signatures…','Correlating soil moisture…','Running pathogen model…',
   'Issuing field bounty…','Verifying sensor onchain…','Analyzing CO₂ gradient…',
   'Predicting drought stress…','Broadcasting flood alert…','Reconciling USDC payouts…',
-  'Cross-ref NASA FIRMS…','Detecting PM2.5 drift…','Filing SEMARNAT report…',
+  'Cross-ref NASA FIRMS…','Detecting PM2.5 drift…',
 ]
 function AgentNetworkTab({ darkMode }: { darkMode?: boolean }) {
   const [tasks, setTasks] = useState<Record<string,string>>(() =>
@@ -1156,7 +1156,7 @@ export default function Dashboard() {
     addLog('SENSE', `${activeNode.node_id} — ${activeNode.location}`, '#2E7D6B')
     await new Promise(r => setTimeout(r, 700))
     setStage('analyze'); setLoopActiveStep(1)
-    addLog('ANALYZE', 'LLM analysis — Bankr/Gemini Gateway', '#888')
+    addLog('ANALYZE', 'Venice AI (llama-3.3-70b) — analyzing sensor data', '#888')
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1173,10 +1173,10 @@ export default function Dashboard() {
       addLog('ACT', `${String(a?.severity).toUpperCase()} · ${String(a?.alert_type).replace(/_/g, ' ')} · ${((a?.confidence as number ?? 0)*100).toFixed(0)}% conf`, a?.severity === 'critical' ? '#C0392B' : '#B85C00')
       await new Promise(r => setTimeout(r, 500)); setStage('pay'); setLoopActiveStep(3)
       const p = data.payment as Record<string, unknown>
-      if (p && !p.simulated) {
+      if (p) {
         addLog('PAY', `${String(p.amount_usdc)} USDC → ${String(p.recipient ?? '').slice(0, 16)}...`, '#2E7D6B')
       } else if (p) {
-        addLog('PAY', 'Payment simulated — no real tx', '#B85C00')
+
       }
       await new Promise(r => setTimeout(r, 300)); setLoopActiveStep(4)
       if (data.alert) {

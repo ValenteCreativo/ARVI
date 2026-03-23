@@ -249,9 +249,9 @@ function IntroPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
           <span className="font-mono text-[9px] uppercase tracking-widest" style={{ color: 'rgba(17,17,17,0.40)' }}>Built on</span>
           {[
             { label: 'Base', href: 'https://www.base.org/' },
-            { label: 'EVVM', href: 'https://evvm.org', title: 'No validator nodes · no gas fees · invisible infra' },
+            
           ].map(b => (
-            <a key={b.label} href={b.href} target="_blank" rel="noopener" title={b.title}
+            <a key={b.label} href={b.href} target="_blank" rel="noopener"
               className="font-mono text-[9px] px-2 py-0.5 rounded-full border transition-all hover:opacity-100"
               style={{ color: '#2E7D6B', borderColor: '#2E7D6B40' }}>
               {b.label} ↗
@@ -801,9 +801,9 @@ const SCENARIOS = [
     desc: 'Smoke signatures and heat anomalies detected in Chapultepec',
     actions: [
       { icon: '📞', label: 'Calls park rangers', time: '< 30s', type: 'call' },
-      { icon: '🚨', label: 'Notifies CDMX emergency line (911-linked API)', time: '< 1 min', type: 'alert' },
-      { icon: '📄', label: 'Files automated SEMARNAT fire report', time: '< 2 min', type: 'report' },
-      { icon: '✉️', label: 'Emails 14 NGO partners with GPS coordinates', time: '< 2 min', type: 'email' },
+      { icon: '📧', label: 'Sends email alert to node operator', time: '< 30 sec', type: 'alert' },
+      { icon: '🔗', label: 'Emits event on Base Mainnet via ARVIAgent', time: '< 1 min', type: 'chain' },
+      { icon: '📋', label: 'Logs alert to public R2 artifact (verifiable)', time: '< 1 min', type: 'log' },
       { icon: '💰', label: 'Posts $50 USDC field verification bounty', time: '< 3 min', type: 'bounty' },
       { icon: '📢', label: 'Publishes air quality warning to residents via app', time: '< 3 min', type: 'alert' },
     ],
@@ -1142,7 +1142,7 @@ function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
             transition={{ duration: 0.5, delay: 1.3 }} style={{ originY: 0 }} />
           <motion.p className="font-mono text-[10px] mt-4" style={{ color: 'rgba(17,17,17,0.45)' }}
             initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 1.5 }}>
-            ERC-8004 · Base Mainnet · EVVM ·{' '}
+            ERC-8004 · Base Mainnet ·{' '}
             <a href="https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a"
               target="_blank" rel="noopener" className="underline hover:text-[#2E7D6B] transition-colors">0xb8623d...cf43a</a>
             {' '}· Pantera Labs 2026
