@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     // 5. Send email alert if anomaly detected and email provided
     let email_sent = false
     const alertEmail = email_alert || process.env.ALERT_EMAIL
-    if (alertEmail && (analysis.severity === 'critical' || analysis.severity === 'high') && analysis.anomaly_detected) {
+    if (alertEmail && (analysis.severity === 'critical' || analysis.severity === 'high' || analysis.severity === 'medium') && analysis.anomaly_detected) {
       try {
         const resendKey = process.env.RESEND_API_KEY
         if (resendKey) {
