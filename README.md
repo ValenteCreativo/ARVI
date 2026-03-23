@@ -80,8 +80,8 @@ Sensor data is sensitive. Species locations, ecosystem vulnerabilities, propriet
 ### 🔵 Protocol Labs — No Humans Required + ERC-8004
 The agent detects → decides → acts → logs, hourly, with no human trigger. It has a verifiable on-chain identity: AgentId `33311`, registered at `eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`.
 
-### 🟢 Octant — Verifiable Impact for Regen Projects
-Reforestation projects claim outcomes that no one can independently verify. ARVI gives them continuous, sensor-backed, AI-analyzed evidence — not self-reported. Any Octant-funded project can deploy a node and get an objective impact score.
+### 🟢 Octant — Data Collection and Analysis for Impact Project Evaluation
+Impact projects claim outcomes that no one can independently verify. ARVI gives them continuous, sensor-backed, AI-analyzed evidence — not self-reported. Any Octant-funded project can deploy a node and get an objective impact score.
 
 ### 🔷 ENS — Operator Identity
 Node operators register a `.eth` name once. Every alert, payment, and mission resolves to that name — no raw addresses. The ENS endpoint is live:
@@ -109,6 +109,6 @@ Identity     ENS — operator and node addressing
 
 ---
 
-*ARVI — Pantera Labs 2026 · Built for [The Synthesis Hackathon](https://arvi-eight.vercel.app)*
+*ARVI — Pantera Labs 2026 · Built for [The Synthesis Hackathon](https://synthesis.md/)*
 
 From México, with 💚.
