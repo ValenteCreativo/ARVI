@@ -65,7 +65,7 @@ Corporations with environmental commitments (carbon neutrality, biodiversity tar
 Target: $2,000–$10,000/month per enterprise client for continuous monitoring contracts.
 
 **4. Impact Project Evaluation (Octant / Gitcoin / Carbon Credits)**
-Reforestation, wetland restoration, and urban greening projects need MRV (Monitoring, Reporting, Verification) to access carbon credits and impact funding. ARVI provides the sensor infrastructure and AI analysis layer. Projects pay per evaluation cycle.
+Impact projects need MRV (Monitoring, Reporting, Verification) to access carbon credits and impact funding. ARVI provides the sensor infrastructure and AI analysis layer. Projects pay per evaluation cycle.
 
 This is the Octant integration: any project funded by Octant can deploy an ARVI node and get objective, sensor-backed impact scores instead of self-reported claims.
 
@@ -176,7 +176,7 @@ All economic activity (operator payments, inference micropayments) settles on Ba
 
 ### Octant — Data Collection & Analysis for Project Evaluation
 Impact projects often claim environmental outcomes that are impossible to verify.
-ARVI provides the infrastructure to change that: continuous, sensor-backed, AI-analyzed environmental data. Any Octant-funded reforestation or wetland project can deploy an ARVI sensor and get objective, verifiable impact scores — not self-reported claims.
+ARVI provides the infrastructure to change that: continuous, sensor-backed, AI-analyzed environmental data. Any Octant-funded impact project can deploy an ARVI sensor and get objective, verifiable impact scores — not self-reported claims.
 
 ### ENS — Agent Identity Infrastructure
 
