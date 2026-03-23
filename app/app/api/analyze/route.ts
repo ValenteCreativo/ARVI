@@ -16,9 +16,26 @@ import { triggerNodePayment } from '@/lib/locus'
 import { appendAgentLog } from '@/lib/agent-log'
 import { writeAlertLog } from '@/lib/alert-action'
 
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Use POST with {"node_id": "node-01"}' },
+    { 
+      status: 405,
+      headers: {
+        'X-SERVICE': 'ARVI Environmental Intelligence',
+        'X-PAYMENT-REQUIRED': '1000000',
+        'X-PAYMENT-ASSET': 'USDC',
+        'X-PAYMENT-CHAIN': 'base',
+        'X-AGENT-MANIFEST': 'https://arvi-eight.vercel.app/arvi.skill.md',
+      }
+    }
+  )
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { node_id } = await req.json()
+    const body = await req.json()
+    const { node_id, email_alert } = body
 
     // 1. Find node data
     const node = ARVI_NODES.find(n => n.node_id === node_id)
@@ -61,6 +78,15 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    const responseHeaders = {
+      'X-SERVICE': 'ARVI Environmental Intelligence',
+      'X-AGENT-MANIFEST': 'https://arvi-eight.vercel.app/arvi.skill.md',
+      'X-PAYMENT-ASSET': 'USDC',
+      'X-PAYMENT-CHAIN': 'base',
+      'X-ARVI-SEVERITY': analysis.severity,
+      'X-ARVI-NODE': node.node_id,
+    }
+
     return NextResponse.json({
       success: true,
       node: {
@@ -72,7 +98,12 @@ export async function POST(req: NextRequest) {
       analysis,
       payment: payment_result,
       alert: alertEntry,
-    })
+      _service: {
+        manifest: 'https://arvi-eight.vercel.app/arvi.skill.md',
+        agent_wallet: '0xc193F0c7649444c96dE651Cbf4ddF771f3142450',
+        erc8004: '0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a',
+      }
+    }, { headers: responseHeaders })
 
   } catch (error) {
     console.error('[ARVI] Agent loop error:', error)
