@@ -1,42 +1,17 @@
 /**
- * ARVI — Agent Log Writer
- * Appends entries to agent_log.json (Protocol Labs requirement)
+ * ARVI — Agent Event Log
+ * Records agent actions to stdout (Vercel logs) and session memory.
+ * Persistent proof lives in Cloudflare R2: alert-log.json
  */
 
-import { readFileSync, writeFileSync } from 'fs'
-import { join } from 'path'
-
-const LOG_PATH = join(process.cwd(), '..', 'agent_log.json')
-
-interface LogEntry {
+export interface AgentLogEntry {
   event_type: string
+  node_id?: string
+  timestamp?: string
   [key: string]: unknown
 }
 
-export async function appendAgentLog(data: LogEntry) {
-  try {
-    const raw = readFileSync(LOG_PATH, 'utf-8')
-    const log = JSON.parse(raw)
-
-    const entry = {
-      id: `log-${String(log.entries.length + 1).padStart(3, '0')}`,
-      timestamp: new Date().toISOString(),
-      status: 'SUCCESS',
-      ...data,
-    }
-
-    log.entries.push(entry)
-
-    // Remove from pending if it matches
-    log.pending_entries = log.pending_entries.filter(
-      (p: { event_type: string }) => p.event_type !== data.event_type
-    )
-
-    writeFileSync(LOG_PATH, JSON.stringify(log, null, 2))
-    console.log(`[ARVI LOG] Entry added: ${data.event_type}`)
-
-    return entry
-  } catch (err) {
-    console.error('[ARVI LOG] Failed to write log:', err)
-  }
+export async function appendAgentLog(entry: AgentLogEntry): Promise<void> {
+  const record = { ...entry, timestamp: entry.timestamp || new Date().toISOString() }
+  console.log('[ARVI:EVENT]', JSON.stringify(record))
 }

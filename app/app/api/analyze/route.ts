@@ -1,17 +1,17 @@
 /**
  * POST /api/analyze
- * ARVI Agent Loop:
+ * ARVI Agent Loop — no simulation, no fallbacks:
  * 1. Receive node_id
- * 2. Analyze with Bankr LLM
- * 3. Write alert to public/alert-log.json (verifiable artifact)
- * 4. Log to agent_log.json
- * 5. Trigger Locus payment if warranted and not simulated
- * 6. Return structured result
+ * 2. Fetch real weather data from Open-Meteo
+ * 3. Analyze with Venice AI (llama-3.3-70b) — model_used: "venice-llama-3.3-70b", simulated: false
+ * 4. If anomaly → send email alert via Resend
+ * 5. Append to session + persist to Cloudflare R2 (public, permanent)
+ * 6. Return structured result with all proof artifacts
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { ARVI_NODES } from '@/data/nodes'
-import { analyzeNodeData } from '@/lib/bankr'
+import { analyzeNode as analyzeNodeData } from "@/lib/venice"
 import { triggerNodePayment } from '@/lib/locus'
 import { appendAgentLog } from '@/lib/agent-log'
 import { writeAlertLog } from '@/lib/alert-action'
