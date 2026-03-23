@@ -8,7 +8,7 @@
  */
 
 import { randomUUID } from 'crypto'
-import type { AnalysisResult } from './bankr'
+import type { AnalysisResult } from "./venice"
 
 export interface AlertEntry {
   id: string

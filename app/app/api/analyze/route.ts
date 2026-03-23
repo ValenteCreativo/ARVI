@@ -11,8 +11,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { ARVI_NODES } from '@/data/nodes'
-import { analyzeNode as analyzeNodeData } from "@/lib/venice"
-import { triggerNodePayment } from '@/lib/locus'
+import { analyzeNode as analyzeNodeData } from '@/lib/venice'
+import { triggerNodePayment } from '@/lib/payments'
 import { appendAgentLog } from '@/lib/agent-log'
 import { writeAlertLog } from '@/lib/alert-action'
 
