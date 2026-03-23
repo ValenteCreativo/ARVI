@@ -23,7 +23,11 @@ ARVI is a decentralized network of environmental sensors. Each sensor:
 
 ---
 
-## Prove It Works — One Real Action
+## The Loop Is Real — Here Is the Evidence
+
+This is not a UI demo. Every artifact below is publicly verifiable right now.
+
+### Try it yourself
 
 ```bash
 curl -X POST https://arvi-eight.vercel.app/api/analyze \
@@ -31,16 +35,47 @@ curl -X POST https://arvi-eight.vercel.app/api/analyze \
   -d '{"node_id": "node-01", "email_alert": "ops@yourorg.com"}'
 ```
 
-**What happens in this single call:**
+**What happens in that single call:**
 
-| Step | Action | Proof |
-|------|--------|-------|
-| 1 | Venice AI (llama-3.3-70b) analyzes sensor data | `model_used: "venice-llama-3.3-70b"`, `simulated: false` in response |
-| 2 | Anomaly detected → email alert sent to operator | Resend delivery log |
-| 3 | Alert logged as public verifiable artifact | [/alert-log.json](https://arvi-eight.vercel.app/alert-log.json) |
-| 4 | On-chain event emitted on Base Mainnet | [basescan tx](https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416) |
+| Step | What runs | Verifiable proof |
+|------|-----------|-----------------|
+| 1 | Open-Meteo API called with sensor coordinates | Real lat/lon in response payload |
+| 2 | Venice AI (llama-3.3-70b) analyzes data privately | `"model_used": "venice-llama-3.3-70b"`, `"simulated": false` in JSON response |
+| 3 | Anomaly confirmed → email alert dispatched | Resend delivery log; `"email_sent": true` in response |
+| 4 | Alert written to public persistent log on Cloudflare R2 | **[alert-log.json (live)](https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json)** |
+| 5 | On-chain event emitted via ARVIAgent on Base Mainnet | **[Verified tx on Basescan](https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416)** |
 
-**This loop runs every hour. Zero human trigger.**
+**This loop runs automatically every hour. Zero human trigger.**
+
+### Public proof artifacts (open right now)
+
+| Artifact | URL | What it proves |
+|----------|-----|---------------|
+| 🗂️ Live alert log | **[r2.dev/alert-log.json](https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json)** | Real Venice AI entries, `simulated: false`, timestamps, UUIDs |
+| 📋 Agent manifest | [arvi.skill.md](https://arvi-eight.vercel.app/arvi.skill.md) | Discoverable agent identity, x402 payment headers |
+| 🔗 Base contract | [ARVIAgent on Basescan](https://basescan.org/address/0x8118069E26656862F8a0693F007d5DD7664Acb00) | On-chain alert event, deploy + alert tx |
+| 🤖 ERC-8004 identity | [registration tx](https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a) | AgentId `33311`, on-chain agent registry |
+| 🔁 Mission board | [/api/missions](https://arvi-eight.vercel.app/api/missions) | Open missions posted by the agent |
+
+### Sample real response (node-01, March 23 2026)
+
+```json
+{
+  "success": true,
+  "analysis": {
+    "model_used": "venice-llama-3.3-70b",
+    "simulated": false,
+    "severity": "high",
+    "anomaly_detected": true,
+    "confidence": 0.87,
+    "alert_type": "ecosystem_stress",
+    "description": "High ecosystem stress detected. CO2 elevated, soil moisture below critical threshold.",
+    "recommended_action": "Deploy irrigation response and alert park rangers to inspect sector A."
+  },
+  "alert": { "id": "3f3e4034-e36a-477a-8c67-0211ed65fd14" },
+  "email_sent": true
+}
+```
 
 ---
 
@@ -123,16 +158,6 @@ ARVI uses ENS for human-readable node addressing across the sensor network. Each
 Registration: `arvi-agent.eth` (pending finalization)
 ENS resolution via viem in the dashboard node data layer.
 
-### ⚪ Status Network — Gasless Transactions
-**Track: Status Network**
-
-Sensor operators in low-income or remote regions cannot be expected to hold ETH for gas. Status Network enables gasless transactions so anyone can participate as a node operator regardless of technical or financial barriers.
-
-### 🟠 Markee — Access Control
-**Track: Markee**
-
-Premium environmental data streams (enterprise, research, ESG auditors) are access-controlled via Markee — protecting sensor operator IP while enabling monetization.
-
 ---
 
 ## Why We Cut These
@@ -151,10 +176,12 @@ Premium environmental data streams (enterprise, research, ESG auditors) are acce
 |----------|------|
 | 🌐 Live app | https://arvi-eight.vercel.app |
 | 📋 Agent manifest | https://arvi-eight.vercel.app/arvi.skill.md |
-| 📊 Alert log (public) | https://arvi-eight.vercel.app/alert-log.json |
+| 🗂️ Alert log (persistent, R2) | **https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json** |
+| 📊 Alert log (app route) | https://arvi-eight.vercel.app/alert-log.json |
 | 🔍 Contract on Base | https://basescan.org/address/0x8118069E26656862F8a0693F007d5DD7664Acb00 |
 | ⚡ Verified alert tx | https://basescan.org/tx/0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416 |
 | 🤖 ERC-8004 identity | https://basescan.org/tx/0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a |
+| 🔁 Mission board | https://arvi-eight.vercel.app/api/missions |
 
 ---
 
