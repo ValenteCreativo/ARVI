@@ -979,15 +979,6 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
 
   const STREAMS = [
     {
-      id: 'sensor',
-      sym: '○',
-      label: 'Buy a Sensor — Earn Passively',
-      tag: 'Node Operator',
-      headline: 'Deploy a node, earn USDC monthly for your data',
-      detail: 'Anyone can buy a sensor, deploy it in a park or forest, and earn passive income. The ARVI agent auto-pays operators based on data quality and uptime — directly on Base. No technical background needed. Your sensor becomes infrastructure.',
-      color: '#7d6b2e',
-    },
-    {
       id: 'data',
       sym: '◈',
       label: 'Agent Inference as a Service',
@@ -1107,55 +1098,8 @@ function EconomicsPlane({ darkMode }: { darkMode?: boolean } = {}) {
             </AnimatePresence>
           </div>
 
-          {/* RIGHT: Two bounty boards */}
-          <div className="flex flex-col gap-4">
-
-            {/* Agent task board */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#5e72e4' }}>⬡ Agent Task Board</p>
-                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#5e72e4', borderColor: '#5e72e440', background: darkMode ? 'rgba(94,114,228,0.08)' : '#F0F1FF' }}>For agents</span>
-              </div>
-              {AGENT_TASKS.map((t, i) => (
-                <div key={i} className="rounded-xl border px-4 py-2.5 mb-2 flex items-center justify-between"
-                  style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm" style={{ color: '#5e72e4' }}>{t.sym}</span>
-                    <p className="font-mono text-xs" style={{ color: darkMode ? 'rgba(255,255,255,0.75)' : '#111' }}>{t.task}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0 ml-2">
-                    <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
-                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full border" style={{ color: t.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: t.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: t.status === 'OPEN' ? (darkMode ? 'rgba(46,125,107,0.10)' : '#EAF4F1') : 'transparent' }}>{t.status}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Human field board */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-mono text-xs tracking-widest uppercase font-semibold" style={{ color: '#2E7D6B' }}>○ Field Bounty Board</p>
-                <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border" style={{ color: '#2E7D6B', borderColor: '#2E7D6B40', background: darkMode ? 'rgba(46,125,107,0.08)' : '#EAF4F1' }}>For humans</span>
-              </div>
-              {HUMAN_TASKS.map((t, i) => (
-                <div key={i} className="rounded-xl border px-4 py-3 mb-2"
-                  style={{ background: darkMode ? 'rgba(255,255,255,0.03)' : 'white', borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#E5E5E5' }}>
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">{t.sym}</span>
-                      <p className="font-mono text-xs font-semibold" style={{ color: darkMode ? 'rgba(255,255,255,0.85)' : '#111' }}>{t.task}</p>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="font-mono text-xs font-bold" style={{ color: '#2E7D6B' }}>{t.bounty}</span>
-                      <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full border" style={{ color: t.status === 'OPEN' ? '#2E7D6B' : '#888', borderColor: t.status === 'OPEN' ? '#2E7D6B40' : '#DADADA', background: t.status === 'OPEN' ? (darkMode ? 'rgba(46,125,107,0.10)' : '#EAF4F1') : 'transparent' }}>{t.status}</span>
-                    </div>
-                  </div>
-                  <p className="font-mono text-[10px] leading-snug" style={{ color: darkMode ? 'rgba(255,255,255,0.40)' : 'rgba(17,17,17,0.55)' }}>{t.detail}</p>
-                </div>
-              ))}
-            </div>
-
-          </div>
+          {/* RIGHT: empty — single column layout on business model */}
+          <div />
         </div>
 
       </div>
@@ -1191,7 +1135,7 @@ function EnterPlane({ active, darkMode }: { active: boolean; darkMode?: boolean 
           </motion.h2>
           <motion.h2 className="font-serif leading-tight" style={{ fontSize: 'clamp(30px, 3.8vw, 52px)', color: '#2E7D6B' }}
             initial={{ opacity: 0 }} animate={{ opacity: active ? 1 : 0 }} transition={{ delay: 0.8, duration: 0.7 }}>
-            It posts missions. Agents apply. The forest gets protected.
+            It&apos;s an agentic economy — environmental intelligence for prevention and resilience.
           </motion.h2>
           <motion.div className="w-px h-12 bg-[#DADADA] mt-8"
             initial={{ scaleY: 0 }} animate={{ scaleY: active ? 1 : 0 }}
