@@ -60,7 +60,49 @@ export async function POST(req: NextRequest) {
       analysis,
     })
 
-    // 5. If payment warranted → trigger Locus
+    // 5. Send email alert if anomaly detected and email provided
+    let email_sent = false
+    const alertEmail = email_alert || process.env.ALERT_EMAIL
+    if (alertEmail && (analysis.severity === 'critical' || analysis.severity === 'high') && analysis.anomaly_detected) {
+      try {
+        const resendKey = process.env.RESEND_API_KEY
+        if (resendKey) {
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${resendKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: 'ARVI Agent <alerts@arvi.earth>',
+              to: [alertEmail],
+              subject: `🌿 ARVI Alert [${analysis.severity.toUpperCase()}] — ${node.location}`,
+              html: `
+                <h2>⚠️ ARVI Environmental Alert</h2>
+                <p><strong>Node:</strong> ${node.location} (${node.node_id})</p>
+                <p><strong>Severity:</strong> ${analysis.severity.toUpperCase()}</p>
+                <p><strong>Type:</strong> ${analysis.alert_type}</p>
+                <p><strong>Description:</strong> ${analysis.description}</p>
+                <p><strong>Recommended Action:</strong> ${analysis.recommended_action}</p>
+                <p><strong>Confidence:</strong> ${(analysis.confidence * 100).toFixed(0)}%</p>
+                <p><strong>Model:</strong> ${analysis.model_used}</p>
+                <p><strong>Alert ID:</strong> ${alertEntry.id}</p>
+                <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                <hr/>
+                <p><small>Verifiable at: <a href="https://arvi-eight.vercel.app/alert-log.json">arvi-eight.vercel.app/alert-log.json</a></small></p>
+                <p><small>Agent manifest: <a href="https://arvi-eight.vercel.app/arvi.skill.md">arvi.skill.md</a></small></p>
+              `,
+            }),
+          })
+          email_sent = true
+          console.log(`[ARVI] Email alert sent to ${alertEmail}`)
+        }
+      } catch (emailErr) {
+        console.warn('[ARVI] Email failed:', emailErr)
+      }
+    }
+
+    // 6. If payment warranted → trigger Locus
     let payment_result = null
     if (analysis.payment_warranted) {
       console.log(`[ARVI] Triggering Locus payment to ${node.operator_wallet}...`)
@@ -98,6 +140,7 @@ export async function POST(req: NextRequest) {
       analysis,
       payment: payment_result,
       alert: alertEntry,
+      email_sent,
       _service: {
         manifest: 'https://arvi-eight.vercel.app/arvi.skill.md',
         agent_wallet: '0xc193F0c7649444c96dE651Cbf4ddF771f3142450',
