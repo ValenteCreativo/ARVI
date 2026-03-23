@@ -77,7 +77,7 @@ Sensor operators earn variable passive income based on data quality, uptime, and
 
 ## The Research Behind It
 
-ARVI is not a hackathon idea. It is the fourth iteration of a Master's thesis in Strategic Business Administration — an experiment-based research arc that has been running since 2024.
+ARVI is not a hackathon idea. It is the fourth iteration of a Master's thesis in Strategic Business Administration — an experiment-based research arc that started in 2023 with documentary research on DePIN for environmental impact.
 
 | Version | Year | What was learned |
 |---------|------|-----------------|
