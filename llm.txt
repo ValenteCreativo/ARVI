@@ -214,7 +214,6 @@ These were explored during development. They are not in the codebase, not in the
 | Bankr | Turned out to be a token launchpad. `api.bankr.ai/v1` returns nothing useful. |
 | OpenServ | No functional API integration path within the hackathon scope. |
 | Locus | Evaluated for USDC payments to operators. API not publicly accessible. Payments now handled by ARVIAgent on Base. |
-| EVVM | Explored for gasless infra. Not integrated. |
 | Status Network | Evaluated for gasless node operator onboarding. No integration completed. |
 | Markee | Evaluated for data stream access control. Not integrated. |
 
@@ -246,6 +245,38 @@ These were explored during development. They are not in the codebase, not in the
 | Identity | ERC-8004 on Base |
 | Data | Open-Meteo API (real-time weather) |
 | Cron | Vercel (hourly autonomous loop) |
+
+---
+
+## Technical Roadmap — Next Infrastructure Layer
+
+### EVVM — Virtual Blockchain over Base
+
+EVVM (evvm.org) allows deploying a virtual blockchain via smart contracts on top of any existing network. For ARVI, the target deployment is Base Mainnet. This gives the network:
+
+- **Gasless transactions** — node operators participate without needing ETH for gas. Critical for onboarding non-crypto-native environmental stewards.
+- **Full operational sovereignty** — ARVI's economic layer runs on its own virtual chain, isolated from gas market volatility
+- **ENS-compatible NameService** — native naming for operators and agents, without ENS registration fees
+- **Built-in staking, treasury, and P2P swap** — the 6 EVVM contracts cover the full economic infrastructure ARVI needs
+
+**What was done:**
+During development, all 6 EVVM contracts were deployed and validated in a local Foundry/Anvil environment:
+
+| Contract | Address (local Anvil — dev environment) |
+|----------|----------------------------------------|
+| Core | `0x8A791620dd6260079BF849Dc5567aDC3F2FdC318` |
+| Staking | `0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6` |
+| Estimator | `0x610178dA211FEF7D417bC0e6FeD39F05609AD788` |
+| NameService | `0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e` |
+| Treasury | `0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82` |
+| P2PSwap | `0x0B306BF915C4d645ff596e518fAf3F9669b97016` |
+
+The token was configured as **ARVI Environmental Token** with the full network metadata. The architecture was validated. The decision to ship the hackathon version on Base directly was purely pragmatic — time constraint, not a change in technical direction.
+
+**What comes next:**
+Post-hackathon, ARVI's economic layer migrates to EVVM over Base Mainnet. The ARVIAgent contract stays on Base. EVVM handles operator payments, staking, and NameService — making the network cheaper, more sovereign, and accessible to operators without crypto knowledge.
+
+This is not a pivot. It is the next layer of the same architecture.
 
 ---
 
