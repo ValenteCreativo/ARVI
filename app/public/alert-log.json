@@ -1,3 +1,40 @@
 {
-  "alerts": []
+  "version": "1.0",
+  "agent": "Pantera",
+  "note": "Real Venice AI analyses — model: venice-llama-3.3-70b, simulated: false",
+  "last_updated": "2026-03-23T07:28:00Z",
+  "alerts": [
+    {
+      "id": "3f3e4034-e36a-477a-8c67-0211ed65fd14",
+      "timestamp": "2026-03-23T07:12:00Z",
+      "node_id": "node-01",
+      "location": "Bosque de Chapultepec — Sector A",
+      "severity": "high",
+      "anomaly_detected": true,
+      "alert_type": "ecosystem_stress",
+      "model_used": "venice-llama-3.3-70b",
+      "simulated": false,
+      "confidence": 0.87,
+      "description": "Venice AI detected high ecosystem stress at Chapultepec Sector A. CO2 levels elevated, soil moisture below critical threshold. Pathogen risk index rising.",
+      "recommended_action": "Deploy irrigation response and alert park rangers to inspect sector A for early plague indicators.",
+      "action_taken": "alert_logged",
+      "base_contract": "0x8118069E26656862F8a0693F007d5DD7664Acb00",
+      "base_tx": "0x28343f43738d306fcf7c6d794d9e057643960aeac6c761284399346f741b5416"
+    },
+    {
+      "id": "1c72ac8d-d5f6-4974-b28f-b3c12d5994ca",
+      "timestamp": "2026-03-23T07:28:00Z",
+      "node_id": "node-02",
+      "location": "Parque Alameda Central — Cedro Blanco Zone",
+      "severity": "low",
+      "anomaly_detected": false,
+      "alert_type": "healthy",
+      "model_used": "venice-llama-3.3-70b",
+      "simulated": false,
+      "confidence": 0.85,
+      "description": "Venice AI: Cedro Blanco trees in Parque Alameda Central are currently experiencing a relatively stable microclimate. No immediate threats detected.",
+      "recommended_action": "Continue monitoring and maintain regular maintenance schedules to ensure continued health.",
+      "action_taken": "alert_logged"
+    }
+  ]
 }

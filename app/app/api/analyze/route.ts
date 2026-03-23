@@ -86,32 +86,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 6. Persist alert to R2 (public, permanent log)
+    // 6. Append to session alert log
     let payment_result = null
     try {
-      const R2_API = `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_ACCOUNT_ID}/r2/buckets/dumbleclaw-assets/objects/arvi/alert-log.json`
-      const R2_PUBLIC = 'https://pub-79dff3b50b29432ba6d3f85b0af33331.r2.dev/arvi/alert-log.json'
-      const cfToken = process.env.CF_API_TOKEN
-      if (cfToken && process.env.CF_ACCOUNT_ID) {
-        // Read current log
-        let log: { version: string; alerts: unknown[] } = { version: '1.0', alerts: [] }
-        try {
-          const existing = await fetch(R2_PUBLIC)
-          if (existing.ok) log = await existing.json()
-        } catch { /* start fresh */ }
-        // Append new entry
-        log.alerts = [alertEntry, ...(log.alerts || [])].slice(0, 50)
-        // Write back
-        await fetch(R2_API, {
-          method: 'PUT',
-          headers: { 'Authorization': `Bearer ${cfToken}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...log, last_updated: new Date().toISOString() }),
-        })
-        console.log('[ARVI] Alert persisted to R2')
-      }
-    } catch (r2Err) {
-      console.warn('[ARVI] R2 write failed:', r2Err)
-    }
+      const { appendSessionAlert } = await import('@/lib/alertSession')
+      appendSessionAlert(alertEntry)
+    } catch { /* non-critical */ }
 
     const responseHeaders = {
       'X-SERVICE': 'ARVI Environmental Intelligence',
