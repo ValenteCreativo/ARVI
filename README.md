@@ -27,7 +27,15 @@ ARVI is a decentralized network of environmental sensors. Each sensor:
 
 This is not a UI demo. Every artifact below is publicly verifiable right now.
 
-### Try it yourself
+### Run the full trace — one command
+
+```bash
+curl https://arvi-eight.vercel.app/api/demo | jq .
+```
+
+That's it. No body. No auth. GET request. The response is the entire chain: real input → real inference → real action → real proof, with timestamps on every step.
+
+### Or trigger a specific analysis
 
 ```bash
 curl -X POST https://arvi-eight.vercel.app/api/analyze \
