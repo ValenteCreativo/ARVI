@@ -112,14 +112,26 @@ Impact projects often claim environmental outcomes that are impossible to verify
 ARVI provides the infrastructure to change that: continuous, sensor-backed, AI-analyzed environmental data. Any Octant-funded reforestation or wetland project can deploy an ARVI sensor and get objective, verifiable impact scores — not self-reported claims.
 
 ### ENS — Agent Identity Infrastructure
-ENS is not used so ARVI can have a pretty name. It's used as identity infrastructure for the agents and node operators that interact with the network.
 
-Node operators register .eth names. Agents query environmental intelligence using .eth identifiers instead of raw wallet addresses. This enables:
-- Operator identity: `chapultepec-a.arvi.eth` → consistent across deployments, human-verifiable
-- Agent-to-agent lookup: any agent that wants to pay or coordinate with an ARVI node uses ENS resolution, not raw addresses
-- Payment routing: operator rewards on Base resolve to .eth names first, then to wallet
+ENS is the identity layer for node operators and agent participants in ARVI's network. The integration is technical, not cosmetic.
 
-This is infrastructure for the multi-agent economy ARVI is building — not cosmetic branding.
+**Live ENS resolution endpoint:**
+```bash
+curl https://arvi-eight.vercel.app/api/ens?name=vitalik.eth
+```
+
+Returns: `{ resolved: true, address: "0xd8dA...", source: "ensdata.net" }`
+
+**How ARVI uses ENS:**
+1. Every sensor node has an ENS identity in the node registry (e.g., `n1.arvi.eth`, `n2.arvi.eth`)
+2. When `/api/analyze` runs, it resolves the operator's .eth name before routing the alert
+3. The `ens_resolved` field appears in every analysis response — name + resolved address
+4. Operator payments on Base route to the resolved address, not to a hardcoded wallet
+
+**Why this matters for the track:**
+Node operators are not crypto-native. Asking them to manage raw wallet addresses creates friction. ENS lets them register a human-readable identity once and receive sensor rewards, alerts, and mission assignments by .eth name — across any chain, any interface, any agent.
+
+This is ENS as payment infrastructure, not as a naming novelty.
 
 ### Synthesis Open Track
 ARVI addresses the gap between environmental urgency and agentic infrastructure. Submitted to the Synthesis Open Track as a demonstration of what autonomous agents can do for planetary resilience.

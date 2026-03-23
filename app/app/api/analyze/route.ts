@@ -44,7 +44,23 @@ export async function POST(req: NextRequest) {
       analysis,
     })
 
-    // 5. Send email alert if anomaly detected and email provided
+    // 5. Resolve ENS name if operator uses .eth identity
+    let ens_resolved: { name: string; address: string | null } | null = null
+    const operatorEns = node.ens
+    if (operatorEns && operatorEns.includes('.eth')) {
+      try {
+        const ensRes = await fetch(`https://arvi-eight.vercel.app/api/ens?name=${operatorEns}`)
+        if (ensRes.ok) {
+          const ensData = await ensRes.json()
+          if (ensData.resolved) {
+            ens_resolved = { name: operatorEns, address: ensData.address }
+            console.log(`[ARVI] ENS resolved: ${operatorEns} → ${ensData.address}`)
+          }
+        }
+      } catch { /* non-critical */ }
+    }
+
+    // 6. Send email alert if anomaly detected and email provided
     let email_sent = false
     const alertEmail = email_alert || process.env.ALERT_EMAIL
     if (alertEmail && (analysis.severity === 'critical' || analysis.severity === 'high' || analysis.severity === 'medium') && analysis.anomaly_detected) {
@@ -117,6 +133,7 @@ export async function POST(req: NextRequest) {
       payment: payment_result,
       alert: alertEntry,
       email_sent,
+      ens_resolved,
       _service: {
         manifest: 'https://arvi-eight.vercel.app/arvi.skill.md',
         agent_wallet: '0xc193F0c7649444c96dE651Cbf4ddF771f3142450',
