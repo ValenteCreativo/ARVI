@@ -15,6 +15,7 @@ import { analyzeNode as analyzeNodeData } from '@/lib/venice'
 import { triggerNodePayment } from '@/lib/payments'
 import { appendAgentLog } from '@/lib/agent-log'
 import { writeAlertLog } from '@/lib/alert-action'
+import { mintCycleHypercert } from '@/lib/hypercerts'
 
 export async function POST(req: NextRequest) {
   try {
@@ -112,6 +113,29 @@ export async function POST(req: NextRequest) {
       persistAlertToR2(allAlerts).catch(e => console.warn('[ARVI] R2 persist failed:', e))
     } catch { /* non-critical */ }
 
+    // 7. Mint Hypercert — only when anomaly_detected: true
+    let hypercert_result = null
+    try {
+      hypercert_result = await mintCycleHypercert({
+        nodeId: node.node_id,
+        location: node.location,
+        timestamp: new Date().toISOString(),
+        severity: analysis.severity as 'low' | 'medium' | 'high' | 'critical',
+        anomalyDetected: analysis.anomaly_detected,
+        riskCategory: analysis.alert_type ?? 'unknown',
+        summary: analysis.description ?? '',
+        r2LogUrl: 'https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json',
+        onchainTxHash: alertEntry?.tx_hash,
+      })
+      if (hypercert_result?.success) {
+        console.log(`[ARVI Hypercert] Minted — tx: ${hypercert_result.txHash}`)
+      } else if (hypercert_result?.skipped) {
+        console.log(`[ARVI Hypercert] Skipped — ${hypercert_result.reason}`)
+      }
+    } catch (hErr) {
+      console.warn('[ARVI Hypercert] Non-critical error:', hErr)
+    }
+
     const responseHeaders = {
       'X-SERVICE': 'ARVI Environmental Intelligence',
       'X-AGENT-MANIFEST': 'https://arvi-eight.vercel.app/arvi.skill.md',
@@ -134,6 +158,7 @@ export async function POST(req: NextRequest) {
       alert: alertEntry,
       email_sent,
       ens_resolved,
+      hypercert: hypercert_result,
       _service: {
         manifest: 'https://arvi-eight.vercel.app/arvi.skill.md',
         agent_wallet: '0xc193F0c7649444c96dE651Cbf4ddF771f3142450',
