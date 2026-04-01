@@ -1,110 +1,59 @@
 {
-  "name": "Pantera",
-  "version": "1.0.0",
-  "project": "ARVI",
-  "project_full_name": "Agentic Regeneration Via Intelligence",
-  "description": "ARVI is an autonomous environmental intelligence network that monitors urban forests through decentralized sensor nodes, detects ecological threats via LLM analysis, and executes on-chain responses without human intermediaries.",
-  "author": "Pantera Labs",
-  "hackathon": "Synthesis Hackathon 2026",
-
-  "identity": {
-    "participant_id": "d88080a57309466c96340338faed7862",
-    "team_id": "b7db970ceb9f4c1c8db673c13d64531c",
-    "erc8004_registration_tx": "0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a",
-    "erc8004_chain": "Base Mainnet",
-    "erc8004_chain_id": 8453
+  "schema_version": "1.0",
+  "agent_name": "ARVI",
+  "agent_full_name": "Agentic Regeneration Via Intelligence",
+  "operator_wallet": "0x7B0bdef5d73f68972EA52499f48d3Eef36CDb9aD",
+  "erc8004_identity": {
+    "agent_id": "33311",
+    "registry": "eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+    "registration_tx": "0xb8623d60d0af20db5131b47365fc0e81044073bdae5bc29999016e016d1cf43a",
+    "chain": "Base Mainnet",
+    "contract": "0x8118069E26656862F8a0693F007d5DD7664Acb00"
   },
-
-  "infrastructure": {
-    "execution_layer": "EVVM — sovereign virtual blockchain",
-    "evvm_chain_id": 31337,
-    "evvm_contracts": {
-      "core": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-      "staking": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "estimator": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "name_service": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-      "treasury": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-      "p2p_swap": "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
-    },
-    "token": {
-      "name": "ARVI Environmental Token",
-      "symbol": "ARVI"
-    },
-    "payment_layer": "Locus — USDC on Base",
-    "identity_layer": "ENS — human-readable node/agent names"
+  "supported_tools": [
+    "open-meteo-api",
+    "venice-ai-inference",
+    "cloudflare-r2",
+    "resend-email",
+    "base-blockchain",
+    "ens-resolution",
+    "vercel-cron"
+  ],
+  "supported_tech_stacks": ["next.js", "typescript", "solidity", "tailwind"],
+  "compute_constraints": {
+    "execution_interval": "1 hour (Vercel cron)",
+    "max_tokens_per_call": 2048,
+    "inference_provider": "venice.ai",
+    "model": "llama-3.3-70b",
+    "zero_retention": true
   },
-
-  "capabilities": [
-    "environmental_data_ingestion",
-    "llm_anomaly_detection",
+  "supported_task_categories": [
+    "environmental_monitoring",
+    "anomaly_detection",
+    "impact_attestation",
     "autonomous_alert_generation",
-    "onchain_action_execution",
-    "node_operator_payment",
-    "public_goods_impact_reporting"
+    "on_chain_event_logging"
   ],
-
-  "decision_loop": {
-    "type": "sense → analyze → decide → act → verify → reward",
-    "trigger": "environmental_data_from_node",
-    "analysis_model": "Bankr LLM Gateway",
-    "execution": "EVVM action queue → Fisher execution → Base settlement",
-    "verification": "agent_log.json + on-chain tx hash",
-    "reward": "Locus USDC payment to node operator"
+  "decision_loop": ["discover", "plan", "execute", "verify", "log"],
+  "guardrails": [
+    "email alerts only on medium|high|critical severity",
+    "anomaly_detected: true required before on-chain action",
+    "venice inference must return non-null before logging"
+  ],
+  "public_endpoints": {
+    "demo": "https://arvi-eight.vercel.app/api/demo",
+    "analyze": "https://arvi-eight.vercel.app/api/analyze",
+    "missions": "https://arvi-eight.vercel.app/api/missions",
+    "alert_log": "https://pub-d5530f4a34f949ba8f6e52c403aa3a8c.r2.dev/alert-log.json",
+    "skill_manifest": "https://arvi-eight.vercel.app/arvi.skill.md",
+    "ens_resolution": "https://arvi-eight.vercel.app/api/ens"
   },
-
-  "node_network": [
-    {
-      "node_id": "node-01",
-      "ens": "n1.arvi.eth",
-      "location_zone": "Bosque de Chapultepec, CDMX",
-      "species": "Ahuehuete",
-      "status": "ALERT — probable plague detected"
-    },
-    {
-      "node_id": "node-02",
-      "ens": "n2.arvi.eth",
-      "location_zone": "Parque Alameda Central, CDMX",
-      "status": "HEALTHY"
-    },
-    {
-      "node_id": "node-03",
-      "ens": "n3.arvi.eth",
-      "location_zone": "Plaza Tres Culturas, Tlatelolco",
-      "status": "MONITORING"
-    }
-  ],
-
-  "sponsors_integrated": [
-    {
-      "name": "Protocol Labs",
-      "role": "ERC-8004 identity + agent manifest + execution log",
-      "status": "active"
-    },
-    {
-      "name": "Bankr",
-      "role": "LLM Gateway for environmental anomaly analysis",
-      "status": "active"
-    },
-    {
-      "name": "Locus",
-      "role": "Autonomous USDC payments to node operators",
-      "status": "active"
-    },
-    {
-      "name": "Octant",
-      "role": "Public goods impact data collection and analysis",
-      "status": "active"
-    },
-    {
-      "name": "ENS",
-      "role": "Human-readable identities for nodes and agents",
-      "status": "active"
-    }
-  ],
-
-  "autonomy_level": "high",
-  "human_in_loop": false,
-  "log_file": "agent_log.json",
-  "created_at": "2026-03-21T06:00:00Z",
-  "last_updated": "2026-03-21T07:04:00Z"
+  "pl_genesis_tracks": [
+    "EF — Agent Only: Let the agent cook",
+    "EF — Agents With Receipts 8004",
+    "Protocol Labs — Crypto (DePIN/DeSci)",
+    "Protocol Labs — AI & Robotics",
+    "Hypercerts",
+    "Funding the Commons"
+  ]
 }
